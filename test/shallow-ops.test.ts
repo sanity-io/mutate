@@ -1,5 +1,4 @@
-import {expect, test} from 'vitest'
-import {expectType} from 'ts-expect'
+import {expectTypeOf, expect, test} from 'vitest'
 import {
   assign,
   dec,
@@ -42,12 +41,12 @@ test('Apply operation on value', () => {
 })
 
 test('typings', () => {
-  expectType<'b'>(applyOp(set('b' as const), 'a'))
-  expectType<{foo: 'bar'}>(applyOp(set({foo: 'bar'} as const), ['foo']))
-  expectType<readonly ['foo']>(applyOp(setIfMissing('foo'), ['foo']))
+  expectTypeOf(applyOp(set('b' as const), 'a')).toEqualTypeOf<'b'>()
+  expectTypeOf(applyOp(set({foo: 'bar'} as const), ['foo']))
+  expectTypeOf<readonly ['foo']>(applyOp(setIfMissing('foo'), ['foo']))
 
   try {
-    expectType<undefined>(applyOp(unset(), 'old value'))
+    expectTypeOf<undefined>(applyOp(unset(), 'old value'))
   } catch {
     // do nothing
   }
@@ -61,30 +60,30 @@ test('typings', () => {
   // @ts-expect-error can't decrement a string
   applyOp(dec(1), '10')
 
-  expectType<(string | number)[]>(
+  expectTypeOf<(string | number)[]>(
     applyOp(insert([1, 2, 3], 'after', 0), ['foo', 'bar']),
   )
 
-  expectType<number[]>(applyOp(insert([1, 2, 3], 'after', 0), [2]))
+  expectTypeOf<number[]>(applyOp(insert([1, 2, 3], 'after', 0), [2]))
 
   // @ts-expect-error inserting numbers into array of strings
   applyOp<number[]>(insert([1, 2, 3], 'after', 0), ['Not a number'])
 
   // Ok, since the array is declared as (number|string)[]
-  expectType<(number | string)[]>(
+  expectTypeOf<(number | string)[]>(
     applyOp(insert([1, 2, 3], 'after', 0), ['Not a number'] as (
       | number
       | string
     )[]),
   )
 
-  expectType<{a: string; b: number}>(
+  expectTypeOf<{a: string; b: number}>(
     applyOp(assign({a: 'ok'}), {
       b: 22,
     }),
   )
 
-  expectType<{a: string; b: string}>(
+  expectTypeOf<{a: string; b: string}>(
     // @ts-expect-error should error since we're removing "b" from the object
     applyOp(unassign(['b']), {
       a: 'ok',
