@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.settings",
+  "include": [
+    "**.ts",
+    "./src/**/**.ts",
+    "./test/**/*.ts",
+    "./examples/**/*.ts",
+    "./experimental/**/*.ts"
+  ],
+  "compilerOptions": {
+    "rootDir": ".",
+    "noEmit": true
+  }
+}
