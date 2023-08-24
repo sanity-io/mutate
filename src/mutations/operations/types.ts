@@ -68,7 +68,7 @@ export type AssignOp<T extends object = object> = {
   value: T
 }
 
-export type UnassignOp<K extends readonly string[] = string[]> = {
+export type UnassignOp<K extends readonly string[] = readonly string[]> = {
   type: 'unassign'
   keys: K
 }

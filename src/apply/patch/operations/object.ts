@@ -2,7 +2,7 @@ import {isEmpty} from '../../utils/isEmpty'
 import {omit} from '../../utils/omit'
 import type {AssignOp, UnassignOp} from '../../../mutations/operations/types'
 
-export function unassign<T extends object, K extends (keyof T)[]>(
+export function unassign<T extends object, K extends string[]>(
   op: UnassignOp<K>,
   value: T,
 ) {

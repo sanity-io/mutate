@@ -23,7 +23,7 @@ export const assign = <const T extends object>(value: T): AssignOp<T> => ({
   value,
 })
 
-export const unassign = <const K extends readonly (keyof any)[]>(
+export const unassign = <const K extends readonly string[]>(
   keys: K,
 ): UnassignOp<K> => ({
   type: 'unassign',
