@@ -41,7 +41,7 @@ export type Mutation<Doc extends SanityDocument = any> =
   | CreateIfNotExistsMutation<Doc>
   | CreateOrReplaceMutation<Doc>
   | DeleteMutation
-  | PatchMutation<NodePatch[]>
+  | PatchMutation
 
 export type NodePatch<
   P extends Path | Readonly<Path> = Path,

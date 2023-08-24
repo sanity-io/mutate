@@ -67,13 +67,27 @@ function patchToSanity(patch: NodePatch) {
     }
   }
   if (op.type === 'assign') {
-    throw new Error('TODO')
+    return {
+      set: Object.fromEntries(
+        Object.keys(op.value).map(key => [
+          stringifyPath(path.concat(key)),
+          op.value[key as keyof typeof op.value],
+        ]),
+      ),
+    }
   }
   if (op.type === 'unassign') {
-    throw new Error('TODO')
+    return {
+      unset: op.keys.map(key => stringifyPath(path.concat(key))),
+    }
   }
   if (op.type === 'replace') {
-    throw new Error('TODO')
+    return {
+      insert: {
+        replace: stringifyPath(path.concat(op.referenceItem)),
+        items: op.items,
+      },
+    }
   }
   //@ts-expect-error all cases should be covered
   throw new Error(`Unknown operation type ${op.type}`)

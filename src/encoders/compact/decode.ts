@@ -89,12 +89,7 @@ function decodePatchMutation(mutation: CompactPatchMutation): PatchMutation {
     return {
       type: 'patch',
       id,
-      patches: [
-        {
-          path,
-          op: {type: 'set', value},
-        },
-      ],
+      patches: [{path, op: {type: 'set', value}}],
       ...createOpts(revisionId),
     }
   }
@@ -103,12 +98,7 @@ function decodePatchMutation(mutation: CompactPatchMutation): PatchMutation {
     return {
       type: 'patch',
       id,
-      patches: [
-        {
-          path,
-          op: {type: 'setIfMissing', value},
-        },
-      ],
+      patches: [{path, op: {type: 'setIfMissing', value}}],
       ...createOpts(revisionId),
     }
   }
@@ -117,23 +107,46 @@ function decodePatchMutation(mutation: CompactPatchMutation): PatchMutation {
     return {
       type: 'patch',
       id,
-      patches: [
-        {
-          path,
-          op: {type: 'diffMatchPatch', value},
-        },
-      ],
+      patches: [{path, op: {type: 'diffMatchPatch', value}}],
       ...createOpts(revisionId),
     }
   }
   if (type === 'truncate') {
-    throw new Error('TODO')
+    const [, , , , [startIndex, endIndex]] = mutation
+
+    return {
+      type: 'patch',
+      id,
+      patches: [{path, op: {type: 'truncate', startIndex, endIndex}}],
+      ...createOpts(revisionId),
+    }
   }
   if (type === 'assign') {
-    throw new Error('TODO')
+    const [, , , , [value]] = mutation
+    return {
+      type: 'patch',
+      id,
+      patches: [{path, op: {type: 'assign', value}}],
+      ...createOpts(revisionId),
+    }
   }
   if (type === 'replace') {
-    throw new Error('TODO')
+    const [, , , , [ref, items]] = mutation
+    return {
+      type: 'patch',
+      id,
+      patches: [{path, op: {type: 'replace', items, referenceItem: ref}}],
+      ...createOpts(revisionId),
+    }
+  }
+  if (type === 'upsert') {
+    const [, , , , [position, referenceItem, items]] = mutation
+    return {
+      type: 'patch',
+      id,
+      patches: [{path, op: {type: 'upsert', items, referenceItem, position}}],
+      ...createOpts(revisionId),
+    }
   }
   throw new Error(`Invalid mutation type: ${type}`)
 }

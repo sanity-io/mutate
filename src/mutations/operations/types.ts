@@ -63,12 +63,12 @@ export type UpsertOp<
   position: Pos
 }
 
-export type AssignOp<T extends object> = {
+export type AssignOp<T extends object = object> = {
   type: 'assign'
   value: T
 }
 
-export type UnassignOp<K extends readonly (keyof any)[]> = {
+export type UnassignOp<K extends readonly string[] = string[]> = {
   type: 'unassign'
   keys: K
 }
@@ -91,6 +91,6 @@ export type ArrayOp =
   | UpsertOp<any, any, any>
   | ReplaceOp<any, any>
   | TruncateOp
-export type ObjectOp = AssignOp<any> | UnassignOp<any>
+export type ObjectOp = AssignOp | UnassignOp
 
 export type Operation = PrimitiveOp | ArrayOp | ObjectOp

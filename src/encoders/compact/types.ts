@@ -41,7 +41,7 @@ export type TruncateMutation = [
   'truncate',
   Id,
   CompactPath,
-  [number, number | undefined],
+  [startIndex: number, endIndex: number | undefined],
   RevisionLock?,
 ]
 

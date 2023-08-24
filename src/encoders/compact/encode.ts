@@ -35,7 +35,7 @@ function encodeMutation<Doc extends SanityDocument>(
   throw new Error(`Invalid mutation type: ${mutation.type}`)
 }
 
-function encodePatchMutation<T extends SanityDocument>(
+function encodePatchMutation(
   id: string,
   patch: NodePatch<any>,
 ): CompactPatchMutation {
