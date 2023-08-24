@@ -9,8 +9,6 @@ const f = applyOp(dec(1), 4)
 // patch the field 'counter' by incrementing
 const p = at(['counter'], inc(1))
 
-// patch the field 'counter' by incrementing
-
 const incByOne = inc(1)
 
 const mutations: Mutation[] = [
