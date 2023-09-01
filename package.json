@@ -38,7 +38,7 @@
     "pkg:build": "pkg build --strict",
     "pkg:check": "pkg check --strict",
     "pkg:watch": "pkg watch --strict",
-    "type:check": "tsc --build",
+    "typecheck": "tsc --build",
     "prepublishOnly": "npm run build",
     "lint": "eslint . --ext .cjs,.js,.ts,.tsx",
     "test": "vitest run",
