@@ -106,7 +106,7 @@ at('people[_key=="xyz"].name', set('Bjørge'))
 
 - `assign(value: object)`: Do a shallow merge of the node with the given value. If the node is an object, the value will
   be merged into the object similar to `Object.assign(<currentValue>, value)`.
-- `unassign(keys: string[])`: Remove the given keys from the existing value.
+- `unassign(attributes: string[])`: Remove the given attributes from the existing value.
 
 #### Array operations
 
@@ -264,5 +264,13 @@ console.log(updated)
 */
 ```
 
+### Differences from Sanity API
+
+To better align with a strict type system, mutiny differs slightly from the Sanity API when applying patches. Although all the mutation types you can express with mutiny can also be expressed as Sanity API mutations, the inverse is not necessarily true; The Sanity API (e.g. a listener) may produce patches that can't be represented in mutiny without an extra conversion step that takes the current document into account. In addition, applying a patch in mutiny behaves differently from applying the same patch using the Sanity API on a few accounts:
+
+- `set` and`setIfMissing` does not create intermediate empty objects - Using the Sanity API, `set` and `setIfMissing` will create intermediate empty objects if any object along the given path doesn't already exist. In `mutiny`, these patches will only apply to already existing objects.
+- Limited json match support. Sanity mutations supports a powerful path selection syntax for targeting multiple document nodes at once with [json-match](https://www.sanity.io/docs/json-match). To keep things simple, a mutiny patch can only target a single document node.
+
 ## Todos
+
 - [ ] make `applyPatch` return metadata about the operations that got performed on which documents
