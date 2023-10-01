@@ -4,6 +4,10 @@ export function inc<O extends IncOp<number>, CurrentValue extends number>(
   op: O,
   currentValue: CurrentValue,
 ) {
+  if (typeof currentValue !== 'number') {
+    throw new TypeError('Cannot apply inc-patch on non-numeric value')
+  }
+
   return currentValue + op.amount
 }
 
@@ -11,5 +15,9 @@ export function dec<O extends DecOp<number>, CurrentValue extends number>(
   op: O,
   currentValue: CurrentValue,
 ) {
+  if (typeof currentValue !== 'number') {
+    throw new TypeError('Cannot apply inc-patch on non-numeric value')
+  }
+
   return currentValue - op.amount
 }

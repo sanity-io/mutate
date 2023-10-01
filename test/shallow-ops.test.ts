@@ -54,11 +54,11 @@ test('typings', () => {
   // @ts-expect-error can't pass string as argument to inc()
   applyOp(inc('10'), 10)
   // @ts-expect-error can't increment a string
-  applyOp(inc(1), '10')
+  expect(() => applyOp(inc(1), '10')).toThrow(TypeError)
   // @ts-expect-error can't pass string as argument to dec()
   applyOp(dec('10'), 10)
   // @ts-expect-error can't decrement a string
-  applyOp(dec(1), '10')
+  expect(() => applyOp(dec(1), '10')).toThrow(TypeError)
 
   expectTypeOf<(string | number)[]>(
     applyOp(insert([1, 2, 3], 'after', 0), ['foo', 'bar']),

@@ -90,7 +90,7 @@ function patchIn<Doc extends SanityDocumentBase>(
   }
   const current = collection[currentIdx]!
 
-  const next = applyPatchMutation(current, mutation)
+  const next = applyPatchMutation(mutation, current)
 
   return next === current
     ? collection

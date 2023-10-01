@@ -1,50 +1,40 @@
 import * as operations from './operations'
 import type {
-  AssignOp,
-  DecOp,
-  DiffMatchPatchOp,
-  IncOp,
-  InsertOp,
+  AnyOp,
+  ArrayOp,
+  NumberOp,
+  ObjectOp,
   Operation,
-  ReplaceOp,
-  SetIfMissingOp,
-  SetOp,
-  UnassignOp,
-  UnsetOp,
-  UpsertOp,
+  StringOp,
 } from '../../mutations/operations/types'
+import type {AnyArray} from '../../utils/typeUtils'
 
 import type {ApplyOp} from './typings/applyOp'
 
-export type SimpleObject = {
-  [K in string]: any
-}
-
-export type AnyOp = SetOp<any> | SetIfMissingOp<any> | UnsetOp
-export type NumberOps = IncOp<any> | DecOp<any>
-export type StringOps = DiffMatchPatchOp
-export type ObjectOps = AssignOp<SimpleObject> | UnassignOp<any>
-export type ArrayOps =
-  | InsertOp<any, any, any>
-  | UpsertOp<any, any, any>
-  | ReplaceOp<any, any>
-
-export type ValidArgForOp<O extends Operation> = O extends AnyOp
-  ? any
-  : O extends NumberOps
-  ? number
-  : O extends StringOps
-  ? string
-  : O extends ObjectOps
-  ? {[k in keyof any]: unknown}
-  : O extends ArrayOps
-  ? any[]
-  : never
-
+export function applyOp<const Op extends AnyOp, const CurrentValue>(
+  op: Op,
+  currentValue: CurrentValue,
+): ApplyOp<Op, CurrentValue>
 export function applyOp<
-  const Op extends Operation,
-  const CurrentValue extends ValidArgForOp<Op>,
->(op: Op, currentValue: CurrentValue): ApplyOp<Op, CurrentValue> {
+  const Op extends NumberOp,
+  const CurrentValue extends number,
+>(op: Op, currentValue: CurrentValue): ApplyOp<Op, CurrentValue>
+export function applyOp<
+  const Op extends StringOp,
+  const CurrentValue extends string,
+>(op: Op, currentValue: CurrentValue): ApplyOp<Op, CurrentValue>
+export function applyOp<
+  const Op extends ObjectOp,
+  const CurrentValue extends {[k in keyof any]: unknown},
+>(op: Op, currentValue: CurrentValue): ApplyOp<Op, CurrentValue>
+export function applyOp<
+  const Op extends ArrayOp,
+  const CurrentValue extends AnyArray,
+>(op: Op, currentValue: CurrentValue): ApplyOp<Op, CurrentValue>
+export function applyOp<const Op extends Operation, const CurrentValue>(
+  op: Op,
+  currentValue: CurrentValue,
+): ApplyOp<Op, CurrentValue> {
   if (!(op.type in operations)) {
     throw new Error(`Invalid operation type: "${op.type}"`)
   }

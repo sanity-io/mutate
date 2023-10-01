@@ -1,4 +1,5 @@
-import type {AnyArray, FindInArray} from './common'
+import type {AnyArray} from '../../utils/typeUtils'
+import type {FindInArray} from './common'
 import type {KeyedPathElement, Path, PathElement} from '../types'
 
 export type Get<

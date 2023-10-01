@@ -1,3 +1,4 @@
+import type {AnyArray} from '../../utils/typeUtils'
 import type {KeyedPathElement} from '../types'
 
 export type ByIndex<P extends number, T extends AnyArray> = T[P]
@@ -12,8 +13,6 @@ export type FindInArray<
   : P extends number
   ? ByIndex<P, T>
   : never
-
-export type AnyArray<T = any> = T[] | readonly T[]
 
 export type AnyEmptyArray = [] | readonly []
 

@@ -59,7 +59,9 @@ function patchToSanity(patch: NodePatch) {
   if (op.type === 'upsert') {
     // note: upsert currently not supported by sanity, so will always insert at reference position
     return {
-      unset: op.items.map(item => stringifyPath([...path, {_key: item._key}])),
+      unset: op.items.map(item =>
+        stringifyPath([...path, {_key: (item as any)._key}]),
+      ),
       insert: {
         [op.position]: stringifyPath([...path, op.referenceItem]),
         items: op.items,

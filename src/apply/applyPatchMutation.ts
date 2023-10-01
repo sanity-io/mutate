@@ -1,10 +1,19 @@
-import {applyPatches} from './patch/applyPatch'
+import {applyPatches} from './patch/applyNodePatch'
+import type {NormalizeReadOnlyArray} from '../utils/typeUtils'
+import type {ApplyPatches} from './patch/typings/applyNodePatch'
 import type {PatchMutation, SanityDocumentBase} from '../mutations/types'
 
-export function applyPatchMutation<
-  Doc extends SanityDocumentBase,
+export type ApplyPatchMutation<
   Mutation extends PatchMutation,
->(document: Doc, mutation: Mutation): Doc {
+  Doc extends SanityDocumentBase,
+> = Mutation extends PatchMutation<infer Patches>
+  ? ApplyPatches<NormalizeReadOnlyArray<Patches>, Doc>
+  : Doc
+
+export function applyPatchMutation<
+  const Mutation extends PatchMutation,
+  const Doc extends SanityDocumentBase,
+>(mutation: Mutation, document: Doc): ApplyPatchMutation<Mutation, Doc> {
   if (
     mutation.options?.ifRevision &&
     document._rev !== mutation.options.ifRevision
@@ -16,5 +25,5 @@ export function applyPatchMutation<
       `Document id mismatch. Refusing to apply mutation for document with id="${mutation.id}" on the given document with id="${document._id}"`,
     )
   }
-  return applyPatches(mutation.patches, document)
+  return applyPatches(mutation.patches, document) as any
 }

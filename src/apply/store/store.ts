@@ -2,8 +2,8 @@ import {ulid} from 'ulid'
 import {arrify} from '../../utils/arrify'
 import {applyInIndex} from '../applyInIndex'
 import {assignId} from './utils'
-import type {DocumentIndex, MergeObject} from '../../apply'
 import type {ToIdentified, ToStored} from '../applyInIndex'
+import type {DocumentIndex, Format} from '../../apply'
 import type {Mutation, SanityDocumentBase} from '../../mutations/types'
 
 export type RequiredSelect<T, K extends keyof T> = Omit<T, K> & {
@@ -29,7 +29,7 @@ export const createStore = <Doc extends SanityDocumentBase>(
 ) => {
   let version = 0
 
-  let index: DocumentIndex<MergeObject<ToStored<Doc & SanityDocumentBase>>> =
+  let index: DocumentIndex<Format<ToStored<Doc & SanityDocumentBase>>> =
     initialEntries && initialEntries?.length > 0
       ? Object.fromEntries(
           initialEntries.map(entry => {
@@ -47,9 +47,8 @@ export const createStore = <Doc extends SanityDocumentBase>(
     entries: () => Object.entries(index),
     get: <Id extends string>(
       id: Id,
-    ): MergeObject<
-      Omit<(typeof index)[keyof typeof index], '_id'> & {_id: Id}
-    > => index[id] as any,
+    ): Format<Omit<(typeof index)[keyof typeof index], '_id'> & {_id: Id}> =>
+      index[id] as any,
     apply: (mutations: Mutation[] | Mutation) => {
       const nextIndex = applyInIndex(index, arrify(mutations))
       if (nextIndex !== index) {

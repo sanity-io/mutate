@@ -1,4 +1,5 @@
 import {parse as parsePath} from '../../path/parse'
+import type {Index, KeyedPathElement} from '../../path'
 import type {
   CompactMutation,
   CompactPatchMutation,
@@ -6,6 +7,7 @@ import type {
   CreateMutation,
   CreateOrReplaceMutation,
   DeleteMutation,
+  ItemRef,
 } from './types'
 
 import type {
@@ -135,7 +137,9 @@ function decodePatchMutation(mutation: CompactPatchMutation): PatchMutation {
     return {
       type: 'patch',
       id,
-      patches: [{path, op: {type: 'replace', items, referenceItem: ref}}],
+      patches: [
+        {path, op: {type: 'replace', items, referenceItem: decodeItemRef(ref)}},
+      ],
       ...createOpts(revisionId),
     }
   }
@@ -144,11 +148,25 @@ function decodePatchMutation(mutation: CompactPatchMutation): PatchMutation {
     return {
       type: 'patch',
       id,
-      patches: [{path, op: {type: 'upsert', items, referenceItem, position}}],
+      patches: [
+        {
+          path,
+          op: {
+            type: 'upsert',
+            items,
+            referenceItem: decodeItemRef(referenceItem),
+            position,
+          },
+        },
+      ],
       ...createOpts(revisionId),
     }
   }
   throw new Error(`Invalid mutation type: ${type}`)
+}
+
+function decodeItemRef(ref: ItemRef): Index | KeyedPathElement {
+  return typeof ref === 'string' ? {_key: ref} : ref
 }
 
 function createOpts(revisionId: undefined | string) {

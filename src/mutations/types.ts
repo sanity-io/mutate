@@ -2,6 +2,12 @@ import {type Operation} from './operations/types'
 import type {Optional} from '../utils/typeUtils'
 import type {Path} from '../path'
 
+export type NodePatchList =
+  | [NodePatch, ...NodePatch[]]
+  | NodePatch[]
+  | readonly NodePatch[]
+  | readonly [NodePatch, ...NodePatch[]]
+
 export type SanityDocumentBase = {
   _id?: string
   _type: string
@@ -30,7 +36,7 @@ export type DeleteMutation = {
   id: string
 }
 
-export type PatchMutation<Patches extends NodePatch[] = NodePatch[]> = {
+export type PatchMutation<Patches extends NodePatchList = NodePatchList> = {
   type: 'patch'
   id: string
   patches: Patches
@@ -45,11 +51,11 @@ export type Mutation<Doc extends SanityDocumentBase = any> =
   | PatchMutation
 
 export type NodePatch<
-  P extends Path | Readonly<Path> = Path,
+  P extends Path = Path,
   O extends Operation = Operation,
 > = {
-  readonly path: P
-  readonly op: O
+  path: P
+  op: O
 }
 
 export type PatchOptions = {

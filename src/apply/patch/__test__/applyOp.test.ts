@@ -1,15 +1,15 @@
 import {describe, expect, test} from 'vitest'
 import {
   assign,
+  setIfMissing,
   dec,
   diffMatchPatch,
   inc,
   set,
-  setIfMissing,
   unassign,
   unset,
-} from '../../../../mutations/operations/creators'
-import {applyOp} from '../../applyOp'
+} from '../../../mutations/operations/creators'
+import {applyOp} from '../applyOp'
 
 describe('set/unset', () => {
   test('set on any type of value', () => {

@@ -105,7 +105,7 @@ function patchIn<Index extends DocumentIndex<SanityDocumentBase>>(
     throw new Error('Cannot apply patch on nonexistent document')
   }
   const current = index[mutation.id]!
-  const next = applyPatchMutation(current, mutation)
+  const next = applyPatchMutation(mutation, current)
 
   return next === current ? index : {...index, [mutation.id]: next}
 }

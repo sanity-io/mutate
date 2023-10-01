@@ -1,16 +1,21 @@
-import {isEmpty} from '../../utils/isEmpty'
 import {findTargetIndex, getTargetIdx, splice} from '../../utils/array'
 import type {
   InsertOp,
+  KeyedPathElement,
+  RelativePosition,
   ReplaceOp,
   TruncateOp,
   UpsertOp,
 } from '../../../mutations/operations/types'
 
 export function insert<
-  O extends InsertOp<any, any, any>,
-  CurrentValue extends any[],
+  O extends InsertOp<unknown[], RelativePosition, number | KeyedPathElement>,
+  CurrentValue extends unknown[],
 >(op: O, currentValue: CurrentValue) {
+  if (!Array.isArray(currentValue)) {
+    throw new TypeError('Cannot apply insert-patch on non-array value')
+  }
+
   const index = findTargetIndex(currentValue, op.referenceItem)
   if (index === null) {
     throw new Error(`Found no matching array element to insert ${op.position}`)
@@ -23,15 +28,19 @@ export function insert<
 }
 
 export function upsert<
-  O extends UpsertOp<any, any, any>,
-  CurrentValue extends any[],
+  O extends UpsertOp<unknown[], RelativePosition, number | KeyedPathElement>,
+  CurrentValue extends unknown[],
 >(op: O, currentValue: CurrentValue) {
+  if (!Array.isArray(currentValue)) {
+    throw new TypeError('Cannot apply upsert-patch on non-string value')
+  }
+
   if (op.items.length === 0) {
     return currentValue
   }
   const replaceItemsMap: number[] = []
-  const insertItems: any[] = []
-  op.items.forEach((itemToBeUpserted, i) => {
+  const insertItems: unknown[] = []
+  op.items.forEach((itemToBeUpserted: any, i) => {
     const existingIndex = currentValue.findIndex(
       existingItem => (existingItem as any)?._key === itemToBeUpserted._key,
     )
@@ -65,9 +74,13 @@ export function upsert<
 }
 
 export function replace<
-  O extends ReplaceOp<any, any>,
-  CurrentValue extends any[],
+  O extends ReplaceOp<unknown[], number | KeyedPathElement>,
+  CurrentValue extends unknown[],
 >(op: O, currentValue: CurrentValue) {
+  if (!Array.isArray(currentValue)) {
+    throw new TypeError('Cannot apply replace-patch on non-string value')
+  }
+
   const index = findTargetIndex(currentValue, op.referenceItem)
   if (index === null) {
     throw new Error(`Found no matching array element to replace`)
@@ -75,10 +88,14 @@ export function replace<
   return splice(currentValue, index, op.items.length, op.items)
 }
 
-export function truncate<O extends TruncateOp, CurrentValue extends any[]>(
+export function truncate<O extends TruncateOp, CurrentValue extends unknown[]>(
   op: O,
   currentValue: CurrentValue,
 ) {
+  if (!Array.isArray(currentValue)) {
+    throw new TypeError('Cannot apply truncate-patch on non-string value')
+  }
+
   return typeof op.endIndex === 'number'
     ? currentValue
         .slice(0, op.startIndex)

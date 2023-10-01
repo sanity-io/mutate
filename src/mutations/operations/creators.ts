@@ -1,11 +1,17 @@
 import {arrify} from '../../utils/arrify'
-import type {Index, KeyedPathElement} from '../../path'
+import type {
+  AnyArray,
+  ArrayElement,
+  NormalizeReadOnlyArray,
+} from '../../utils/typeUtils'
 import type {
   AssignOp,
   DecOp,
   DiffMatchPatchOp,
   IncOp,
+  Index,
   InsertOp,
+  KeyedPathElement,
   RelativePosition,
   ReplaceOp,
   SetIfMissingOp,
@@ -18,7 +24,9 @@ import type {
 
 export const set = <const T>(value: T): SetOp<T> => ({type: 'set', value})
 
-export const assign = <const T extends object>(value: T): AssignOp<T> => ({
+export const assign = <const T extends {[K in string]: unknown}>(
+  value: T,
+): AssignOp<T> => ({
   type: 'assign',
   value,
 })
@@ -56,42 +64,51 @@ export const diffMatchPatch = (value: string): DiffMatchPatchOp => ({
   value,
 })
 
-export const insert = <
-  Item,
-  Pos extends RelativePosition,
-  ReferenceItem extends Index | KeyedPathElement,
+export function insert<
+  const Items extends AnyArray<unknown>,
+  const Pos extends RelativePosition,
+  const ReferenceItem extends Index | KeyedPathElement,
 >(
-  items: Item | Item[],
+  items: Items | ArrayElement<Items>,
   position: Pos,
-  referenceItem: ReferenceItem,
-): InsertOp<Item, Pos, ReferenceItem> => ({
-  type: 'insert',
-  referenceItem,
-  position,
-  items: arrify(items) as Item[],
-})
+  indexOrReferenceItem: ReferenceItem,
+): InsertOp<NormalizeReadOnlyArray<Items>, Pos, ReferenceItem> {
+  return {
+    type: 'insert',
+    referenceItem: indexOrReferenceItem,
+    position,
+    items: arrify(items) as any,
+  }
+}
 
-export const append = <Item>(items: Item | Item[]) =>
-  insert(items, 'after' as const, -1 as const)
+export function append<const Items extends AnyArray<unknown>>(
+  items: Items | ArrayElement<Items>,
+) {
+  return insert(items, 'after', -1)
+}
 
-export const prepend = <Item>(items: Item | Item[]) =>
-  insert(items, 'before' as const, 0 as const)
+export function prepend<const Items extends AnyArray<unknown>>(
+  items: Items | ArrayElement<Items>,
+) {
+  return insert(items, 'before', 0)
+}
 
-export const insertBefore = <
-  Item,
-  ReferenceItem extends Index | KeyedPathElement,
->(
-  items: Item | Item[],
-  referenceItem: ReferenceItem,
-) => insert(items, 'before' as const, referenceItem)
+export function insertBefore<
+  const Items extends AnyArray<unknown>,
+  const ReferenceItem extends Index | KeyedPathElement,
+>(items: Items | ArrayElement<Items>, indexOrReferenceItem: ReferenceItem) {
+  return insert(items, 'before', indexOrReferenceItem)
+}
 
 export const insertAfter = <
-  Item,
-  ReferenceItem extends Index | KeyedPathElement,
+  const Items extends AnyArray<unknown>,
+  const ReferenceItem extends Index | KeyedPathElement,
 >(
-  items: Item | Item[],
-  referenceItem: ReferenceItem,
-) => insert(items, 'after' as const, referenceItem)
+  items: Items | ArrayElement<Items>,
+  indexOrReferenceItem: ReferenceItem,
+) => {
+  return insert(items, 'after', indexOrReferenceItem)
+}
 
 export function truncate(startIndex: number, endIndex?: number): TruncateOp {
   return {
@@ -102,34 +119,37 @@ export function truncate(startIndex: number, endIndex?: number): TruncateOp {
 }
 
 /*
-  Use this when you know the ref item already exists
+  Use this when you know the ref Items already exists
  */
-export function replace<Item, ReferenceItem extends Index | KeyedPathElement>(
-  items: Item | Item[],
+export function replace<
+  Items extends any[],
+  ReferenceItem extends Index | KeyedPathElement,
+>(
+  items: Items | ArrayElement<Items>,
   referenceItem: ReferenceItem,
-): ReplaceOp<Item, ReferenceItem> {
+): ReplaceOp<Items, ReferenceItem> {
   return {
     type: 'replace',
     referenceItem,
-    items: arrify(items) as Item[],
+    items: arrify(items) as Items,
   }
 }
 
 /*
-use this when the reference item may or may not exist
+use this when the reference Items may or may not exist
  */
 export function upsert<
-  Item,
-  ReferenceItem extends Index | KeyedPathElement,
-  Pos extends RelativePosition,
+  const Items extends AnyArray<unknown>,
+  const Pos extends RelativePosition,
+  const ReferenceItem extends Index | KeyedPathElement,
 >(
-  items: Item | Item[],
+  items: Items | ArrayElement<Items>,
   position: Pos,
   referenceItem: ReferenceItem,
-): UpsertOp<Item, Pos, ReferenceItem> {
+): UpsertOp<Items, Pos, ReferenceItem> {
   return {
     type: 'upsert',
-    items: arrify(items) as Item[],
+    items: arrify(items) as Items,
     referenceItem,
     position,
   }

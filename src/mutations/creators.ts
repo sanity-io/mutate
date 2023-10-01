@@ -1,9 +1,13 @@
 import {parse} from '../path'
 import {type StringToPath} from '../path'
-import {type Arrify, arrify} from '../utils/arrify'
+import {arrify} from '../utils/arrify'
 import {type Operation} from './operations/types'
 import {type PatchMutation, type PatchOptions} from './types'
-import type {Optional} from '../utils/typeUtils'
+import type {
+  NormalizeReadOnlyArray,
+  Optional,
+  Tuplify,
+} from '../utils/typeUtils'
 import type {
   CreateIfNotExistsMutation,
   CreateMutation,
@@ -11,6 +15,7 @@ import type {
   DeleteMutation,
   NodePatch,
   SanityDocumentBase,
+  NodePatchList,
 } from './types'
 import type {Path} from '../path'
 
@@ -20,15 +25,15 @@ export function create<Doc extends Optional<SanityDocumentBase, '_id'>>(
   return {type: 'create', document}
 }
 
-export function patch<P extends NodePatch<any, any> | NodePatch<any, any>[]>(
+export function patch<P extends NodePatchList | NodePatch>(
   id: string,
   patches: P,
   options?: PatchOptions,
-): PatchMutation<Arrify<P>> {
+): PatchMutation<NormalizeReadOnlyArray<Tuplify<P>>> {
   return {
     type: 'patch',
     id,
-    patches: arrify(patches),
+    patches: arrify(patches) as any,
     ...(options ? {options} : {}),
   }
 }
@@ -36,9 +41,9 @@ export function patch<P extends NodePatch<any, any> | NodePatch<any, any>[]>(
 export function at<const P extends Path, O extends Operation>(
   path: P,
   operation: O,
-): NodePatch<P, O>
+): NodePatch<NormalizeReadOnlyArray<P>, O>
 
-export function at<P extends string, O extends Operation>(
+export function at<const P extends string, O extends Operation>(
   path: P,
   operation: O,
 ): NodePatch<StringToPath<P>, O>

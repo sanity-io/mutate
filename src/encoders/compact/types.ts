@@ -1,4 +1,5 @@
-import type {RelativePosition} from '../..'
+import type {RelativePosition} from '../../mutations/operations/types'
+import type {AnyArray} from '../../utils/typeUtils'
 
 export type Id = string
 export type RevisionLock = string
@@ -23,7 +24,7 @@ export type InsertMutation = [
   'insert',
   Id,
   CompactPath,
-  [RelativePosition, ItemRef, any[]],
+  [RelativePosition, ItemRef, AnyArray],
   RevisionLock?,
 ]
 
@@ -32,7 +33,7 @@ export type UpsertMutation = [
   'upsert',
   Id,
   CompactPath,
-  [RelativePosition, ItemRef, any[]],
+  [RelativePosition, ItemRef, AnyArray],
   RevisionLock?,
 ]
 
@@ -82,7 +83,7 @@ export type ReplaceMutation = [
   'replace',
   Id,
   CompactPath,
-  [ItemRef, any[]],
+  [ItemRef, AnyArray],
   RevisionLock?,
 ]
 export type SetMutation = ['patch', 'set', Id, CompactPath, any, RevisionLock?]
@@ -91,7 +92,7 @@ export type SetIfMissingMutation = [
   'setIfMissing',
   Id,
   CompactPath,
-  [any],
+  [unknown],
   RevisionLock?,
 ]
 

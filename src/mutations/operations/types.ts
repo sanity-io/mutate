@@ -1,3 +1,4 @@
+import type {AnyArray} from '../../utils/typeUtils'
 import type {Index, KeyedPathElement} from '../../path'
 
 export {Index, KeyedPathElement}
@@ -29,14 +30,14 @@ export type DecOp<Amount extends number> = {
 export type RelativePosition = 'before' | 'after'
 
 export type InsertOp<
-  Item,
+  Items extends AnyArray,
   Pos extends RelativePosition,
-  ReferenceItem extends Index | KeyedPathElement | Item,
+  ReferenceItem extends Index | KeyedPathElement,
 > = {
   type: 'insert'
   referenceItem: ReferenceItem
   position: Pos
-  items: Item[]
+  items: Items
 }
 
 export type TruncateOp = {
@@ -45,20 +46,20 @@ export type TruncateOp = {
   endIndex?: number
 }
 export type ReplaceOp<
-  Item,
-  ReferenceItem extends Index | KeyedPathElement | Item,
+  Items extends AnyArray,
+  ReferenceItem extends Index | KeyedPathElement,
 > = {
   type: 'replace'
   referenceItem: ReferenceItem
-  items: Item[]
+  items: Items
 }
 export type UpsertOp<
-  Item,
+  Items extends AnyArray,
   Pos extends RelativePosition,
-  ReferenceItem extends Index | KeyedPathElement | Item,
+  ReferenceItem extends Index | KeyedPathElement,
 > = {
   type: 'upsert'
-  items: Item[]
+  items: Items
   referenceItem: ReferenceItem
   position: Pos
 }
@@ -78,19 +79,16 @@ export type DiffMatchPatchOp = {
   value: string
 }
 
-export type PrimitiveOp =
-  | SetOp<any>
-  | UnsetOp
-  | SetIfMissingOp<any>
-  | IncOp<any>
-  | DecOp<any>
-  | DiffMatchPatchOp
-
-export type ArrayOp =
-  | InsertOp<any, any, any>
-  | UpsertOp<any, any, any>
-  | ReplaceOp<any, any>
-  | TruncateOp
-export type ObjectOp = AssignOp | UnassignOp
-
 export type Operation = PrimitiveOp | ArrayOp | ObjectOp
+
+export type AnyOp = SetOp<unknown> | SetIfMissingOp<unknown> | UnsetOp
+export type NumberOp = IncOp<number> | DecOp<number>
+export type StringOp = DiffMatchPatchOp
+export type ObjectOp = AssignOp | UnassignOp
+export type ArrayOp =
+  | InsertOp<AnyArray, RelativePosition, Index | KeyedPathElement>
+  | UpsertOp<AnyArray, RelativePosition, Index | KeyedPathElement>
+  | ReplaceOp<AnyArray, Index | KeyedPathElement>
+  | TruncateOp
+
+export type PrimitiveOp = AnyOp | StringOp | NumberOp

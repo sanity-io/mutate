@@ -1,6 +1,6 @@
 import {expect, test} from 'vitest'
-import {insert, replace} from '../../../../mutations/operations/creators'
-import {applyOp} from '../../applyOp'
+import {insert, replace} from '../../../mutations/operations/creators'
+import {applyOp} from '../applyOp'
 
 test('replace on item', () => {
   expect(applyOp(replace('replaced', 1), ['foo', 'bar', 'baz'])).toEqual([

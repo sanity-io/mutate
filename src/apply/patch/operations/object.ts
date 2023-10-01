@@ -1,17 +1,25 @@
 import {isEmpty} from '../../utils/isEmpty'
 import {omit} from '../../utils/omit'
+import {isObject} from '../../../utils/isObject'
 import type {AssignOp, UnassignOp} from '../../../mutations/operations/types'
 
 export function unassign<T extends object, K extends string[]>(
   op: UnassignOp<K>,
-  value: T,
+  currentValue: T,
 ) {
-  return op.keys.length === 0 ? value : omit(value, op.keys as any[])
+  if (!isObject(currentValue)) {
+    throw new TypeError('Cannot apply unassign-patch on non-object value')
+  }
+
+  return op.keys.length === 0
+    ? currentValue
+    : omit(currentValue, op.keys as any[])
 }
 
-export function assign<T extends object, K extends (keyof T)[]>(
-  op: AssignOp<T>,
-  value: T,
-) {
-  return isEmpty(op.value) ? value : {...value, ...op.value}
+export function assign<T extends object>(op: AssignOp<T>, currentValue: T) {
+  if (!isObject(currentValue)) {
+    throw new TypeError('Cannot apply assign-patch on non-object value')
+  }
+
+  return isEmpty(op.value) ? currentValue : {...currentValue, ...op.value}
 }

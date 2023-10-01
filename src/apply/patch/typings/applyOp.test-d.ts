@@ -10,17 +10,48 @@ import {
   unset,
 } from '../../../mutations/operations/creators'
 import type {
+  SplitAtPos,
+  AdjustIndex,
+  InsertAtIndex,
+  NormalizeIndex,
+} from './applyOp'
+import type {
+  SetIfMissingOp,
   AssignOp,
   DecOp,
   IncOp,
   InsertOp,
   ReplaceOp,
-  SetIfMissingOp,
   SetOp,
   UnassignOp,
   UnsetOp,
 } from '../../../mutations/operations/types'
 import type {ApplyOp} from './applyOp'
+
+test('various support types', () => {
+  assertType<InsertAtIndex<[1, 2, 3], [4, 5, 6], 'after', -1>>([
+    1, 2, 3, 4, 5, 6,
+  ])
+  assertType<InsertAtIndex<[], [4, 5, 6], 'after', -2>>([])
+  assertType<InsertAtIndex<[1], [4, 5, 6], 'after', -2>>([1])
+  assertType<InsertAtIndex<[1, 2], [4, 5, 6], 'after', -2>>([1, 4, 5, 6, 2])
+  assertType<InsertAtIndex<[1, 2], [4, 5, 6], 'after', 3>>([1, 2]) // out of bounds
+  assertType<InsertAtIndex<[0, 2, 3], [1], 'after', 0>>([0, 1, 2, 3])
+  assertType<InsertAtIndex<[], ['a'], 'after', 0>>(['a'])
+  assertType<InsertAtIndex<[], ['a', 'b', 'c'], 'before', -1>>(['a', 'b', 'c'])
+  assertType<InsertAtIndex<[], ['a', 'b', 'c'], 'after', -1>>(['a', 'b', 'c'])
+
+  assertType<AdjustIndex<'after', 2>>(3)
+  assertType<AdjustIndex<'before', -1>>(-1)
+
+  assertType<NormalizeIndex<2, 2>>(2)
+  assertType<NormalizeIndex<0, -2>>(0)
+  assertType<NormalizeIndex<-1, 0>>(0)
+
+  assertType<SplitAtPos<[], 1, 'after'>>([[], []])
+  assertType<SplitAtPos<['a'], 1, 'after'>>([['a'], []])
+  assertType<SplitAtPos<['a', 'b', 'c'], 2, 'after'>>([['a', 'b', 'c'], []])
+})
 
 test('applyOp function typings', () => {
   assertType<SetOp<4>>(set(4))
@@ -98,11 +129,10 @@ test('The ApplyOp type', () => {
     type S = ApplyOp<InsertOp<[0], 'before', 0>, [1, 2, 3]>
     expectTypeOf<
       ApplyOp<InsertOp<[0], 'before', 0>, [1, 2, 3]>
-    >().toEqualTypeOf<(0 | 1 | 2 | 3)[]>()
+    >().toEqualTypeOf<[0, 1, 2, 3]>()
 
-    // Todo: improve tuples support
-    expectTypeOf<ApplyOp<InsertOp<[0], 'after', 1>, [1, 2, 3]>>().toEqualTypeOf<
-      (0 | 1 | 2 | 3)[]
+    expectTypeOf<ApplyOp<InsertOp<[1], 'after', 0>, [0, 2, 3]>>().toEqualTypeOf<
+      [0, 1, 2, 3]
     >()
 
     expectTypeOf<ApplyOp<ReplaceOp<[0], 1>, [1, 2, 3]>>().toEqualTypeOf<
