@@ -1,5 +1,5 @@
 import {applyPatches} from '@bjoerge/mutiny/_unstable_apply'
-import {setIfMissing, at, inc, insert, set} from '@bjoerge/mutiny'
+import {at, inc, insert, set, setIfMissing} from '@bjoerge/mutiny'
 
 const document = {
   _id: 'foo',

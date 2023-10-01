@@ -1,11 +1,11 @@
 import {describe, expect, test} from 'vitest'
 import {
   assign,
-  setIfMissing,
   dec,
   diffMatchPatch,
   inc,
   set,
+  setIfMissing,
   unassign,
   unset,
 } from '../../../mutations/operations/creators'

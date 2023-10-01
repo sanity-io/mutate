@@ -54,6 +54,7 @@ module.exports = {
             fixStyle: 'separate-type-imports',
           },
         ],
+        'sort-imports': ['error', {ignoreDeclarationSort: true}],
         'import/order': [
           'error',
           {

@@ -2,13 +2,13 @@ import {applyPatchMutation} from '@bjoerge/mutiny/_unstable_apply'
 import {
   append,
   assign,
-  setIfMissing,
   at,
   insert,
   insertAfter,
   insertBefore,
   patch,
   prepend,
+  setIfMissing,
   unassign,
   unset,
 } from '@bjoerge/mutiny'

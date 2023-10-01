@@ -9,7 +9,7 @@ import type {
   ApplyPatches,
 } from './typings/applyNodePatch'
 import type {NormalizeReadOnlyArray} from '../../utils/typeUtils'
-import type {AnyOp, Operation} from '../../mutations/operations/types'
+import type {Operation} from '../../mutations/operations/types'
 import type {NodePatch, NodePatchList} from '../../mutations/types'
 
 export function applyPatches<Patches extends NodePatchList, const Doc>(

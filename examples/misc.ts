@@ -1,11 +1,11 @@
 import {
-  setIfMissing,
   at,
   createIfNotExists,
   dec,
   inc,
   patch,
   set,
+  setIfMissing,
 } from '@bjoerge/mutiny'
 import {applyOp, applyPatches} from '@bjoerge/mutiny/_unstable_apply'
 import type {Mutation} from '@bjoerge/mutiny'

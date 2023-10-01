@@ -10,23 +10,23 @@ import {
   unset,
 } from '../../../mutations/operations/creators'
 import type {
-  SplitAtPos,
   AdjustIndex,
+  ApplyOp,
   InsertAtIndex,
   NormalizeIndex,
+  SplitAtPos,
 } from './applyOp'
 import type {
-  SetIfMissingOp,
   AssignOp,
   DecOp,
   IncOp,
   InsertOp,
   ReplaceOp,
+  SetIfMissingOp,
   SetOp,
   UnassignOp,
   UnsetOp,
 } from '../../../mutations/operations/types'
-import type {ApplyOp} from './applyOp'
 
 test('various support types', () => {
   assertType<InsertAtIndex<[1, 2, 3], [4, 5, 6], 'after', -1>>([

@@ -1,6 +1,6 @@
 import {describe, expect, test} from 'vitest'
 import {at} from '../../../mutations/creators'
-import {setIfMissing, set} from '../../../mutations/operations/creators'
+import {set, setIfMissing} from '../../../mutations/operations/creators'
 import {applyNodePatch} from '../applyNodePatch'
 
 describe('set', () => {

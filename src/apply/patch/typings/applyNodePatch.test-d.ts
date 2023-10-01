@@ -4,14 +4,14 @@ import type {
   ApplyAtIndex,
   ApplyAtPath,
   ApplyAtSelector,
+  ApplyNodePatch,
   FirstIndexOf,
 } from './applyNodePatch'
-import type {ApplyNodePatch} from './applyNodePatch'
 import type {NodePatch} from '../../../mutations/types'
 import type {
-  SetIfMissingOp,
   DecOp,
   IncOp,
+  SetIfMissingOp,
   SetOp,
 } from '../../../mutations/operations/types'
 

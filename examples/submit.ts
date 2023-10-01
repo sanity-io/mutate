@@ -1,11 +1,11 @@
 import {
-  setIfMissing,
+  SanityEncoder,
   at,
   create,
   createIfNotExists,
   patch,
-  SanityEncoder,
   set,
+  setIfMissing,
 } from '@bjoerge/mutiny'
 
 const mutations = [

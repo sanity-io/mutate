@@ -1,11 +1,11 @@
 import {
-  setIfMissing,
   at,
   createIfNotExists,
   createOrReplace,
   del,
   patch,
   set,
+  setIfMissing,
 } from '@bjoerge/mutiny'
 import {createStore} from '@bjoerge/mutiny/_unstable_apply'
 
