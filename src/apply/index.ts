@@ -1,3 +1,4 @@
+export * from './patch/applyPatch'
 export * from './applyPatchMutation'
 export * from './applyInCollection'
 export * from './applyInIndex'

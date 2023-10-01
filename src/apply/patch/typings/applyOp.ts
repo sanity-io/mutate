@@ -28,12 +28,16 @@ export type ApplyOp<O extends Operation, Current> = Current extends never
     : Current
   : O extends IncOp<infer Amount>
   ? Current extends number
-    ? Apply<N.Add, [Current, Amount]>
-    : 'never'
+    ? number extends Current
+      ? number
+      : Apply<N.Add, [Current, Amount]>
+    : Current
   : O extends DecOp<infer Amount>
   ? Current extends number
-    ? Apply<N.Sub, [Current, Amount]>
-    : number
+    ? number extends Current
+      ? number
+      : Apply<N.Sub, [Current, Amount]>
+    : Current
   : O extends InsertOp<infer Items, infer Pos, infer Ref>
   ? Current extends any[]
     ? (ArrayElement<Items> | ArrayElement<Current>)[]

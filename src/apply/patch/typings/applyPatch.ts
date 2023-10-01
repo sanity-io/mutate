@@ -1,5 +1,7 @@
 import type {Path} from '../../../path'
 import type {
+  DecOp,
+  IncOp,
   Operation,
   SetIfMissingOp,
   SetOp,
@@ -29,6 +31,56 @@ export type SetAtPath<P extends Path, O extends SetOp<any>, Node> = P extends [
         ? MergeObject<
             Omit<Node, Head> & {
               [p in Head]: SetAtPath<Tail, O, PickOrUndef<Node, Head>>
+            }
+          >
+        : Node
+      : Node
+    : Node
+  : Node
+
+export type IncAtPath<P extends Path, O extends IncOp<any>, Node> = P extends [
+  infer Head,
+  ...infer Tail,
+]
+  ? Head extends string
+    ? Tail extends []
+      ? Head extends keyof Node
+        ? MergeObject<
+            Omit<Node, Head> & {
+              [p in Head]: ApplyOp<O, PickOrUndef<Node, Head>>
+            }
+          >
+        : MergeObject<Node & {[p in Head]: ApplyOp<O, PickOrUndef<Node, Head>>}>
+      : Head extends keyof Node
+      ? Tail extends Path
+        ? MergeObject<
+            Omit<Node, Head> & {
+              [p in Head]: IncAtPath<Tail, O, PickOrUndef<Node, Head>>
+            }
+          >
+        : Node
+      : Node
+    : Node
+  : Node
+
+export type DecAtPath<P extends Path, O extends DecOp<any>, Node> = P extends [
+  infer Head,
+  ...infer Tail,
+]
+  ? Head extends string
+    ? Tail extends []
+      ? Head extends keyof Node
+        ? MergeObject<
+            Omit<Node, Head> & {
+              [p in Head]: ApplyOp<O, PickOrUndef<Node, Head>>
+            }
+          >
+        : MergeObject<Node & {[p in Head]: ApplyOp<O, PickOrUndef<Node, Head>>}>
+      : Head extends keyof Node
+      ? Tail extends Path
+        ? MergeObject<
+            Omit<Node, Head> & {
+              [p in Head]: DecAtPath<Tail, O, PickOrUndef<Node, Head>>
             }
           >
         : Node
@@ -89,6 +141,10 @@ export type ApplyInObject<
   ? SetIfMissingAtPath<P, O, T>
   : O extends UnsetOp
   ? UnsetAtPath<P, O, T>
+  : O extends IncOp<any>
+  ? IncAtPath<P, O, T>
+  : O extends DecOp<any>
+  ? DecAtPath<P, O, T>
   : T
 
 type ApplyInArray<P extends Path, O extends Operation, T extends any[]> = T // @todo
