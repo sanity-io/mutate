@@ -263,3 +263,6 @@ console.log(updated)
 }
 */
 ```
+
+## Todos
+- [ ] make `applyPatch` return metadata about the operations that got performed on which documents
