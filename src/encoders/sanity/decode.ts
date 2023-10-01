@@ -1,8 +1,12 @@
 import {parse as parsePath} from '../../path/parse'
-import type {Mutation, NodePatch, SanityDocument} from '../../mutations/types'
+import type {
+  Mutation,
+  NodePatch,
+  SanityDocumentBase,
+} from '../../mutations/types'
 import type {SetIfMissingOp, SetOp} from '../../mutations/operations/types'
 
-export type {SanityDocument, Mutation}
+export type {SanityDocumentBase, Mutation}
 
 export type SanityDiffMatchPatch = {
   id: string
@@ -55,15 +59,15 @@ export type SanityPatch =
   | SanityIncPatch
   | SanityDecPatch
 
-export type SanityCreateIfNotExistsMutation<Doc extends SanityDocument> = {
+export type SanityCreateIfNotExistsMutation<Doc extends SanityDocumentBase> = {
   createIfNotExists: Doc
 }
 
-export type SanityCreateOrReplaceMutation<Doc extends SanityDocument> = {
+export type SanityCreateOrReplaceMutation<Doc extends SanityDocumentBase> = {
   createOrReplace: Doc
 }
 
-export type SanityCreateMutation<Doc extends SanityDocument> = {
+export type SanityCreateMutation<Doc extends SanityDocumentBase> = {
   create: Doc
 }
 
@@ -80,26 +84,28 @@ export type SanityPatchMutation = {
     | SanityUnsetPatch
 }
 
-export type SanityMutation<Doc extends SanityDocument = SanityDocument> =
+export type SanityMutation<
+  Doc extends SanityDocumentBase = SanityDocumentBase,
+> =
   | SanityCreateMutation<Doc>
   | SanityCreateIfNotExistsMutation<Doc>
   | SanityCreateOrReplaceMutation<Doc>
   | SanityDeleteMutation
   | SanityPatchMutation
 
-function isCreateIfNotExistsMutation<Doc extends SanityDocument>(
+function isCreateIfNotExistsMutation<Doc extends SanityDocumentBase>(
   sanityMutation: SanityMutation<Doc>,
 ): sanityMutation is SanityCreateIfNotExistsMutation<Doc> {
   return 'createIfNotExists' in sanityMutation
 }
 
-function isCreateOrReplaceMutation<Doc extends SanityDocument>(
+function isCreateOrReplaceMutation<Doc extends SanityDocumentBase>(
   sanityMutation: SanityMutation<Doc>,
 ): sanityMutation is SanityCreateOrReplaceMutation<Doc> {
   return 'createOrReplace' in sanityMutation
 }
 
-function isCreateMutation<Doc extends SanityDocument>(
+function isCreateMutation<Doc extends SanityDocumentBase>(
   sanityMutation: SanityMutation<Doc>,
 ): sanityMutation is SanityCreateMutation<Doc> {
   return 'create' in sanityMutation
@@ -153,7 +159,7 @@ function isInsertPatch(
   return 'insert' in sanityPatch
 }
 
-export function decode<Doc extends SanityDocument>(
+export function decode<Doc extends SanityDocumentBase>(
   encodedMutation: SanityMutation<Doc>[],
 ) {
   return encodedMutation.reduce(
@@ -162,7 +168,7 @@ export function decode<Doc extends SanityDocument>(
   )
 }
 
-function decodeMutation<Doc extends SanityDocument>(
+function decodeMutation<Doc extends SanityDocumentBase>(
   encodedMutation: SanityMutation<Doc>,
 ): Mutation[] {
   if (isCreateIfNotExistsMutation(encodedMutation)) {

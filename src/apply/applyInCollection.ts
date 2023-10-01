@@ -8,10 +8,10 @@ import type {
   DeleteMutation,
   Mutation,
   PatchMutation,
-  SanityDocument,
+  SanityDocumentBase,
 } from '../mutations/types'
 
-export function applyInCollection<Doc extends SanityDocument>(
+export function applyInCollection<Doc extends SanityDocumentBase>(
   collection: Doc[],
   mutations: Mutation | Mutation[],
 ) {
@@ -37,7 +37,7 @@ export function applyInCollection<Doc extends SanityDocument>(
   }, collection)
 }
 
-function createIn<Doc extends SanityDocument>(
+function createIn<Doc extends SanityDocumentBase>(
   collection: Doc[],
   mutation: CreateMutation<Doc>,
 ) {
@@ -50,7 +50,7 @@ function createIn<Doc extends SanityDocument>(
   return collection.concat(mutation.document)
 }
 
-function createIfNotExistsIn<Doc extends SanityDocument>(
+function createIfNotExistsIn<Doc extends SanityDocumentBase>(
   collection: Doc[],
   mutation: CreateIfNotExistsMutation<Doc>,
 ) {
@@ -60,7 +60,7 @@ function createIfNotExistsIn<Doc extends SanityDocument>(
   return currentIdx === -1 ? collection.concat(mutation.document) : collection
 }
 
-function createOrReplaceIn<Doc extends SanityDocument>(
+function createOrReplaceIn<Doc extends SanityDocumentBase>(
   collection: Doc[],
   mutation: CreateOrReplaceMutation<Doc>,
 ) {
@@ -72,7 +72,7 @@ function createOrReplaceIn<Doc extends SanityDocument>(
     : splice(collection, currentIdx, 1, [mutation.document])
 }
 
-function deleteIn<Doc extends SanityDocument>(
+function deleteIn<Doc extends SanityDocumentBase>(
   collection: Doc[],
   mutation: DeleteMutation,
 ) {
@@ -80,7 +80,7 @@ function deleteIn<Doc extends SanityDocument>(
   return currentIdx === -1 ? collection : splice(collection, currentIdx, 1)
 }
 
-function patchIn<Doc extends SanityDocument>(
+function patchIn<Doc extends SanityDocumentBase>(
   collection: Doc[],
   mutation: PatchMutation,
 ): Doc[] {

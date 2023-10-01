@@ -11,7 +11,7 @@ import type {MergeObject} from '../../../utils/typeUtils'
 import type {ApplyOp} from './applyOp'
 import type {NodePatch} from '../../../mutations/types'
 
-type PickOrUndef<T, Head> = Head extends keyof T ? T[Head] : undefined
+export type PickOrUndef<T, Head> = Head extends keyof T ? T[Head] : undefined
 
 export type SetAtPath<P extends Path, O extends SetOp<any>, Node> = P extends [
   infer Head,
@@ -114,7 +114,7 @@ export type SetIfMissingAtPath<
     : Node
   : Node
 
-type UnsetAtPath<P extends Path, O extends UnsetOp, T> = P extends [
+export type UnsetAtPath<P extends Path, O extends UnsetOp, T> = P extends [
   infer Head,
   ...infer Tail,
 ]
@@ -147,9 +147,16 @@ export type ApplyInObject<
   ? DecAtPath<P, O, T>
   : T
 
-type ApplyInArray<P extends Path, O extends Operation, T extends any[]> = T // @todo
+export type ApplyInArray<
+  P extends Path,
+  O extends Operation,
+  T extends any[],
+> = T // @todo
 
-type ApplyAtPrimitive<P extends Path, O extends Operation, T> = ApplyOp<O, T>
+export type ApplyAtPrimitive<P extends Path, O extends Operation, T> = ApplyOp<
+  O,
+  T
+>
 
 export type ApplyPatches<Patches, Doc> = Patches extends [
   infer Head,

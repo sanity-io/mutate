@@ -1,8 +1,8 @@
 import {applyPatches} from './patch/applyPatch'
-import type {PatchMutation, SanityDocument} from '../mutations/types'
+import type {PatchMutation, SanityDocumentBase} from '../mutations/types'
 
 export function applyPatchMutation<
-  Doc extends SanityDocument,
+  Doc extends SanityDocumentBase,
   Mutation extends PatchMutation,
 >(document: Doc, mutation: Mutation): Doc {
   if (

@@ -1,4 +1,7 @@
+import {ulid} from 'ulid'
+import {assignId, hasId} from './store/utils'
 import {applyPatchMutation} from './applyPatchMutation'
+import type {RequiredSelect} from './store/store'
 import type {
   CreateIfNotExistsMutation,
   CreateMutation,
@@ -6,15 +9,15 @@ import type {
   DeleteMutation,
   Mutation,
   PatchMutation,
-  SanityDocument,
+  SanityDocumentBase,
 } from '../mutations/types'
 
-export type DocumentIndex<Doc> = {[id: string]: Doc}
+export type DocumentIndex<Doc extends SanityDocumentBase> = {[id: string]: Doc}
 
-export function applyInIndex<Doc extends SanityDocument>(
-  index: DocumentIndex<SanityDocument>,
-  mutations: Mutation<Doc>[],
-) {
+export function applyInIndex<
+  Doc extends SanityDocumentBase,
+  Index extends DocumentIndex<ToStored<Doc>>,
+>(index: Index, mutations: Mutation<Doc>[]): Index {
   return mutations.reduce((prev, mutation) => {
     if (mutation.type === 'create') {
       return createIn(prev, mutation)
@@ -36,54 +39,73 @@ export function applyInIndex<Doc extends SanityDocument>(
   }, index)
 }
 
-function createIn<Doc extends SanityDocument>(
-  collection: DocumentIndex<SanityDocument>,
-  mutation: CreateMutation<Doc>,
-) {
-  if (mutation.document._id in collection) {
+export type ToStored<Doc extends SanityDocumentBase> = Doc &
+  Required<SanityDocumentBase>
+
+export type ToIdentified<Doc extends SanityDocumentBase> = RequiredSelect<
+  Doc,
+  '_id'
+>
+
+export type StoredDocument = ToStored<SanityDocumentBase>
+
+function createIn<
+  Index extends DocumentIndex<Doc>,
+  Doc extends SanityDocumentBase,
+>(index: Index, mutation: CreateMutation<Doc>): Index {
+  const document = assignId(mutation.document, ulid)
+
+  if (document._id in index) {
     throw new Error('Document already exist')
   }
-  return {...collection, [mutation.document._id]: mutation.document}
+  return {...index, [document._id]: mutation.document}
 }
 
-function createIfNotExistsIn<Doc extends SanityDocument>(
-  collection: DocumentIndex<SanityDocument>,
-  mutation: CreateIfNotExistsMutation<Doc>,
-) {
-  return mutation.document._id in collection
-    ? collection
-    : {...collection, [mutation.document._id]: mutation.document}
+function createIfNotExistsIn<
+  Index extends DocumentIndex<Doc>,
+  Doc extends SanityDocumentBase,
+>(index: Index, mutation: CreateIfNotExistsMutation<Doc>): Index {
+  if (!hasId(mutation.document)) {
+    throw new Error('Cannot createIfNotExists on document without _id')
+  }
+  return mutation.document._id in index
+    ? index
+    : {...index, [mutation.document._id]: mutation.document}
 }
 
-function createOrReplaceIn<Doc extends SanityDocument>(
-  collection: DocumentIndex<SanityDocument>,
-  mutation: CreateOrReplaceMutation<Doc>,
-) {
-  return {...collection, [mutation.document._id]: mutation.document}
+function createOrReplaceIn<
+  Index extends DocumentIndex<Doc>,
+  Doc extends SanityDocumentBase,
+>(index: Index, mutation: CreateOrReplaceMutation<Doc>): Index {
+  if (!hasId(mutation.document)) {
+    throw new Error('Cannot createIfNotExists on document without _id')
+  }
+
+  return {...index, [mutation.document._id]: mutation.document}
 }
 
-function deleteIn(
-  collection: DocumentIndex<SanityDocument>,
+function deleteIn<Index extends DocumentIndex<SanityDocumentBase>>(
+  index: Index,
   mutation: DeleteMutation,
-) {
-  if (mutation.id in collection) {
-    const copy = {...collection}
+): Index {
+  if (mutation.id in index) {
+    const copy = {...index}
     delete copy[mutation.id]
     return copy
   } else {
-    return collection
+    return index
   }
 }
 
-function patchIn<Doc extends SanityDocument>(
-  collection: DocumentIndex<Doc>,
+function patchIn<Index extends DocumentIndex<SanityDocumentBase>>(
+  index: Index,
   mutation: PatchMutation,
-): DocumentIndex<Doc> {
-  if (!(mutation.id in collection)) {
+): Index {
+  if (!(mutation.id in index)) {
     throw new Error('Cannot apply patch on nonexistent document')
   }
-  const current = collection[mutation.id]!
+  const current = index[mutation.id]!
   const next = applyPatchMutation(current, mutation)
 
-  return next === current ? collection : {...collection, [mutation.id]: next}
+  return next === current ? index : {...index, [mutation.id]: next}
 }

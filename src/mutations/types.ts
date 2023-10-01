@@ -2,24 +2,25 @@ import {type Operation} from './operations/types'
 import type {Optional} from '../utils/typeUtils'
 import type {Path} from '../path'
 
-export type SanityDocument = {
-  _id: string
+export type SanityDocumentBase = {
+  _id?: string
   _type: string
+  _createdAt?: string
+  _updatedAt?: string
   _rev?: string
-  [key: string]: unknown
 }
 
-export type CreateMutation<Doc extends Optional<SanityDocument, '_id'>> = {
+export type CreateMutation<Doc extends Optional<SanityDocumentBase, '_id'>> = {
   type: 'create'
   document: Doc
 }
 
-export type CreateIfNotExistsMutation<Doc extends SanityDocument> = {
+export type CreateIfNotExistsMutation<Doc extends SanityDocumentBase> = {
   type: 'createIfNotExists'
   document: Doc
 }
 
-export type CreateOrReplaceMutation<Doc extends SanityDocument> = {
+export type CreateOrReplaceMutation<Doc extends SanityDocumentBase> = {
   type: 'createOrReplace'
   document: Doc
 }
@@ -36,7 +37,7 @@ export type PatchMutation<Patches extends NodePatch[] = NodePatch[]> = {
   options?: PatchOptions
 }
 
-export type Mutation<Doc extends SanityDocument = any> =
+export type Mutation<Doc extends SanityDocumentBase = any> =
   | CreateMutation<Doc>
   | CreateIfNotExistsMutation<Doc>
   | CreateOrReplaceMutation<Doc>

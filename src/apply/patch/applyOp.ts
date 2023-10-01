@@ -20,11 +20,11 @@ export type SimpleObject = {
   [K in string]: any
 }
 
-type AnyOp = SetOp<any> | SetIfMissingOp<any> | UnsetOp
-type NumberOps = IncOp<any> | DecOp<any>
-type StringOps = DiffMatchPatchOp
-type ObjectOps = AssignOp<SimpleObject> | UnassignOp<any>
-type ArrayOps =
+export type AnyOp = SetOp<any> | SetIfMissingOp<any> | UnsetOp
+export type NumberOps = IncOp<any> | DecOp<any>
+export type StringOps = DiffMatchPatchOp
+export type ObjectOps = AssignOp<SimpleObject> | UnassignOp<any>
+export type ArrayOps =
   | InsertOp<any, any, any>
   | UpsertOp<any, any, any>
   | ReplaceOp<any, any>

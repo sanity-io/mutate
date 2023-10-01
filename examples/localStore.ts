@@ -7,7 +7,7 @@ import {
   set,
   setIfMissing,
 } from '@bjoerge/mutiny'
-import {createStore} from '../src/store/store'
+import {createStore} from '@bjoerge/mutiny/_unstable_apply'
 
 const localStore = createStore([{_id: 'hello', _type: 'hello'}])
 console.log('initial', localStore.get('hello'))
@@ -39,9 +39,10 @@ localStore.apply([
   patch('drafts.blog-post-1', at('title', set('ready for publishing'))),
 ])
 
-const d = localStore.get('drafts.blog-post-1')
-if (d) {
-  localStore.apply([createOrReplace(d), del('drafts.blog-post-1')])
+const doc = localStore.get('drafts.blog-post-1')
+
+if (doc) {
+  localStore.apply([createOrReplace(doc), del('drafts.blog-post-1')])
 }
 console.log('---all documents---')
 for (const [id, document] of localStore.entries()) {

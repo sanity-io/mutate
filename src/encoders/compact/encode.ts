@@ -1,15 +1,19 @@
 // An example of a compact transport/serialization format
 import {stringify as stringifyPath} from '../../path/stringify'
 import type {CompactMutation, CompactPatchMutation} from './types'
-import type {Mutation, NodePatch, SanityDocument} from '../../mutations/types'
+import type {
+  Mutation,
+  NodePatch,
+  SanityDocumentBase,
+} from '../../mutations/types'
 
-export function encode<Doc extends SanityDocument>(
+export function encode<Doc extends SanityDocumentBase>(
   mutations: Mutation[],
 ): CompactMutation<Doc>[] {
   return mutations.flatMap(m => encodeMutation<Doc>(m))
 }
 
-function encodeMutation<Doc extends SanityDocument>(
+function encodeMutation<Doc extends SanityDocumentBase>(
   mutation: Mutation,
 ): CompactMutation<Doc>[] {
   if (

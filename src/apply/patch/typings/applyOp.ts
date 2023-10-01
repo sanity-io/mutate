@@ -12,9 +12,7 @@ import type {
   UnsetOp,
 } from '../../../mutations/operations/types'
 import type {Apply, N} from 'hotscript'
-import type {MergeObject} from '../../../utils/typeUtils'
-
-type ArrayElement<A> = A extends readonly (infer T)[] ? T : never
+import type {ArrayElement, MergeObject} from '../../../utils/typeUtils'
 
 export type ApplyOp<O extends Operation, Current> = Current extends never
   ? never

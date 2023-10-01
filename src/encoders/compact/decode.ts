@@ -11,18 +11,18 @@ import type {
 import type {
   Mutation,
   PatchMutation,
-  SanityDocument,
+  SanityDocumentBase,
 } from '../../mutations/types'
 
-export {Mutation, SanityDocument}
+export {Mutation, SanityDocumentBase}
 
-export function decode<Doc extends SanityDocument>(
+export function decode<Doc extends SanityDocumentBase>(
   mutations: CompactMutation<Doc>[],
 ): Mutation[] {
   return mutations.map(decodeMutation)
 }
 
-export function decodeMutation<Doc extends SanityDocument>(
+export function decodeMutation<Doc extends SanityDocumentBase>(
   mutation: CompactMutation<Doc>,
 ): Mutation {
   const [type] = mutation

@@ -10,11 +10,11 @@ import type {
   CreateOrReplaceMutation,
   DeleteMutation,
   NodePatch,
-  SanityDocument,
+  SanityDocumentBase,
 } from './types'
 import type {Path} from '../path'
 
-export function create<Doc extends Optional<SanityDocument, '_id'>>(
+export function create<Doc extends Optional<SanityDocumentBase, '_id'>>(
   document: Doc,
 ): CreateMutation<Doc> {
   return {type: 'create', document}
@@ -53,13 +53,13 @@ export function at<O extends Operation>(
   }
 }
 
-export function createIfNotExists<Doc extends SanityDocument>(
+export function createIfNotExists<Doc extends SanityDocumentBase>(
   document: Doc,
 ): CreateIfNotExistsMutation<Doc> {
   return {type: 'createIfNotExists', document}
 }
 
-export function createOrReplace<Doc extends SanityDocument>(
+export function createOrReplace<Doc extends SanityDocumentBase>(
   document: Doc,
 ): CreateOrReplaceMutation<Doc> {
   return {type: 'createOrReplace', document}
