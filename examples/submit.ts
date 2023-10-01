@@ -1,11 +1,11 @@
 import {
+  setIfMissing,
   at,
   create,
   createIfNotExists,
   patch,
   SanityEncoder,
   set,
-  setIfMissing,
 } from '@bjoerge/mutiny'
 
 const mutations = [
@@ -14,7 +14,7 @@ const mutations = [
   createIfNotExists({_id: 'other-document', _type: 'author'}),
   patch('other-document', [
     at('published', set(true)),
-    at('address', setIfMissing({_type: 'address'})),
+    at([], setIfMissing({address: {_type: 'address'}})),
     at('address.city', set('Oslo')),
   ]),
 ]

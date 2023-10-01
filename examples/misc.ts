@@ -1,7 +1,14 @@
-import {at, createIfNotExists, dec, inc, patch, set, setIfMissing} from '../src'
-import {applyPatches} from '../src/apply/patch/applyPatch'
-import {applyOp} from '../src/apply/patch/applyOp'
-import type {Mutation} from '../src'
+import {
+  setIfMissing,
+  at,
+  createIfNotExists,
+  dec,
+  inc,
+  patch,
+  set,
+} from '@bjoerge/mutiny'
+import {applyOp, applyPatches} from '@bjoerge/mutiny/_unstable_apply'
+import type {Mutation} from '@bjoerge/mutiny'
 
 const d = dec(1000)
 const f = applyOp(dec(1), 4)
@@ -34,7 +41,7 @@ const s = applyPatches(
     at('foo', set('ok')),
     at('bar', set('2')),
     at('x', setIfMissing({_type: 'test'})),
-    at('x.hello', setIfMissing('foo')),
+    at('x', setIfMissing({greeting: 'hello'})),
   ],
   {
     _id: 'foo',

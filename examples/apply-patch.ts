@@ -1,28 +1,21 @@
-import {applyPatchMutation} from '@bjoerge/mutiny/_unstable_apply'
-import {
-  append,
-  at,
-  insert,
-  insertAfter,
-  insertBefore,
-  patch,
-  prepend,
-  setIfMissing,
-} from '@bjoerge/mutiny'
+import {applyNodePatch} from '@bjoerge/mutiny/_unstable_apply'
+import {assign, setIfMissing, at, insert, set} from '@bjoerge/mutiny'
 
-const document = {_id: 'test', _type: 'foo'}
+const res = applyNodePatch(at('foo', set('bar')), {other: 'ok'})
 
-const updated = applyPatchMutation(
-  document,
-  patch('test', [
-    at('title', setIfMissing('Foo')),
-    at('cities', setIfMissing([])),
-    at('cities', insert(['Oslo', 'San Francisco'], 'after', 0)),
-    at('cities', prepend(['Krakow'])),
-    at('cities', append(['Askim'])),
-    at('cities', insertAfter(['Chicago'], 1)),
-    at('cities', insertBefore(['Raleigh'], 3)),
-  ]),
-)
+const res2 = applyNodePatch(at('arr', insert(['b'], 'before', -1)), {arr: []})
+const doc3 = {
+  arr: [],
+  inner: {
+    prop: 1,
+  },
+} as const
 
-console.log(updated)
+const res3 = applyNodePatch(at('arr', insert(['b'], 'before', -1)), doc3)
+
+const res4 = applyNodePatch(at([], assign({assigned: true})), {foo: 'bar'})
+
+const res5 = applyNodePatch(at([], setIfMissing({wasMissing: 'hello'})), {
+  foo: 'bar',
+  wasMissing: undefined,
+})
