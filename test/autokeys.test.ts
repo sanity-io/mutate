@@ -1,27 +1,13 @@
 import {expect, test} from 'vitest'
-import {insertWithKeys} from '../src/mutations/insertWithKeys'
-import {at, createIfNotExists, patch, setIfMissing} from '../src'
+import {at, autoKeys, createIfNotExists, patch, setIfMissing} from '../src'
 import {applyInCollection} from '../src/apply'
-import type {Index, KeyedPathElement} from '../src'
 
 // Example of automatic key generation of object
 let i = 0
-const insert = insertWithKeys(() => `a-very-random-key-${i++}`)
 
-const insertBefore = <Item, Ref extends Index | KeyedPathElement>(
-  ref: Ref,
-  items: Item[],
-) => insert('before', ref, items)
-
-const prepend = <Item, Ref extends Index | KeyedPathElement>(items: Item[]) =>
-  insertBefore(0, items)
-
-const insertAfter = <Item, Ref extends Index | KeyedPathElement>(
-  ref: Ref,
-  items: Item[],
-) => insert('after', ref, items)
-
-const append = <Item>(items: Item[]) => insert('after', -1, items)
+const {insert, append, insertAfter, insertBefore, prepend} = autoKeys(
+  () => `a-very-random-key-${i++}`,
+)
 
 const mutations = [
   createIfNotExists({_id: 'some-doc', _type: 'testing'}),

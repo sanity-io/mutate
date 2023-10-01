@@ -1,5 +1,6 @@
 export * from './mutations/types'
 export * from './mutations/creators'
+export * from './mutations/autoKeys'
 export * from './mutations/operations/types'
 export * from './mutations/operations/creators'
 export * from './path'
