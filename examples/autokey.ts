@@ -1,9 +1,9 @@
-import {nanoid} from 'nanoid'
+import {ulid} from 'ulid'
 import {insertWithKeys} from '../src/mutations/insertWithKeys'
 import {applyInCollection} from '../src/apply/applyInCollection'
 import {at, patch} from '../src'
 
-const insert = insertWithKeys(nanoid)
+const insert = insertWithKeys(() => ulid())
 
 type Doc = {_id: string; _type: string; array: any[]}
 const doc: Doc = {_id: 'some-document', _type: 'test', array: []}
