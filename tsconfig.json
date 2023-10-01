@@ -3,9 +3,7 @@
   "include": [
     "**.ts",
     "./src/**/**.ts",
-    "./test/**/*.ts",
-    "./examples/**/*.ts",
-    "./experimental/**/*.ts"
+    "./test/**/*.ts"
   ],
   "compilerOptions": {
     "rootDir": ".",
