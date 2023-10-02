@@ -40,7 +40,11 @@ export type ApplyAtSelector<
   Tail extends AnyArray,
   Op extends Operation,
   Arr extends AnyArray,
-> = ApplyAtIndex<FirstIndexOf<0, Selector, Arr>, Tail, Op, Arr>
+> = FirstIndexOf<0, Selector, Arr> extends infer Index
+  ? Index extends number
+    ? ApplyAtIndex<Index, Tail, Op, Arr>
+    : Arr
+  : Arr
 
 export type FirstIndexOf<
   StartIndex extends number,
@@ -50,7 +54,7 @@ export type FirstIndexOf<
   ? Head extends Selector
     ? StartIndex
     : FirstIndexOf<Call<Numbers.Add<StartIndex>, 1>, Selector, Tail>
-  : never
+  : null
 
 export type ApplyInArray<
   ItemSelector,
