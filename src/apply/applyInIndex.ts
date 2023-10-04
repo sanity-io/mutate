@@ -1,7 +1,7 @@
 import {nanoid} from 'nanoid'
 import {assignId, hasId} from './store'
 import {applyPatchMutation} from './applyPatchMutation'
-import type {RequiredSelect} from './store/store'
+import type {RequiredSelect} from './store'
 import type {
   CreateIfNotExistsMutation,
   CreateMutation,
