@@ -1,5 +1,5 @@
-import {ulid} from 'ulid'
-import {assignId, hasId} from './store/utils'
+import {nanoid} from 'nanoid'
+import {assignId, hasId} from './store'
 import {applyPatchMutation} from './applyPatchMutation'
 import type {RequiredSelect} from './store/store'
 import type {
@@ -53,7 +53,7 @@ function createIn<
   Index extends DocumentIndex<Doc>,
   Doc extends SanityDocumentBase,
 >(index: Index, mutation: CreateMutation<Doc>): Index {
-  const document = assignId(mutation.document, ulid)
+  const document = assignId(mutation.document, nanoid)
 
   if (document._id in index) {
     throw new Error('Document already exist')

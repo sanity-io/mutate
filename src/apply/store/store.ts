@@ -1,4 +1,4 @@
-import {ulid} from 'ulid'
+import {nanoid} from 'nanoid'
 import {arrify} from '../../utils/arrify'
 import {applyInIndex} from '../applyInIndex'
 import {assignId} from './utils'
@@ -33,7 +33,7 @@ export const createStore = <Doc extends SanityDocumentBase>(
     initialEntries && initialEntries?.length > 0
       ? Object.fromEntries(
           initialEntries.map(entry => {
-            const doc = update(assignId(entry, ulid), ulid())
+            const doc = update(assignId(entry, nanoid), nanoid())
             return [doc._id, doc]
           }),
         )
