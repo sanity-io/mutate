@@ -3,7 +3,7 @@ export * from './mutations/creators'
 export * from './mutations/autoKeys'
 export * from './mutations/operations/types'
 export * from './mutations/operations/creators'
-export * from './path'
+
 export type {Arrify} from './utils/arrify'
 export type {
   Optional,
@@ -12,6 +12,9 @@ export type {
   NormalizeReadOnlyArray,
   AnyArray,
 } from './utils/typeUtils'
+
+import * as Path from './path'
+export {Path}
 
 import * as SanityEncoder from './encoders/sanity'
 import * as CompactEncoder from './encoders/compact'
