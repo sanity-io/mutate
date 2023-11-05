@@ -8,7 +8,7 @@ export function unassign<T extends object, K extends string[]>(
   currentValue: T,
 ) {
   if (!isObject(currentValue)) {
-    throw new TypeError('Cannot apply unassign-patch on non-object value')
+    throw new TypeError('Cannot apply "unassign()" on non-object value')
   }
 
   return op.keys.length === 0
@@ -18,7 +18,7 @@ export function unassign<T extends object, K extends string[]>(
 
 export function assign<T extends object>(op: AssignOp<T>, currentValue: T) {
   if (!isObject(currentValue)) {
-    throw new TypeError('Cannot apply assign-patch on non-object value')
+    throw new TypeError('Cannot apply "assign()" on non-object value')
   }
 
   return isEmpty(op.value) ? currentValue : {...currentValue, ...op.value}

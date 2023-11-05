@@ -13,7 +13,7 @@ export function insert<
   CurrentValue extends unknown[],
 >(op: O, currentValue: CurrentValue) {
   if (!Array.isArray(currentValue)) {
-    throw new TypeError('Cannot apply insert-patch on non-array value')
+    throw new TypeError('Cannot apply "insert()" on non-array value')
   }
 
   const index = findTargetIndex(currentValue, op.referenceItem)
@@ -32,7 +32,7 @@ export function upsert<
   CurrentValue extends unknown[],
 >(op: O, currentValue: CurrentValue) {
   if (!Array.isArray(currentValue)) {
-    throw new TypeError('Cannot apply upsert-patch on non-string value')
+    throw new TypeError('Cannot apply "upsert()" on non-array value')
   }
 
   if (op.items.length === 0) {
@@ -78,7 +78,7 @@ export function replace<
   CurrentValue extends unknown[],
 >(op: O, currentValue: CurrentValue) {
   if (!Array.isArray(currentValue)) {
-    throw new TypeError('Cannot apply replace-patch on non-string value')
+    throw new TypeError('Cannot apply "replace()" on non-array value')
   }
 
   const index = findTargetIndex(currentValue, op.referenceItem)
@@ -93,7 +93,7 @@ export function truncate<O extends TruncateOp, CurrentValue extends unknown[]>(
   currentValue: CurrentValue,
 ) {
   if (!Array.isArray(currentValue)) {
-    throw new TypeError('Cannot apply truncate-patch on non-string value')
+    throw new TypeError('Cannot apply "truncate()" on non-array value')
   }
 
   return typeof op.endIndex === 'number'

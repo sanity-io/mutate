@@ -8,7 +8,7 @@ export function diffMatchPatch<
   CurrentValue extends string,
 >(op: O, currentValue: CurrentValue) {
   if (typeof currentValue !== 'string') {
-    throw new TypeError('Cannot apply diffMatchPatch on non-string value')
+    throw new TypeError('Cannot apply "diffMatchPatch()" on non-string value')
   }
 
   return dmp.patch_apply(dmp.patch_fromText(op.value), currentValue)[0]
