@@ -2,6 +2,7 @@ import {isArrayElement, isKeyedElement} from '../utils/predicates'
 import type {AnyArray} from '../../utils/typeUtils'
 import type {FindInArray} from './types'
 import type {KeyedPathElement, Path, PathElement} from '../types'
+export type {AnyArray} from '../../utils/typeUtils'
 
 export type Get<
   P extends number | KeyedPathElement | Readonly<KeyedPathElement> | string,

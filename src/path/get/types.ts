@@ -1,4 +1,4 @@
-export type AnyArray<T = any> = T[] | readonly T[]
+import type {AnyArray} from '../../utils/typeUtils'
 import type {KeyedPathElement} from '../types'
 
 export type ByIndex<P extends number, T extends AnyArray> = T[P]
