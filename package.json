@@ -18,12 +18,19 @@
       "require": "./dist/index.cjs",
       "default": "./dist/index.js"
     },
+    "./path": {
+      "types": "./dist/_path.d.ts",
+      "source": "./src/_path.ts",
+      "import": "./dist/_path.js",
+      "require": "./dist/_path.cjs",
+      "default": "./dist/_path.js"
+    },
     "./_unstable_apply": {
-      "types": "./dist/apply/index.d.ts",
-      "source": "./src/apply/index.ts",
-      "import": "./dist/apply/index.js",
-      "require": "./dist/apply/index.cjs",
-      "default": "./dist/apply/index.js"
+      "types": "./dist/_unstable_apply.d.ts",
+      "source": "./src/_unstable_apply.ts",
+      "import": "./dist/_unstable_apply.js",
+      "require": "./dist/_unstable_apply.cjs",
+      "default": "./dist/_unstable_apply.js"
     },
     "./package.json": "./package.json"
   },

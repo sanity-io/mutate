@@ -1,4 +1,4 @@
-import {stringify as stringifyPath} from '../../path/stringify'
+import {stringify as stringifyPath} from '../../path/parser/stringify'
 import type {Mutation, NodePatch} from '../../mutations/types'
 
 export function encode(mutations: Mutation[]) {

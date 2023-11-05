@@ -1,9 +1,11 @@
-import type {AnyArray} from '../../utils/typeUtils'
+export type AnyArray<T = any> = T[] | readonly T[]
 import type {KeyedPathElement} from '../types'
 
 export type ByIndex<P extends number, T extends AnyArray> = T[P]
 
-type ElementType<T extends AnyArray> = T extends AnyArray<infer E> ? E : unknown
+export type ElementType<T extends AnyArray> = T extends AnyArray<infer E>
+  ? E
+  : unknown
 
 export type FindInArray<
   P extends KeyedPathElement | number,

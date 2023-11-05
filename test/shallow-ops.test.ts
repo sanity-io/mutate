@@ -11,7 +11,7 @@ import {
   unassign,
   unset,
 } from '../src'
-import {applyOp} from '../src/apply/patch/applyOp'
+import {applyOp} from '../src/apply'
 
 test('Apply operation on value', () => {
   expect(applyOp(inc(1), 1)).toBe(2)

@@ -1,6 +1,6 @@
 import {expectTypeOf, test} from 'vitest'
-import {deepGet} from './deepGet'
-import type {DeepGet, Get} from './deepGet'
+import {getAtPath} from '../getAtPath'
+import type {Get, GetAtPath} from '../getAtPath'
 
 test('Get (shallow) typings', () => {
   expectTypeOf<
@@ -36,11 +36,11 @@ test('Get (shallow) typings', () => {
 
 test('DeepGet typings', () => {
   expectTypeOf<
-    DeepGet<[1, 'name'], [{name: 'foo'}, {name: 'bar'}, {name: 'baz'}]>
+    GetAtPath<[1, 'name'], [{name: 'foo'}, {name: 'bar'}, {name: 'baz'}]>
   >().toEqualTypeOf<'bar'>()
 
   expectTypeOf<
-    DeepGet<
+    GetAtPath<
       [{_key: 'second'}, 'title'],
       [
         {_key: 'first'; title: 'First'},
@@ -51,13 +51,13 @@ test('DeepGet typings', () => {
   >().toEqualTypeOf<'Second'>()
 
   expectTypeOf<
-    DeepGet<[{_key: 'second'}, 'title'], {_key: string; title: string}[]>
+    GetAtPath<[{_key: 'second'}, 'title'], {_key: string; title: string}[]>
   >()
     // @ts-expect-error - todo
     .toEqualTypeOf<string | undefined>()
 
   expectTypeOf<
-    DeepGet<[{_key: 'zzz'; foo: 'bar'}, 2], never>
+    GetAtPath<[{_key: 'zzz'; foo: 'bar'}, 2], never>
   >().toEqualTypeOf<never>()
 })
 
@@ -72,24 +72,24 @@ test('deepGet() function', () => {
     ],
   } as const
 
-  expectTypeOf(deepGet([], testDoc)).toEqualTypeOf(testDoc)
+  expectTypeOf(getAtPath([], testDoc)).toEqualTypeOf(testDoc)
 
-  expectTypeOf(deepGet(['items'], testDoc)).toEqualTypeOf(testDoc.items)
+  expectTypeOf(getAtPath(['items'], testDoc)).toEqualTypeOf(testDoc.items)
 
-  expectTypeOf(deepGet(['nonexistent'], testDoc)).toEqualTypeOf<never>()
+  expectTypeOf(getAtPath(['nonexistent'], testDoc)).toEqualTypeOf<never>()
 
-  expectTypeOf(deepGet(['items', 3, 'letters', 2], testDoc)).toEqualTypeOf(
+  expectTypeOf(getAtPath(['items', 3, 'letters', 2], testDoc)).toEqualTypeOf(
     'c' as const,
   )
 
-  expectTypeOf(deepGet([1], testDoc.items)).toEqualTypeOf(testDoc.items[1])
+  expectTypeOf(getAtPath([1], testDoc.items)).toEqualTypeOf(testDoc.items[1])
 
-  expectTypeOf(deepGet(['items', 2, 'letters', 2], testDoc)).toEqualTypeOf(
+  expectTypeOf(getAtPath(['items', 2, 'letters', 2], testDoc)).toEqualTypeOf(
     testDoc.items[2].letters[2],
   )
 
   expectTypeOf(
-    deepGet(['items', {_key: 'b'}, 'letters', 2], testDoc),
+    getAtPath(['items', {_key: 'b'}, 'letters', 2], testDoc),
   ).toEqualTypeOf(testDoc.items[1].letters[2])
 
   type MostlyLiteral = {
@@ -112,7 +112,7 @@ test('deepGet() function', () => {
     ],
   }
 
-  expectTypeOf(deepGet(['items', 2, 'letters', 2], literal)).toEqualTypeOf(
+  expectTypeOf(getAtPath(['items', 2, 'letters', 2], literal)).toEqualTypeOf(
     literal.items[2].letters[2],
   )
 })

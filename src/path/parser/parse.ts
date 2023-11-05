@@ -1,5 +1,5 @@
-import type {PathElement} from './types'
-import type {StringToPath} from './parser/types'
+import type {PathElement} from '../types'
+import type {StringToPath} from './types'
 
 export function parse<const T extends string>(path: T): StringToPath<T> {
   return path

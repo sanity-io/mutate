@@ -1,5 +1,7 @@
-export {stringify} from './stringify'
-export {parse} from './parse'
-export * from './types'
-export * from './utils'
-export * from './parser/types'
+export {stringify} from './parser/stringify'
+export {parse} from './parser/parse'
+export type * from './types'
+export type * from './parser/types'
+
+export * from './utils/normalize'
+export * from './utils/predicates'

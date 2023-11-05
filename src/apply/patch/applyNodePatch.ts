@@ -2,7 +2,8 @@ import {isArrayElement, isPropertyElement, stringify} from '../../path'
 import {isObject} from '../../utils/isObject'
 import {findTargetIndex, splice} from '../utils/array'
 import {applyOp} from './applyOp'
-import type {KeyedPathElement, Path} from '../../path'
+import type {KeyedPathElement, Path} from '../'
+
 import type {
   ApplyAtPath,
   ApplyNodePatch,

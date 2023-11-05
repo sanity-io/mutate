@@ -1,5 +1,5 @@
 // An example of a compact transport/serialization format
-import {stringify as stringifyPath} from '../../path/stringify'
+import {stringify as stringifyPath} from '../../path/parser/stringify'
 import type {Index, KeyedPathElement} from '../../path'
 import type {CompactMutation, CompactPatchMutation, ItemRef} from './types'
 import type {

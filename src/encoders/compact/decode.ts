@@ -1,4 +1,4 @@
-import {parse as parsePath} from '../../path/parse'
+import {parse as parsePath} from '../../path/parser/parse'
 import type {Index, KeyedPathElement} from '../../path'
 import type {
   CompactMutation,
