@@ -142,7 +142,7 @@ Define a set of operations and turn it into a patch mutation that can be applied
 
 ```js
 const patches = [
-  at("metadata", setIfMissing({)), // make sure metadata object exists
+  at("metadata", setIfMissing({})), // make sure metadata object exists
   at("metadata.published", set(true)),
   at("metadata.publishedAt", set(new Date().toISOString())),
 ]
