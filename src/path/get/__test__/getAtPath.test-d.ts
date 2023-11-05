@@ -1,5 +1,6 @@
 import {expectTypeOf, test} from 'vitest'
 import {getAtPath} from '../getAtPath'
+import type {Path} from '../../types'
 import type {Get, GetAtPath} from '../getAtPath'
 
 test('Get (shallow) typings', () => {
@@ -73,6 +74,10 @@ test('deepGet() function', () => {
   } as const
 
   expectTypeOf(getAtPath([], testDoc)).toEqualTypeOf(testDoc)
+
+  const path: Path = ['items']
+
+  expectTypeOf(getAtPath(path, testDoc)).toEqualTypeOf<unknown>()
 
   expectTypeOf(getAtPath(['items'], testDoc)).toEqualTypeOf(testDoc.items)
 

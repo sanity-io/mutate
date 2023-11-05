@@ -25,7 +25,6 @@ export type GetAtPath<P extends readonly PathElement[], T> = P extends []
     : undefined
   : undefined
 
-export function getAtPath<T>(path: [], value: T): T
 export function getAtPath<const Head extends PathElement, const T>(
   path: [head: Head],
   value: T,
@@ -35,12 +34,14 @@ export function getAtPath<
   const Tail extends PathElement[],
   T,
 >(path: [head: Head, ...tail: Tail], value: T): GetAtPath<[Head, ...Tail], T>
-export function getAtPath(path: Path, val: unknown): unknown {
+export function getAtPath<T>(path: [], value: T): T
+export function getAtPath(path: Path, value: unknown): unknown
+export function getAtPath(path: Path, value: unknown): unknown {
   if (path.length === 0) {
-    return val
+    return value
   }
 
-  let current = val
+  let current = value
   for (const head of path) {
     if (isArrayElement(head)) {
       if (!Array.isArray(current)) {
