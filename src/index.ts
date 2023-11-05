@@ -15,5 +15,7 @@ export type {
 
 import * as SanityEncoder from './encoders/sanity'
 import * as CompactEncoder from './encoders/compact'
-
 export {SanityEncoder, CompactEncoder}
+
+import * as CompactFormatter from './formatters/compact'
+export {CompactFormatter}
