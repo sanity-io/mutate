@@ -1,6 +1,6 @@
 {
   "name": "@bjoerge/mutiny",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Tiny toolkit for working with Sanity mutations in JavaScript & TypeScript",
   "keywords": [
     "sanity",
