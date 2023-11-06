@@ -18,9 +18,16 @@ export function encodeMutation(mutation: Mutation) {
       delete: {id: mutation.id},
     }
   }
-  return mutation.patches.map(patch => ({
-    patch: {id: mutation.id, ...patchToSanity(patch)},
-  }))
+  const ifRevisionID = mutation.options?.ifRevision
+  return mutation.patches.map(patch => {
+    return {
+      patch: {
+        id: mutation.id,
+        ...(ifRevisionID && {ifRevisionID}),
+        ...patchToSanity(patch),
+      },
+    }
+  })
 }
 
 function patchToSanity(patch: NodePatch) {
