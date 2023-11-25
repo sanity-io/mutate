@@ -4,6 +4,11 @@ Tiny toolkit for working with [Sanity](https://sanity.io) mutations in JavaScrip
 
 Disclaimer: This is work in progress, use at own risk!
 
+## At a glance
+- Declarative & composable mutation creators
+- Utilities for applying mutations on in-memory documents (experimental)
+- Local in-memory dataset replica with support for optimistic updates (experimental)
+
 ## Features
 
 - Mutations can be declared using creator functions and passed around like any other values, transformed and composed
@@ -271,6 +276,3 @@ To better align with a strict type system, mutiny differs slightly from the Sani
 - `set` and`setIfMissing` does not create intermediate empty objects - Using the Sanity API, `set` and `setIfMissing` will create intermediate empty objects if any object along the given path doesn't already exist. In `mutiny`, these patches will only apply to already existing objects.
 - Limited json match support. Sanity mutations supports a powerful path selection syntax for targeting multiple document nodes at once with [json-match](https://www.sanity.io/docs/json-match). To keep things simple, a mutiny patch can only target a single document node.
 
-## Todos
-
-- [ ] make `applyPatch` return metadata about the operations that got performed on which documents
