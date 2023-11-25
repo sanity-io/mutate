@@ -9,13 +9,21 @@ export interface ListenerSyncEvent {
   transactionId?: string
   document: SanityDocumentBase | undefined
 }
+
 export interface ListenerMendozaPatchEvent {
   type: 'mutation'
   transactionId: string
   effects: RawPatch
 }
+export interface ListenerErrorEvent {
+  type: 'error'
+  error: Error
+}
 
-export type RemoteListenerEvent = ListenerSyncEvent | ListenerMendozaPatchEvent
+export type RemoteListenerEvent =
+  | ListenerSyncEvent
+  | ListenerMendozaPatchEvent
+  | ListenerErrorEvent
 
 export interface OptimisticDocumentEvent {
   type: 'optimistic'
@@ -79,10 +87,21 @@ export interface ContentLakeStore {
   transaction(
     transaction: {id: string; mutations: Mutation[]} | Mutation[],
   ): MutationResult
+
   /**
    * Checkout a document for editing. This is required to be able to see optimistic changes
    */
-  observe(id: string): Observable<RemoteDocumentEvent | OptimisticDocumentEvent>
+  observe(id: string): Observable<{
+    remote: SanityDocumentBase | undefined
+    local: SanityDocumentBase | undefined
+  }>
+
+  /**
+   * Observe events for a given document id
+   */
+  observeEvents(
+    id: string,
+  ): Observable<RemoteDocumentEvent | OptimisticDocumentEvent>
 
   /**
    * Optimize list of pending mutations
@@ -90,15 +109,7 @@ export interface ContentLakeStore {
   optimize(): void
 
   /**
-   * Checkout a document for editing. This is required to be able to see optimistic changes
-   */
-  get(id: string): Observable<{
-    remote: SanityDocumentBase | undefined
-    local: SanityDocumentBase | undefined
-  }>
-
-  /**
    * Submit pending mutations
    */
-  submit(): Promise<SubmitResult>
+  submit(): Observable<SubmitResult>
 }
