@@ -59,9 +59,6 @@ function applyInStore<T extends SanityDocumentBase>(
       throw new Error('Unable to get document id from mutation')
     }
 
-    if (!(documentId in store)) {
-      return
-    }
     const before = updatedDocs[documentId]?.current || store[documentId]
     const res = apply(before, mutation)
     if (res.status === 'error') {

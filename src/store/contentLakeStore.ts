@@ -18,7 +18,6 @@ import {squashTransactions} from './optimizations/squashMutations'
 import {applyMendozaPatch} from './applyMendoza'
 import {rebase} from './rebase'
 import {squashDMPStrings} from './optimizations/squashDMPStrings'
-import type {SanityDocumentBase} from '../mutations/types'
 import type {Observable} from 'rxjs'
 
 import type {
@@ -32,10 +31,14 @@ import type {
 } from './types'
 
 export interface StoreBackend {
-  fetchDocuments: (ids: string[]) => PromiseLike<SanityDocumentBase[]>
-  sync: (id: string) => Observable<SanityDocumentBase | undefined>
-  listen: (id: string) => Observable<RemoteListenerEvent>
-  submit: (transactions: PendingTransaction[]) => Promise<SubmitResult>
+  /**
+   * Sets up a subscription to a document
+   * The first event should either be a sync event or an error event.
+   * After that, it should emit mutation events, error events or sync events
+   * @param id
+   */
+  observe: (id: string) => Observable<RemoteListenerEvent>
+  submit: (transactions: PendingTransaction[]) => Observable<SubmitResult>
 }
 
 export function createContentLakeStore(
@@ -58,7 +61,7 @@ export function createContentLakeStore(
 
   function getEvents(id: string) {
     const local$ = localMutations$.pipe(filter(event => event.id === id))
-    const remote$ = backend.listen(id).pipe(
+    const remote$ = backend.observe(id).pipe(
       mergeMap((event): Observable<RemoteDocumentEvent> => {
         const oldRemote = remote.get(id)
         if (event.type === 'sync') {
@@ -130,8 +133,8 @@ export function createContentLakeStore(
       outbox$.next()
       return res
     },
-    observe: getEvents,
-    get: id =>
+    observeEvents: getEvents,
+    observe: id =>
       getEvents(id).pipe(
         map(() => ({local: local.get(id), remote: remote.get(id)})),
       ),
