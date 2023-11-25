@@ -43,13 +43,10 @@ export interface RemoteMutationEvent {
 }
 export type RemoteDocumentEvent = RemoteSyncEvent | RemoteMutationEvent
 
-export interface Dataset<Doc extends SanityDocumentBase> {
-  [id: string]: Doc | undefined
-}
-
-export interface RemoteDocumentStore<Doc extends SanityDocumentBase> {
-  [id: string]: Doc | undefined
-}
+export type Dataset<Doc extends SanityDocumentBase> = Map<
+  string,
+  Doc | undefined
+>
 
 export interface MutationResult {}
 export interface QueryResult {

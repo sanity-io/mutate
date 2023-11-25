@@ -10,14 +10,15 @@ import {
   tap,
 } from 'rxjs'
 import {groupBy} from 'lodash'
-import {createLocalDataStore} from './stores/local'
-import {createRemoteDataStore} from './stores/remote'
+
 import {getMutationDocumentId} from './utils/getMutationDocumentId'
 import {createMemoizer} from './utils/memoize'
 import {squashTransactions} from './optimizations/squashMutations'
 import {applyMendozaPatch} from './applyMendoza'
 import {rebase} from './rebase'
 import {squashDMPStrings} from './optimizations/squashDMPStrings'
+import {createLocalDataset} from './datasets/local'
+import {createRemoteDataset} from './datasets/remote'
 import type {Observable} from 'rxjs'
 
 import type {
@@ -44,8 +45,8 @@ export interface StoreBackend {
 export function createContentLakeStore(
   backend: StoreBackend,
 ): ContentLakeStore {
-  const local = createLocalDataStore()
-  const remote = createRemoteDataStore()
+  const local = createLocalDataset()
+  const remote = createRemoteDataset()
   const memoize = createMemoizer()
   let outbox: PendingTransaction[] = []
 
@@ -113,7 +114,6 @@ export function createContentLakeStore(
     mutate: mutations => {
       outbox.push({mutations})
       const res = local.apply(mutations)
-
       const grouped = groupBy(mutations, r => getMutationDocumentId(r))
       Object.entries(grouped).forEach(([id, muts]) => {
         localMutations$.next({type: 'optimistic', id, mutations: muts})

@@ -3,44 +3,44 @@ import {getMutationDocumentId} from '../utils/getMutationDocumentId'
 import type {Mutation, SanityDocumentBase} from '../../mutations/types'
 import type {Dataset} from '../types'
 
-/**
- * A data store is a collection of documents that can be queried and mutated.
- */
-export function createLocalDataStore() {
-  const records: Dataset<SanityDocumentBase> = Object.create(null)
-
-  function commit(results: UpdateResult<SanityDocumentBase>[]) {
-    results.forEach(result => {
-      if (result.status === 'created' || result.status === 'updated') {
-        records[result.id] = result.after
-      }
-      if (result.status === 'deleted') {
-        records[result.id] = undefined
-      }
-    })
-  }
-
-  function applyOptimistically(mutations: Mutation[]) {
-    const results = applyInStore(records, mutations)
-    commit(results)
-    return results
-  }
-  return {
-    set: (id: string, doc: SanityDocumentBase | undefined) => {
-      records[id] = doc
-    },
-    getAll: () => records,
-    get: (id: string) => records[id],
-    has: (id: string) => id in records,
-    apply: applyOptimistically,
-  }
-}
 interface UpdateResult<T extends SanityDocumentBase> {
   id: string
   status: 'created' | 'updated' | 'deleted'
   before?: T
   after?: T
 }
+/**
+ * The in-memory local dataset that holds all currently active documents
+ */
+export function createLocalDataset() {
+  const documents: Dataset<SanityDocumentBase> = new Map()
+
+  function commit(results: UpdateResult<SanityDocumentBase>[]) {
+    results.forEach(result => {
+      if (result.status === 'created' || result.status === 'updated') {
+        documents.set(result.id, result.after)
+      }
+      if (result.status === 'deleted') {
+        documents.delete(result.id)
+      }
+    })
+  }
+
+  function applyOptimistically(mutations: Mutation[]) {
+    const results = applyInStore(documents, mutations)
+    commit(results)
+    return results
+  }
+  return {
+    set: (id: string, doc: SanityDocumentBase | undefined) =>
+      void documents.set(id, doc),
+    getAll: () => documents.values(),
+    get: (id: string) => documents.get(id),
+    has: (id: string) => documents.has(id),
+    apply: applyOptimistically,
+  }
+}
+
 function applyInStore<T extends SanityDocumentBase>(
   store: Dataset<T>,
   mutations: Mutation[],
@@ -51,7 +51,7 @@ function applyInStore<T extends SanityDocumentBase>(
       before: T | undefined
       current: T | undefined
     }
-  > = {}
+  > = Object.create(null)
 
   mutations.forEach(mutation => {
     const documentId = getMutationDocumentId(mutation)
@@ -59,7 +59,7 @@ function applyInStore<T extends SanityDocumentBase>(
       throw new Error('Unable to get document id from mutation')
     }
 
-    const before = updatedDocs[documentId]?.current || store[documentId]
+    const before = updatedDocs[documentId]?.current || store.get(documentId)
     const res = apply(before, mutation)
     if (res.status === 'error') {
       throw new Error(res.message)
