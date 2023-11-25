@@ -21,8 +21,6 @@ import {createDataset} from './datasets/createDataset'
 import {squashDMPStrings} from './optimizations/squashDMPStrings'
 import {squashTransactions} from './optimizations/squashMutations'
 import {rebase} from './rebase'
-import {createLocalDataStore} from './stores/local'
-import {createRemoteDataStore} from './stores/remote'
 import {
   type ContentLakeStore,
   type DataStoreLogEvent,
@@ -49,8 +47,8 @@ export interface StoreBackend {
 export function createContentLakeStore(
   backend: StoreBackend,
 ): ContentLakeStore {
-  const local = createLocalDataStore()
-  const remote = createRemoteDataStore()
+  const local = createLocalDataset()
+  const remote = createRemoteDataset()
   const memoize = createMemoizer()
   let outbox: PendingTransaction[] = []
 
@@ -118,7 +116,6 @@ export function createContentLakeStore(
     mutate: mutations => {
       outbox.push({mutations})
       const res = local.apply(mutations)
-
       const grouped = groupBy(mutations, r => getMutationDocumentId(r))
       Object.entries(grouped).forEach(([id, muts]) => {
         localMutations$.next({type: 'optimistic', id, mutations: muts})
