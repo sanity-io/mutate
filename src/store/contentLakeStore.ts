@@ -16,7 +16,6 @@ import {type SanityDocumentBase} from '../mutations/types'
 import {applyMendozaPatch} from './applyMendoza'
 import {squashDMPStrings} from './optimizations/squashDMPStrings'
 import {squashTransactions} from './optimizations/squashMutations'
-import {createLoader, query} from './query'
 import {rebase} from './rebase'
 import {createLocalDataStore} from './stores/local'
 import {createRemoteDataStore} from './stores/remote'
@@ -108,16 +107,6 @@ export function createContentLakeStore(
     localLog: localLog$.asObservable(),
     remoteLog: remoteLog$.asObservable(),
     outbox: outbox$.asObservable().pipe(map(() => outbox)),
-    query: async (q: string, params?: Record<string, unknown>) => {
-      const start = new Date()
-      const dataset = local.getAll()
-      const loader = createLoader(backend.fetchDocuments, dataset)
-      const result = await query(dataset, loader, q, params)
-      return {
-        result,
-        ms: new Date().getTime() - start.getTime(),
-      }
-    },
     mutate: mutations => {
       outbox.push({mutations})
       const res = local.apply(mutations)
