@@ -68,14 +68,6 @@ export interface ContentLakeStore {
   outbox: Observable<PendingTransaction[]>
 
   /**
-   * Can this be executed both locally and remotely?
-   */
-  query(
-    query: string,
-    params?: Record<string, unknown>,
-  ): PromiseLike<QueryResult>
-
-  /**
    * Applies the given mutations. Mutations are not guaranteed to be submitted in the same transaction
    * Can this mutate both local and remote documents at the same time
    */
