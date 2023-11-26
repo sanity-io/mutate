@@ -93,7 +93,7 @@ describe('local mutations', () => {
 
     expect(emissions).toEqual([
       {
-        type: 'next',
+        kind: 'NEXT',
         value: {
           type: 'sync',
           id: 'foo',
@@ -113,7 +113,7 @@ describe('local mutations', () => {
         },
       },
       {
-        type: 'next',
+        kind: 'NEXT',
         value: {
           type: 'optimistic',
           id: 'foo',
@@ -154,7 +154,7 @@ describe('local mutations', () => {
 
     expect(emissions).toEqual([
       {
-        type: 'next',
+        kind: 'NEXT',
         value: {
           type: 'optimistic',
           id: 'foo',
@@ -178,7 +178,7 @@ describe('local mutations', () => {
 
     expect(emissions).toEqual([
       {
-        type: 'next',
+        kind: 'NEXT',
         value: {
           type: 'optimistic',
           id: 'foo',
@@ -197,7 +197,7 @@ describe('local mutations', () => {
         },
       },
       {
-        type: 'next',
+        kind: 'NEXT',
         value: {
           type: 'sync',
           id: 'foo',
@@ -217,7 +217,7 @@ describe('local mutations', () => {
         },
       },
       {
-        type: 'next',
+        kind: 'NEXT',
         value: {
           type: 'sync',
           id: 'foo',
@@ -266,7 +266,7 @@ describe('local mutations', () => {
 
     expect(emissions).toEqual([
       {
-        type: 'next',
+        kind: 'NEXT',
         value: {
           type: 'optimistic',
           after: {_id: 'foo', _type: 'foo'},
@@ -290,7 +290,7 @@ describe('local mutations', () => {
 
     expect(emissions).toMatchObject([
       {
-        type: 'next',
+        kind: 'NEXT',
         value: {
           after: {_id: 'foo', _type: 'foo'},
           before: undefined,
@@ -299,7 +299,7 @@ describe('local mutations', () => {
           type: 'optimistic',
         },
       },
-      {error: {message: 'Document already exist'}, type: 'error'},
+      {kind: 'ERROR', error: {message: 'Document already exist'}},
     ])
 
     unsubscribe()
