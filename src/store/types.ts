@@ -1,4 +1,3 @@
-import {type Value} from 'groq-js'
 import {type RawPatch} from 'mendoza'
 import {type Observable} from 'rxjs'
 
@@ -10,10 +9,11 @@ export interface ListenerSyncEvent {
   document: SanityDocumentBase | undefined
 }
 
-export interface ListenerMendozaPatchEvent {
+export interface ListenerMutationEvent {
   type: 'mutation'
   transactionId: string
   effects: RawPatch
+  mutations: Required<MutationEvent['mutations']>
 }
 export interface ListenerErrorEvent {
   type: 'error'
@@ -22,7 +22,7 @@ export interface ListenerErrorEvent {
 
 export type RemoteListenerEvent =
   | ListenerSyncEvent
-  | ListenerMendozaPatchEvent
+  | ListenerMutationEvent
   | ListenerErrorEvent
 
 export interface OptimisticDocumentEvent {
@@ -40,6 +40,7 @@ export interface RemoteMutationEvent {
   type: 'mutation'
   id: string
   effects: RawPatch
+  mutations: Mutation[]
 }
 export type RemoteDocumentEvent = RemoteSyncEvent | RemoteMutationEvent
 
@@ -49,10 +50,6 @@ export type Dataset<Doc extends SanityDocumentBase> = Map<
 >
 
 export interface MutationResult {}
-export interface QueryResult {
-  ms: number
-  result: Value
-}
 
 export interface SubmitResult {}
 
@@ -67,8 +64,8 @@ export interface ContentLakeStore {
   /**
    * A stream of events for anything that happens in the store
    */
-  localLog: Observable<DataStoreLogEvent>
-  remoteLog: Observable<RemoteDocumentEvent>
+  // localLog: Observable<DataStoreLogEvent>
+  // remoteLog: Observable<RemoteDocumentEvent>
 
   outbox: Observable<PendingTransaction[]>
 
