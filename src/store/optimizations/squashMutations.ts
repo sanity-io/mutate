@@ -5,11 +5,9 @@ import {takeUntilRight} from '../utils/arrayUtils'
 import {squashNodePatches} from './squashNodePatches'
 import type {Mutation, NodePatch} from '../../mutations/types'
 
-import type {PendingTransaction} from '../types'
+import type {ChangeSet} from '../types'
 
-export function squashTransactions(
-  transactions: PendingTransaction[],
-): PendingTransaction[] {
+export function squashTransactions(transactions: ChangeSet[]): ChangeSet[] {
   return chunkTransactions(transactions)
     .map(transaction => ({
       ...transaction,

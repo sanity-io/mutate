@@ -1,5 +1,5 @@
 import {applyPatch} from 'mendoza'
-import type {SanityDocumentBase} from '../mutations/types'
+import type {SanityDocumentBase} from '../../mutations/types'
 import type {RawPatch} from 'mendoza'
 
 function omitRev(document: SanityDocumentBase | undefined) {

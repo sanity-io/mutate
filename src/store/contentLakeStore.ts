@@ -3,34 +3,36 @@ import {
   Subject,
   defer,
   filter,
+  lastValueFrom,
   map,
   merge,
   mergeMap,
   of,
   tap,
+  toArray,
 } from 'rxjs'
-import {groupBy} from 'lodash'
 
 import {decode} from '../encoders/sanity'
-import {getMutationDocumentId} from './utils/getMutationDocumentId'
 import {createMemoizer} from './utils/memoize'
 import {squashTransactions} from './optimizations/squashMutations'
-import {applyMendozaPatch} from './applyMendoza'
 import {rebase} from './rebase'
 import {squashDMPStrings} from './optimizations/squashDMPStrings'
-import {createLocalDataset} from './datasets/local'
-import {createRemoteDataset} from './datasets/remote'
+
+import {createDataset} from './datasets/createDataset'
+import {applyMutations} from './datasets/applyMutations'
+import {commit} from './datasets/commit'
+import {applyMendozaPatch} from './datasets/applyMendoza'
 import type {SanityMutation} from '../encoders/sanity'
 import type {Observable} from 'rxjs'
 
 import type {
   ContentLakeStore,
-  DataStoreLogEvent,
   OptimisticDocumentEvent,
-  PendingTransaction,
   RemoteDocumentEvent,
   RemoteListenerEvent,
+  StagedMutations,
   SubmitResult,
+  TransactionalMutations,
 } from './types'
 
 export interface StoreBackend {
@@ -41,39 +43,50 @@ export interface StoreBackend {
    * @param id
    */
   observe: (id: string) => Observable<RemoteListenerEvent>
-  submit: (transactions: PendingTransaction[]) => Observable<SubmitResult>
+  submit: (transactions: StagedMutations[]) => Observable<SubmitResult>
 }
 
 export function createContentLakeStore(
   backend: StoreBackend,
 ): ContentLakeStore {
-  const local = createLocalDataset()
-  const remote = createRemoteDataset()
+  const local = createDataset()
+  const remote = createDataset()
   const memoize = createMemoizer()
-  let outbox: PendingTransaction[] = []
+  let stagedChanges: StagedMutations[] = []
 
   const localMutations$ = new Subject<OptimisticDocumentEvent>()
-  const localLog$ = new Subject<DataStoreLogEvent>()
-  const outbox$ = new Subject<void>()
-  const remoteLog$ = new Subject<RemoteDocumentEvent>()
+  const stage$ = new Subject<void>()
+  const log$ = new Subject<RemoteDocumentEvent>()
 
-  function setOutBox(nextOutBox: PendingTransaction[]) {
-    outbox = nextOutBox
-    outbox$.next()
+  function stage(nextPending: StagedMutations[]) {
+    stagedChanges = nextPending
+    stage$.next()
   }
 
-  function getEvents(id: string) {
-    const local$ = localMutations$.pipe(filter(event => event.id === id))
-    const remote$ = backend.observe(id).pipe(
+  function getLocalEvents(id: string) {
+    return localMutations$.pipe(filter(event => event.id === id))
+  }
+
+  function getRemoteEvents(id: string) {
+    return backend.observe(id).pipe(
       mergeMap((event): Observable<RemoteDocumentEvent> => {
+        const oldLocal = local.get(id)
         const oldRemote = remote.get(id)
         if (event.type === 'sync') {
           const newRemote = event.document
-          const [newOutbox, newLocal] = rebase(id, oldRemote, newRemote, outbox)
-          setOutBox(newOutbox)
-          remote.set(id, newRemote)
-          local.set(id, newLocal)
-          return of({type: 'sync', document: event.document, id})
+          const [rebasedStage, newLocal] = rebase(
+            id,
+            oldRemote,
+            newRemote,
+            stagedChanges,
+          )
+          return of({
+            type: 'sync',
+            id,
+            before: {remote: oldRemote, local: oldLocal},
+            after: {remote: newRemote, local: newLocal},
+            rebasedStage,
+          })
         } else if (event.type === 'mutation') {
           // we have already seen this mutation
           if (event.transactionId === oldRemote?._rev) {
@@ -85,69 +98,105 @@ export function createContentLakeStore(
             newRemote._rev = event.transactionId
           }
 
-          const [newOutbox, newLocal] = rebase(id, oldRemote, newRemote, outbox)
+          const [rebasedStage, newLocal] = rebase(
+            id,
+            oldRemote,
+            newRemote,
+            stagedChanges,
+          )
 
           if (newLocal) {
             newLocal._rev = event.transactionId
           }
 
-          remote.set(id, newRemote)
-          local.set(id, newLocal)
-          setOutBox(newOutbox)
-
           return of({
             type: 'mutation',
             id,
+            rebasedStage,
+            before: {remote: oldRemote, local: oldLocal},
+            after: {remote: newRemote, local: newLocal},
             effects: event.effects,
             mutations: decode(event.mutations as SanityMutation[]),
           })
         } else {
-          throw new Error('Invalid event type')
+          throw new Error(`Unknown event type: ${event.type}`)
         }
       }),
-      tap(event => remoteLog$.next(event)),
+      tap(event => {
+        local.set(event.id, event.after.local)
+        remote.set(event.id, event.after.remote)
+        stage(event.rebasedStage)
+      }),
+      tap(event => log$.next(event)),
     )
-    return defer(() => memoize(id, merge(local$, remote$)))
+  }
+
+  function observeEvents(id: string) {
+    return defer(() =>
+      memoize(id, merge(getLocalEvents(id), getRemoteEvents(id))),
+    )
   }
 
   return {
-    outbox: outbox$.asObservable().pipe(map(() => outbox)),
     mutate: mutations => {
-      outbox.push({mutations})
-      const res = local.apply(mutations)
-      const grouped = groupBy(mutations, r => getMutationDocumentId(r))
-      Object.entries(grouped).forEach(([id, muts]) => {
-        localMutations$.next({type: 'optimistic', id, mutations: muts})
+      // add mutations to list of pending changes
+      stagedChanges.push({transaction: false, mutations})
+      // Apply mutations to local dataset (note: this is immutable, and doesn't change the dataset)
+      const results = applyMutations(mutations, local)
+      // Write the updated results back to the "local" dataset
+      commit(results, local)
+      results.forEach(result => {
+        localMutations$.next({
+          type: 'optimistic',
+          before: result.before,
+          after: result.after,
+          mutations: result.mutations,
+          id: result.id,
+        })
       })
-      localLog$.next({mutations})
-      outbox$.next()
-      return res
+      return results
     },
     transaction: mutationsOrTransaction => {
-      const transaction = Array.isArray(mutationsOrTransaction)
-        ? {mutations: mutationsOrTransaction}
-        : mutationsOrTransaction
+      const transaction: TransactionalMutations = Array.isArray(
+        mutationsOrTransaction,
+      )
+        ? {mutations: mutationsOrTransaction, transaction: true}
+        : {...mutationsOrTransaction, transaction: true}
 
-      outbox.push(transaction)
-      const res = local.apply(transaction.mutations)
-      localLog$.next(transaction)
-      outbox$.next()
-      return res
+      stagedChanges.push(transaction)
+      const results = applyMutations(transaction.mutations, local)
+      commit(results, local)
+      results.forEach(result => {
+        localMutations$.next({
+          type: 'optimistic',
+          mutations: result.mutations,
+          id: result.id,
+          before: result.before,
+          after: result.after,
+        })
+      })
+      return results
     },
-    observeEvents: getEvents,
+    observeEvents,
     observe: id =>
-      getEvents(id).pipe(
-        map(() => ({local: local.get(id), remote: remote.get(id)})),
+      observeEvents(id).pipe(
+        map(event =>
+          event.type === 'optimistic' ? event.after : event.after.local,
+        ),
       ),
     optimize: () => {
-      setOutBox(squashTransactions(outbox))
+      stage(squashTransactions(stagedChanges))
     },
     submit: () => {
-      const pending = outbox
-      setOutBox([])
-      return backend.submit(
-        // Squashing DMP strings is the last thing we do before submitting
-        squashDMPStrings(remote, squashTransactions(pending)),
+      const pending = stagedChanges
+      stage([])
+      return lastValueFrom(
+        backend
+          .submit(
+            // Squashing DMP strings is the last thing we do before submitting
+            squashDMPStrings(remote, squashTransactions(pending)),
+          )
+          .pipe(toArray()),
       )
     },
   }

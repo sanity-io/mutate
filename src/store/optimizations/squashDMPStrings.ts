@@ -6,17 +6,17 @@ import type {
   SanityDocumentBase,
 } from '../../mutations/types'
 
-import type {PendingTransaction} from '../types'
+import type {ChangeSet} from '../types'
 
 interface DataStore {
   get: (id: string) => SanityDocumentBase | undefined
 }
 export function squashDMPStrings(
   remote: DataStore,
-  transactions: PendingTransaction[],
-): PendingTransaction[] {
+  transactions: ChangeSet[],
+): ChangeSet[] {
   return transactions.map(
-    (transaction: PendingTransaction): PendingTransaction => ({
+    (transaction: ChangeSet): ChangeSet => ({
       ...transaction,
       mutations: dmpIfyMutations(remote, transaction.mutations),
     }),

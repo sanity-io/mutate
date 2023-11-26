@@ -1,6 +1,5 @@
 import {nanoid} from 'nanoid'
-
-import {applyPatchMutation, assignId, hasId} from '../apply'
+import {applyPatchMutation, assignId, hasId} from '../../apply'
 import type {
   CreateIfNotExistsMutation,
   CreateMutation,
@@ -9,7 +8,7 @@ import type {
   Mutation,
   PatchMutation,
   SanityDocumentBase,
-} from '../mutations/types'
+} from '../../mutations/types'
 
 export type MutationResult<Doc extends SanityDocumentBase> =
   | {
@@ -37,12 +36,17 @@ export type MutationResult<Doc extends SanityDocumentBase> =
       status: 'noop'
     }
 
+/**
+ * Applies a set of mutations to the provided document
+ * @param current
+ * @param mutation
+ */
 export function applyAll<Doc extends SanityDocumentBase>(
   current: Doc | undefined,
   mutation: Mutation<Doc>[],
 ): Doc | undefined {
   return mutation.reduce((doc, m) => {
-    const res = applyMutiny(doc, m)
+    const res = applyDocumentMutation(doc, m)
     if (res.status === 'error') {
       throw new Error(res.message)
     }
@@ -50,42 +54,47 @@ export function applyAll<Doc extends SanityDocumentBase>(
   }, current)
 }
 
-export function applyMutiny<Doc extends SanityDocumentBase>(
-  current: Doc | undefined,
+/**
+ * Applies a mutation to the provided document
+ * @param document
+ * @param mutation
+ */
+export function applyDocumentMutation<Doc extends SanityDocumentBase>(
+  document: Doc | undefined,
   mutation: Mutation<Doc>,
 ): MutationResult<Doc> {
   if (mutation.type === 'create') {
-    return create(current, mutation)
+    return create(document, mutation)
   }
   if (mutation.type === 'createIfNotExists') {
-    return createIfNotExists(current, mutation)
+    return createIfNotExists(document, mutation)
   }
   if (mutation.type === 'delete') {
-    return del(current, mutation)
+    return del(document, mutation)
   }
   if (mutation.type === 'createOrReplace') {
-    return createOrReplace(current, mutation)
+    return createOrReplace(document, mutation)
   }
   if (mutation.type === 'patch') {
-    return patch(current, mutation)
+    return patch(document, mutation)
   }
   // @ts-expect-error all cases should be covered
   throw new Error(`Invalid mutation type: ${mutation.type}`)
 }
 
 function create<Doc extends SanityDocumentBase>(
-  current: Doc | undefined,
+  document: Doc | undefined,
   mutation: CreateMutation<Doc>,
 ): MutationResult<Doc> {
-  if (current) {
+  if (document) {
     return {status: 'error', message: 'Document already exist'}
   }
-  const document = assignId(mutation.document, nanoid)
-  return {status: 'created', id: document._id, after: document}
+  const result = assignId(mutation.document, nanoid)
+  return {status: 'created', id: result._id, after: result}
 }
 
 function createIfNotExists<Doc extends SanityDocumentBase>(
-  current: Doc | undefined,
+  document: Doc | undefined,
   mutation: CreateIfNotExistsMutation<Doc>,
 ): MutationResult<Doc> {
   if (!hasId(mutation.document)) {
@@ -94,13 +103,13 @@ function createIfNotExists<Doc extends SanityDocumentBase>(
       message: 'Cannot createIfNotExists on document without _id',
     }
   }
-  return current
+  return document
     ? {status: 'noop'}
     : {status: 'created', id: mutation.document._id, after: mutation.document}
 }
 
 function createOrReplace<Doc extends SanityDocumentBase>(
-  current: Doc | undefined,
+  document: Doc | undefined,
   mutation: CreateOrReplaceMutation<Doc>,
 ): MutationResult<Doc> {
   if (!hasId(mutation.document)) {
@@ -110,41 +119,46 @@ function createOrReplace<Doc extends SanityDocumentBase>(
     }
   }
 
-  return current
+  return document
     ? {
         status: 'updated',
         id: mutation.document._id,
-        before: current,
+        before: document,
         after: mutation.document,
       }
     : {status: 'created', id: mutation.document._id, after: mutation.document}
 }
 
 function del<Doc extends SanityDocumentBase>(
-  current: Doc | undefined,
+  document: Doc | undefined,
   mutation: DeleteMutation,
 ): MutationResult<Doc> {
-  if (!current) {
+  if (!document) {
     return {status: 'noop'}
   }
-  if (mutation.id !== current._id) {
+  if (mutation.id !== document._id) {
     return {status: 'error', message: 'Delete mutation targeted wrong document'}
   }
-  return {status: 'deleted', id: mutation.id, before: current, after: undefined}
+  return {
+    status: 'deleted',
+    id: mutation.id,
+    before: document,
+    after: undefined,
+  }
 }
 
 function patch<Doc extends SanityDocumentBase>(
-  current: Doc | undefined,
+  document: Doc | undefined,
   mutation: PatchMutation,
 ): MutationResult<Doc> {
-  if (!current) {
+  if (!document) {
     return {
       status: 'error',
       message: 'Cannot apply patch on nonexistent document',
     }
   }
-  const next = applyPatchMutation(mutation, current)
-  return current === next
+  const next = applyPatchMutation(mutation, document)
+  return document === next
     ? {status: 'noop'}
-    : {status: 'updated', id: mutation.id, before: current, after: next}
+    : {status: 'updated', id: mutation.id, before: document, after: next}
 }

@@ -12,13 +12,13 @@ import {
 test('squashDMPStrings() a simple case', () => {
   const remote = {_id: 'test', _type: 'test', foo: 'bar\nbaz'}
 
-  const outbox = [
+  const stage = [
     {
       mutations: [patch('test', [at('foo', set('bar\nbat'))])],
     },
   ]
 
-  const mutations = squashDMPStrings({get: () => remote}, outbox)
+  const mutations = squashDMPStrings({get: () => remote}, stage)
 
   expect(mutations).toEqual([
     {
@@ -38,7 +38,7 @@ test('squashDMPStrings() where a value has been unset and re-set', () => {
     foo: {something: 'bar\nbaz', other: 'x'},
   }
 
-  const outbox = [
+  const staged = [
     {
       mutations: [
         patch('test', [
@@ -50,7 +50,7 @@ test('squashDMPStrings() where a value has been unset and re-set', () => {
     },
   ]
 
-  const mutations = squashDMPStrings({get: () => remote}, outbox)
+  const mutations = squashDMPStrings({get: () => remote}, staged)
 
   expect(mutations).toEqual([
     {
