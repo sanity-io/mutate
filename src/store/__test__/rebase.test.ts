@@ -3,19 +3,30 @@ import {expect, test} from 'vitest'
 import {at, patch} from '../../mutations/creators'
 import {set} from '../../mutations/operations/creators'
 import {rebase} from '../rebase'
-import {type PendingTransaction} from '../types'
+import {type MutationGroup, type NonTransactionalMutationGroup} from '../types'
 
 test('rebase() a simple case', () => {
   const oldRemote = {_id: 'test', _type: 'test', foo: 'bar\nbaz'}
   const newRemote = {_id: 'test', _type: 'test', foo: 'car\nbaz'}
 
-  const outbox = [{mutations: [patch('test', [at('foo', set('bar\nbat'))])]}]
+  const stage = [
+    {
+      transaction: false,
+      mutations: [patch('test', [at('foo', set('bar\nbat'))])],
+    },
+  ]
 
-  const [nextOutbox, nextLocal] = rebase('test', oldRemote, newRemote, outbox)
+  const [nextPendingChanges, nextLocal] = rebase(
+    'test',
+    oldRemote,
+    newRemote,
+    stage,
+  )
   expect(nextLocal).toEqual({_id: 'test', _type: 'test', foo: 'car\nbat'})
 
-  expect(nextOutbox).toEqual([
+  expect(nextPendingChanges).toEqual([
     {
+      transaction: false,
       mutations: [patch('test', [at('foo', set('car\nbat'))])],
     },
   ])
@@ -25,12 +36,12 @@ test('rebase() without pending mutations', () => {
   const oldRemote = {_id: 'test', _type: 'test', foo: 'bar\nbaz'}
   const newRemote = {_id: 'test', _type: 'test', foo: 'car\nbaz'}
 
-  const outbox: PendingTransaction[] = []
+  const staged: StagedMutations[] = []
 
-  const [nextOutbox, nextLocal] = rebase('test', oldRemote, newRemote, outbox)
+  const [nextStage, nextLocal] = rebase('test', oldRemote, newRemote, staged)
   expect(nextLocal).toEqual(newRemote)
 
-  expect(nextOutbox).toEqual([])
+  expect(nextStage).toEqual([])
 })
 
 test('rebase() where a the new base has a deleted parent', () => {
@@ -45,8 +56,9 @@ test('rebase() where a the new base has a deleted parent', () => {
     _type: 'person',
   }
 
-  const outbox: PendingTransaction[] = [
+  const staged: NonTransactionalMutations[] = [
     {
+      transaction: false,
       mutations: [
         {
           type: 'createIfNotExists',
@@ -70,11 +82,11 @@ test('rebase() where a the new base has a deleted parent', () => {
     },
   ]
 
-  const [nextOutbox, nextLocal] = rebase(
+  const [nextStage, nextLocal] = rebase(
     'some-document',
     oldBase,
     newBase,
-    outbox,
+    staged,
   )
   expect(nextLocal).toEqual({
     _id: 'some-document',
@@ -85,5 +97,5 @@ test('rebase() where a the new base has a deleted parent', () => {
     },
   })
 
-  expect(nextOutbox).toEqual(outbox)
+  expect(nextStage).toEqual(staged)
 })

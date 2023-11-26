@@ -1,12 +1,8 @@
-import {type PendingTransaction} from '../types'
-
 /**
  * Groups subsequent mutations into transactions, leaves transactions as-is
  * @param transactions
  */
-export function chunkTransactions(
-  transactions: PendingTransaction[],
-): PendingTransaction[] {
+export function chunkTransactions(transactions: ChangeSet[]): ChangeSet[] {
   return chunkWhile(transactions, transaction => !transaction.id).flatMap(
     chunk => ({
       ...chunk[0],

@@ -8,7 +8,7 @@ import {
 import {getAtPath} from '../path'
 import {applyAll} from './datasets/applyDocumentMutation'
 import {compactDMPSetPatches} from './optimizations/squashNodePatches'
-import {type PendingTransaction} from './types'
+import {type MutationGroup} from './types'
 import {getMutationDocumentId} from './utils/getMutationDocumentId'
 
 type RebaseTransaction = {
@@ -36,15 +36,15 @@ export function rebase(
   documentId: string,
   oldBase: SanityDocumentBase | undefined,
   newBase: SanityDocumentBase | undefined,
-  outbox: PendingTransaction[],
-): [newOutBox: PendingTransaction[], newLocal: SanityDocumentBase | undefined] {
-  // const flattened = flattenMutations(outbox.flatMap(t => t.mutations))
+  stagedMutations: StagedMutations[],
+): [newStage: StagedMutations[], rebased: SanityDocumentBase | undefined] {
+  // const flattened = flattenMutations(newStage.flatMap(t => t.mutations))
 
-  // 1. get the dmpified mutations from the outbox based on the old base
+  // 1. get the dmpified mutations from the newStage based on the old base
   // 2. apply those to the new base
-  // 3. convert those back into set patches based on the new base and return as a new outbox
+  // 3. convert those back into set patches based on the new base and return as a new newStage
   let edge = oldBase
-  const dmpified = outbox.map(transaction => {
+  const dmpified = stagedMutations.map(transaction => {
     const mutations = transaction.mutations.flatMap(mut => {
       if (getMutationDocumentId(mut) !== documentId) {
         return []
@@ -73,6 +73,7 @@ export function rebase(
 
   let newBaseWithDMPForOldBaseApplied: SanityDocumentBase | undefined = newBase
   // NOTE: It might not be possible to apply them - if so, we fall back to applying the pending changes
+  // todo: revisit this
   const appliedCleanly = dmpified.map(transaction => {
     const applied = []
     return transaction.mutations.forEach(mut => {
@@ -85,6 +86,7 @@ export function rebase(
           )
           applied.push(mut)
         } catch (err) {
+          // eslint-disable-next-line no-console
           console.warn('Failed to apply dmp patch, falling back to original')
           try {
             newBaseWithDMPForOldBaseApplied = applyPatches(
@@ -107,7 +109,7 @@ export function rebase(
     })
   })
 
-  const newOutbox = outbox.map((transaction): PendingTransaction => {
+  const newStage = stagedMutations.map((transaction): StagedMutations => {
     // update all set patches to set to the current value
     return {
       ...transaction,
@@ -133,5 +135,5 @@ export function rebase(
       }),
     }
   })
-  return [newOutbox, newBaseWithDMPForOldBaseApplied]
+  return [newStage, newBaseWithDMPForOldBaseApplied]
 }

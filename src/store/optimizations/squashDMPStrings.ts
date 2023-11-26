@@ -4,7 +4,6 @@ import {
   type PatchMutation,
   type SanityDocumentBase,
 } from '../../mutations/types'
-import {type PendingTransaction} from '../types'
 import {compactDMPSetPatches} from './squashNodePatches'
 
 interface DataStore {
@@ -12,10 +11,10 @@ interface DataStore {
 }
 export function squashDMPStrings(
   remote: DataStore,
-  transactions: PendingTransaction[],
-): PendingTransaction[] {
+  transactions: ChangeSet[],
+): ChangeSet[] {
   return transactions.map(
-    (transaction: PendingTransaction): PendingTransaction => ({
+    (transaction: ChangeSet): ChangeSet => ({
       ...transaction,
       mutations: dmpIfyMutations(remote, transaction.mutations),
     }),
