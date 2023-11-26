@@ -8,3 +8,4 @@ tsconfig.*
 .prettierignore
 .prettierrc
 package.config.ts
+vitest.config.ts
