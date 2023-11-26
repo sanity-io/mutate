@@ -42,7 +42,7 @@ export function applyAll<Doc extends SanityDocumentBase>(
   mutation: Mutation<Doc>[],
 ): Doc | undefined {
   return mutation.reduce((doc, m) => {
-    const res = apply(doc, m)
+    const res = applyMutiny(doc, m)
     if (res.status === 'error') {
       throw new Error(res.message)
     }
@@ -50,7 +50,7 @@ export function applyAll<Doc extends SanityDocumentBase>(
   }, current)
 }
 
-export function apply<Doc extends SanityDocumentBase>(
+export function applyMutiny<Doc extends SanityDocumentBase>(
   current: Doc | undefined,
   mutation: Mutation<Doc>,
 ): MutationResult<Doc> {

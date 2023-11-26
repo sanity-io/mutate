@@ -1,7 +1,7 @@
 import {applyPatches} from '../apply'
 import {getAtPath} from '../path'
 import {getMutationDocumentId} from './utils/getMutationDocumentId'
-import {applyAll} from './apply'
+import {applyAll} from './applyMutiny'
 import {compactDMPSetPatches} from './optimizations/squashNodePatches'
 import type {
   Mutation,
