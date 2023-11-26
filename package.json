@@ -30,6 +30,13 @@
       "require": "./dist/_path.cjs",
       "default": "./dist/_path.js"
     },
+    "./_unstable_store": {
+      "types": "./dist/_unstable_store.d.ts",
+      "source": "./src/_unstable_store.ts",
+      "import": "./dist/_unstable_store.js",
+      "require": "./dist/_unstable_store.cjs",
+      "default": "./dist/_unstable_store.js"
+    },
     "./_unstable_apply": {
       "types": "./dist/_unstable_apply.d.ts",
       "source": "./src/_unstable_apply.ts",
