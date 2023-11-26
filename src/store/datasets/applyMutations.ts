@@ -22,7 +22,7 @@ export function applyMutations<T extends SanityDocumentBase>(
     {
       before: T | undefined
       after: T | undefined
-      mutations: Mutation[]
+      muts: Mutation[]
     }
   > = Object.create(null)
 
@@ -46,7 +46,7 @@ export function applyMutations<T extends SanityDocumentBase>(
       res.status === 'deleted'
     ) {
       if (!(documentId in updatedDocs)) {
-        updatedDocs[documentId] = {before, after: undefined, mutations: []}
+        updatedDocs[documentId] = {before, after: undefined, muts: []}
       }
       updatedDocs[documentId].after = res.after
     }
@@ -54,11 +54,11 @@ export function applyMutations<T extends SanityDocumentBase>(
 
   return Object.entries(updatedDocs).map(
     // eslint-disable-next-line no-shadow
-    ([id, {before, after, mutations}]) => {
+    ([id, {before, after, muts}]) => {
       return {
         id,
         status: after ? (before ? 'updated' : 'created') : 'deleted',
-        mutations,
+        mutations: muts,
         before,
         after,
       }
