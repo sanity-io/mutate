@@ -3,7 +3,7 @@ import {getAtPath} from '../path'
 import {getMutationDocumentId} from './utils/getMutationDocumentId'
 import {compactDMPSetPatches} from './optimizations/squashNodePatches'
 import {applyAll} from './datasets/applyDocumentMutation'
-import type {StagedMutations} from './types'
+import type {MutationGroup} from './types'
 import type {
   Mutation,
   NodePatch,
@@ -37,8 +37,8 @@ export function rebase(
   documentId: string,
   oldBase: SanityDocumentBase | undefined,
   newBase: SanityDocumentBase | undefined,
-  stagedMutations: StagedMutations[],
-): [newStage: StagedMutations[], rebased: SanityDocumentBase | undefined] {
+  stagedMutations: MutationGroup[],
+): [newStage: MutationGroup[], rebased: SanityDocumentBase | undefined] {
   // const flattened = flattenMutations(newStage.flatMap(t => t.mutations))
 
   // 1. get the dmpified mutations from the newStage based on the old base
@@ -110,7 +110,7 @@ export function rebase(
     })
   })
 
-  const newStage = stagedMutations.map((transaction): StagedMutations => {
+  const newStage = stagedMutations.map((transaction): MutationGroup => {
     // update all set patches to set to the current value
     return {
       ...transaction,

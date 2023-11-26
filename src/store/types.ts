@@ -45,7 +45,7 @@ export interface RemoteSyncEvent {
     local: SanityDocumentBase | undefined
     remote: SanityDocumentBase | undefined
   }
-  rebasedStage: StagedMutations[]
+  rebasedStage: MutationGroup[]
 }
 export interface RemoteMutationEvent {
   type: 'mutation'
@@ -60,7 +60,7 @@ export interface RemoteMutationEvent {
   }
   effects: RawPatch
   mutations: Mutation[]
-  rebasedStage: StagedMutations[]
+  rebasedStage: MutationGroup[]
 }
 export type RemoteDocumentEvent = RemoteSyncEvent | RemoteMutationEvent
 
@@ -74,19 +74,21 @@ export interface MutationResult {}
 
 export interface SubmitResult {}
 
-export interface NonTransactionalMutations {
+export interface NonTransactionalMutationGroup {
   transaction: false
   mutations: Mutation[]
 }
-export interface TransactionalMutations {
+export interface TransactionalMutationGroup {
   transaction: true
   id?: string
   mutations: Mutation[]
 }
 
-export type StagedMutations = NonTransactionalMutations | TransactionalMutations
+export type MutationGroup =
+  | NonTransactionalMutationGroup
+  | TransactionalMutationGroup
 
-export type DataStoreLogEvent = StagedMutations // (for now)
+export type DataStoreLogEvent = MutationGroup // (for now)
 
 export interface ContentLakeStore {
   /**

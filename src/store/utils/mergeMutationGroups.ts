@@ -1,11 +1,13 @@
-import type {ChangeSet} from '../types'
+import type {MutationGroup} from '../types'
 
 /**
- * Groups subsequent mutations into transactions, leaves transactions as-is
- * @param transactions
+ * Merges adjacent non-transactional mutation groups, interleaving transactional mutations as-is
+ * @param mutationGroups
  */
-export function chunkTransactions(transactions: ChangeSet[]): ChangeSet[] {
-  return chunkWhile(transactions, transaction => !transaction.id).flatMap(
+export function mergeMutationGroups(
+  mutationGroups: MutationGroup[],
+): MutationGroup[] {
+  return chunkWhile(mutationGroups, group => !group.transaction).flatMap(
     chunk => ({
       ...chunk[0],
       mutations: chunk.flatMap(c => c.mutations),

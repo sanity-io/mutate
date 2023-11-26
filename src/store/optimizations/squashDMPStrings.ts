@@ -1,4 +1,5 @@
 import {compactDMPSetPatches} from './squashNodePatches'
+import type {MutationGroup} from '../types'
 import type {
   Mutation,
   NodePatch,
@@ -6,21 +7,17 @@ import type {
   SanityDocumentBase,
 } from '../../mutations/types'
 
-import type {ChangeSet} from '../types'
-
 interface DataStore {
   get: (id: string) => SanityDocumentBase | undefined
 }
 export function squashDMPStrings(
   remote: DataStore,
-  transactions: ChangeSet[],
-): ChangeSet[] {
-  return transactions.map(
-    (transaction: ChangeSet): ChangeSet => ({
-      ...transaction,
-      mutations: dmpIfyMutations(remote, transaction.mutations),
-    }),
-  )
+  mutationGroups: MutationGroup[],
+): MutationGroup[] {
+  return mutationGroups.map(mutationGroup => ({
+    ...mutationGroup,
+    mutations: dmpIfyMutations(remote, mutationGroup.mutations),
+  }))
 }
 
 export function dmpIfyMutations(

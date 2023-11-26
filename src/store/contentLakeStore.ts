@@ -12,9 +12,10 @@ import {
   toArray,
 } from 'rxjs'
 
+import {createClient} from '@sanity/client'
 import {decode} from '../encoders/sanity'
 import {createMemoizer} from './utils/memoize'
-import {squashTransactions} from './optimizations/squashMutations'
+import {squashMutationGroups} from './optimizations/squashMutations'
 import {rebase} from './rebase'
 import {squashDMPStrings} from './optimizations/squashDMPStrings'
 
@@ -27,12 +28,12 @@ import type {Observable} from 'rxjs'
 
 import type {
   ContentLakeStore,
+  MutationGroup,
   OptimisticDocumentEvent,
   RemoteDocumentEvent,
   RemoteListenerEvent,
-  StagedMutations,
   SubmitResult,
-  TransactionalMutations,
+  TransactionalMutationGroup,
 } from './types'
 
 export interface StoreBackend {
@@ -43,7 +44,7 @@ export interface StoreBackend {
    * @param id
    */
   observe: (id: string) => Observable<RemoteListenerEvent>
-  submit: (transactions: StagedMutations[]) => Observable<SubmitResult>
+  submit: (mutationGroups: MutationGroup[]) => Observable<SubmitResult>
 }
 
 export function createContentLakeStore(
@@ -52,13 +53,13 @@ export function createContentLakeStore(
   const local = createDataset()
   const remote = createDataset()
   const memoize = createMemoizer()
-  let stagedChanges: StagedMutations[] = []
+  let stagedChanges: MutationGroup[] = []
 
   const localMutations$ = new Subject<OptimisticDocumentEvent>()
   const stage$ = new Subject<void>()
   const log$ = new Subject<RemoteDocumentEvent>()
 
-  function stage(nextPending: StagedMutations[]) {
+  function stage(nextPending: MutationGroup[]) {
     stagedChanges = nextPending
     stage$.next()
   }
@@ -157,7 +158,7 @@ export function createContentLakeStore(
       return results
     },
     transaction: mutationsOrTransaction => {
-      const transaction: TransactionalMutations = Array.isArray(
+      const transaction: TransactionalMutationGroup = Array.isArray(
         mutationsOrTransaction,
       )
         ? {mutations: mutationsOrTransaction, transaction: true}
@@ -185,7 +186,7 @@ export function createContentLakeStore(
         ),
       ),
     optimize: () => {
-      stage(squashTransactions(stagedChanges))
+      stage(squashMutationGroups(stagedChanges))
     },
     submit: () => {
       const pending = stagedChanges
@@ -194,7 +195,7 @@ export function createContentLakeStore(
         backend
           .submit(
             // Squashing DMP strings is the last thing we do before submitting
-            squashDMPStrings(remote, squashTransactions(pending)),
+            squashDMPStrings(remote, squashMutationGroups(pending)),
           )
           .pipe(toArray()),
       )

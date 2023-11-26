@@ -3,7 +3,7 @@ import {expect, test} from 'vitest'
 import {rebase} from '../rebase'
 import {at, patch} from '../../mutations/creators'
 import {set} from '../../mutations/operations/creators'
-import type {NonTransactionalMutations, StagedMutations} from '../types'
+import type {MutationGroup, NonTransactionalMutationGroup} from '../types'
 
 test('rebase() a simple case', () => {
   const oldRemote = {_id: 'test', _type: 'test', foo: 'bar\nbaz'}
@@ -36,7 +36,7 @@ test('rebase() without pending mutations', () => {
   const oldRemote = {_id: 'test', _type: 'test', foo: 'bar\nbaz'}
   const newRemote = {_id: 'test', _type: 'test', foo: 'car\nbaz'}
 
-  const staged: StagedMutations[] = []
+  const staged: MutationGroup[] = []
 
   const [nextStage, nextLocal] = rebase('test', oldRemote, newRemote, staged)
   expect(nextLocal).toEqual(newRemote)
@@ -56,7 +56,7 @@ test('rebase() where a the new base has a deleted parent', () => {
     _type: 'person',
   }
 
-  const staged: NonTransactionalMutations[] = [
+  const staged: NonTransactionalMutationGroup[] = [
     {
       transaction: false,
       mutations: [
