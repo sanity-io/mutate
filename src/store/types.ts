@@ -12,8 +12,8 @@ export interface ListenerSyncEvent {
 export interface ListenerMutationEvent {
   type: 'mutation'
   transactionId: string
-  effects: RawPatch
-  mutations: Required<MutationEvent['mutations']>
+  effects: Required<MutationEvent>['effects']['apply']
+  mutations: Required<MutationEvent>['mutations']
 }
 export interface ListenerErrorEvent {
   type: 'error'
@@ -28,37 +28,66 @@ export type RemoteListenerEvent =
 export interface OptimisticDocumentEvent {
   type: 'optimistic'
   id: string
+  before: SanityDocumentBase | undefined
+  after: SanityDocumentBase | undefined
   mutations: Mutation[]
 }
 
 export interface RemoteSyncEvent {
   type: 'sync'
   id: string
-  document: SanityDocumentBase | undefined
+  before: {
+    local: SanityDocumentBase | undefined
+    remote: SanityDocumentBase | undefined
+  }
+  after: {
+    local: SanityDocumentBase | undefined
+    remote: SanityDocumentBase | undefined
+  }
+  rebasedStage: MutationGroup[]
 }
 export interface RemoteMutationEvent {
   type: 'mutation'
   id: string
+  before: {
+    local: SanityDocumentBase | undefined
+    remote: SanityDocumentBase | undefined
+  }
+  after: {
+    local: SanityDocumentBase | undefined
+    remote: SanityDocumentBase | undefined
+  }
   effects: RawPatch
   mutations: Mutation[]
+  rebasedStage: MutationGroup[]
 }
 export type RemoteDocumentEvent = RemoteSyncEvent | RemoteMutationEvent
 
-export type Dataset<Doc extends SanityDocumentBase> = Map<
-  string,
-  Doc | undefined
->
+export type Dataset<Doc extends SanityDocumentBase> = {
+  get(id: string): Doc | undefined
+  set(id: string, doc: Doc | undefined): void
+  delete(id: string): void
+}
 
 export interface MutationResult {}
 
 export interface SubmitResult {}
 
-export interface PendingTransaction {
+export interface NonTransactionalMutationGroup {
+  transaction: false
+  mutations: Mutation[]
+}
+export interface TransactionalMutationGroup {
+  transaction: true
   id?: string
   mutations: Mutation[]
 }
 
-export type DataStoreLogEvent = PendingTransaction // (for now)
+export type MutationGroup =
+  | NonTransactionalMutationGroup
+  | TransactionalMutationGroup
+
+export type DataStoreLogEvent = MutationGroup // (for now)
 
 export interface ContentLakeStore {
   /**
@@ -66,8 +95,6 @@ export interface ContentLakeStore {
    */
   // localLog: Observable<DataStoreLogEvent>
   // remoteLog: Observable<RemoteDocumentEvent>
-
-  outbox: Observable<PendingTransaction[]>
 
   /**
    * Applies the given mutations. Mutations are not guaranteed to be submitted in the same transaction
@@ -79,16 +106,13 @@ export interface ContentLakeStore {
    * Makes sure the given mutations are posted in a single transaction
    */
   transaction(
-    transaction: {id: string; mutations: Mutation[]} | Mutation[],
+    transaction: {id?: string; mutations: Mutation[]} | Mutation[],
   ): MutationResult
 
   /**
    * Checkout a document for editing. This is required to be able to see optimistic changes
    */
-  observe(id: string): Observable<{
-    remote: SanityDocumentBase | undefined
-    local: SanityDocumentBase | undefined
-  }>
+  observe(id: string): Observable<SanityDocumentBase | undefined>
 
   /**
    * Observe events for a given document id
@@ -105,5 +129,5 @@ export interface ContentLakeStore {
   /**
    * Submit pending mutations
    */
-  submit(): Observable<SubmitResult>
+  submit(): Promise<SubmitResult[]>
 }

@@ -1,16 +1,14 @@
 import {groupBy} from 'lodash'
 
 import {type Mutation, type NodePatch} from '../../mutations/types'
-import {type PendingTransaction} from '../types'
+import {type MutationGroup} from '../types'
 import {takeUntilRight} from '../utils/arrayUtils'
 import {getMutationDocumentId} from '../utils/getMutationDocumentId'
 import {mergeMutationGroups} from '../utils/mergeMutationGroups'
 import {squashNodePatches} from './squashNodePatches'
 
-export function squashTransactions(
-  transactions: PendingTransaction[],
-): PendingTransaction[] {
-  return chunkTransactions(transactions)
+export function squashMutationGroups(staged: MutationGroup[]): MutationGroup[] {
+  return mergeMutationGroups(staged)
     .map(transaction => ({
       ...transaction,
       mutations: squashMutations(transaction.mutations),

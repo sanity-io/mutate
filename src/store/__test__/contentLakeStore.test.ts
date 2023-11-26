@@ -5,28 +5,47 @@ import {createContentLakeStore} from '../contentLakeStore'
 import {allValuesFrom, collectNotifications, sleep} from './helpers'
 
 describe('observing documents', () => {
-  test('observing a document that does not exist on the backend', () => {
+  test('observing a document that does not exist on the backend', async () => {
     const store = createContentLakeStore({
       observe: id => of({type: 'sync', id, document: undefined}),
       submit: () => NEVER,
     })
-    expect(allValuesFrom(store.observe('foo').pipe(take(1)))).resolves.toEqual([
-      {local: undefined, remote: undefined},
+    await expect(
+      allValuesFrom(store.observeEvents('foo').pipe(take(1))),
+    ).resolves.toEqual([
+      {
+        type: 'sync',
+        id: 'foo',
+        before: {local: undefined, remote: undefined},
+        after: {local: undefined, remote: undefined},
+        rebasedStage: [],
+      },
     ])
   })
-  test('observing a document that exist on the backend', () => {
+  test('observing a document that exist on the backend', async () => {
     const doc = {_id: 'foo', _type: 'foo'}
     const store = createContentLakeStore({
       observe: id =>
         of({type: 'sync', id, document: doc} as const).pipe(delay(10)),
       submit: () => NEVER,
     })
-    expect(
-      allValuesFrom(store.observe(doc._id).pipe(take(1))),
-    ).resolves.toEqual([{local: doc, remote: doc}])
+    await expect(
+      allValuesFrom(store.observeEvents(doc._id).pipe(take(1))),
+    ).resolves.toEqual([
+      {
+        type: 'sync',
+        id: 'foo',
+        after: {
+          local: {_id: 'foo', _type: 'foo'},
+          remote: {_id: 'foo', _type: 'foo'},
+        },
+        before: {local: undefined, remote: undefined},
+        rebasedStage: [],
+      },
+    ])
   })
 
-  test("observing a document that doesn't exist initially, but later is created", () => {
+  test("observing a document that doesn't exist initially, but later is created", async () => {
     const doc = {_id: 'foo', _type: 'foo'}
     const store = createContentLakeStore({
       observe: id =>
@@ -36,11 +55,26 @@ describe('observing documents', () => {
         ),
       submit: () => NEVER,
     })
-    expect(
-      allValuesFrom(store.observe(doc._id).pipe(take(2))),
+    await expect(
+      allValuesFrom(store.observeEvents(doc._id).pipe(take(2))),
     ).resolves.toEqual([
-      {local: undefined, remote: undefined},
-      {local: doc, remote: doc},
+      {
+        type: 'sync',
+        id: 'foo',
+        before: {local: undefined, remote: undefined},
+        after: {local: undefined, remote: undefined},
+        rebasedStage: [],
+      },
+      {
+        id: 'foo',
+        type: 'sync',
+        before: {local: undefined, remote: undefined},
+        after: {
+          local: {_id: 'foo', _type: 'foo'},
+          remote: {_id: 'foo', _type: 'foo'},
+        },
+        rebasedStage: [],
+      },
     ])
   })
 })
@@ -51,15 +85,51 @@ describe('local mutations', () => {
       submit: () => NEVER,
     })
 
-    const {emissions, unsubscribe} = collectNotifications(store.observe('foo'))
+    const {emissions, unsubscribe} = collectNotifications(
+      store.observeEvents('foo'),
+    )
 
     store.mutate([{type: 'create', document: {_id: 'foo', _type: 'foo'}}])
 
     expect(emissions).toEqual([
-      {type: 'next', value: {local: undefined, remote: undefined}},
       {
-        type: 'next',
-        value: {local: {_id: 'foo', _type: 'foo'}, remote: undefined},
+        kind: 'NEXT',
+        value: {
+          type: 'sync',
+          id: 'foo',
+          after: {local: undefined, remote: undefined},
+          before: {local: undefined, remote: undefined},
+          rebasedStage: [
+            {
+              transaction: false,
+              mutations: [
+                {
+                  type: 'create',
+                  document: {_id: 'foo', _type: 'foo'},
+                },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        kind: 'NEXT',
+        value: {
+          type: 'optimistic',
+          id: 'foo',
+          after: {_id: 'foo', _type: 'foo'},
+          before: undefined,
+          mutations: [],
+          stagedChanges: [
+            {
+              document: {
+                _id: 'foo',
+                _type: 'foo',
+              },
+              type: 'create',
+            },
+          ],
+        },
       },
     ])
     unsubscribe()
@@ -76,27 +146,100 @@ describe('local mutations', () => {
       submit: () => NEVER,
     })
 
-    const {emissions, unsubscribe} = collectNotifications(store.observe('foo'))
+    const {emissions, unsubscribe} = collectNotifications(
+      store.observeEvents('foo'),
+    )
 
     store.mutate([{type: 'createIfNotExists', document: doc}])
 
     expect(emissions).toEqual([
-      {type: 'next', value: {local: doc, remote: undefined}},
+      {
+        kind: 'NEXT',
+        value: {
+          type: 'optimistic',
+          id: 'foo',
+          after: {_id: 'foo', _type: 'foo'},
+          before: undefined,
+          mutations: [],
+          stagedChanges: [
+            {
+              document: {
+                _id: 'foo',
+                _type: 'foo',
+              },
+              type: 'createIfNotExists',
+            },
+          ],
+        },
+      },
     ])
 
     await sleep(20)
 
     expect(emissions).toEqual([
-      {type: 'next', value: {local: doc, remote: undefined}},
       {
-        type: 'next',
-        value: {local: {_id: 'foo', _type: 'foo'}, remote: undefined},
+        kind: 'NEXT',
+        value: {
+          type: 'optimistic',
+          id: 'foo',
+          after: {_id: 'foo', _type: 'foo'},
+          before: undefined,
+          mutations: [],
+          stagedChanges: [
+            {
+              document: {
+                _id: 'foo',
+                _type: 'foo',
+              },
+              type: 'createIfNotExists',
+            },
+          ],
+        },
       },
       {
-        type: 'next',
+        kind: 'NEXT',
         value: {
-          local: {_id: 'foo', _type: 'foo'},
-          remote: {_id: 'foo', _type: 'foo'},
+          type: 'sync',
+          id: 'foo',
+          after: {local: {_id: 'foo', _type: 'foo'}, remote: undefined},
+          before: {local: {_id: 'foo', _type: 'foo'}, remote: undefined},
+          rebasedStage: [
+            {
+              transaction: false,
+              mutations: [
+                {
+                  document: {_id: 'foo', _type: 'foo'},
+                  type: 'createIfNotExists',
+                },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        kind: 'NEXT',
+        value: {
+          type: 'sync',
+          id: 'foo',
+          after: {
+            local: {_id: 'foo', _type: 'foo'},
+            remote: {_id: 'foo', _type: 'foo'},
+          },
+          before: {
+            local: {_id: 'foo', _type: 'foo'},
+            remote: undefined,
+          },
+          rebasedStage: [
+            {
+              transaction: false,
+              mutations: [
+                {
+                  document: {_id: 'foo', _type: 'foo'},
+                  type: 'createIfNotExists',
+                },
+              ],
+            },
+          ],
         },
       },
     ])
@@ -111,7 +254,9 @@ describe('local mutations', () => {
       submit: () => NEVER,
     })
 
-    const {emissions, unsubscribe} = collectNotifications(store.observe('foo'))
+    const {emissions, unsubscribe} = collectNotifications(
+      store.observeEvents('foo'),
+    )
 
     // this will go through at first, but then we'll get an error an instant later during rebase after the document is loaded from the server
     // this is expected, and will be similar to what would have happened if the mutation was sent directly to the server
@@ -120,14 +265,41 @@ describe('local mutations', () => {
     store.mutate([{type: 'create', document: doc}])
 
     expect(emissions).toEqual([
-      {type: 'next', value: {local: doc, remote: undefined}},
+      {
+        kind: 'NEXT',
+        value: {
+          type: 'optimistic',
+          after: {_id: 'foo', _type: 'foo'},
+          before: undefined,
+          id: 'foo',
+          mutations: [],
+          stagedChanges: [
+            {
+              document: {
+                _id: 'foo',
+                _type: 'foo',
+              },
+              type: 'create',
+            },
+          ],
+        },
+      },
     ])
 
     await sleep(100)
 
     expect(emissions).toMatchObject([
-      {type: 'next', value: {local: doc, remote: undefined}},
-      {error: {message: 'Document already exist'}, type: 'error'},
+      {
+        kind: 'NEXT',
+        value: {
+          after: {_id: 'foo', _type: 'foo'},
+          before: undefined,
+          id: 'foo',
+          mutations: [],
+          type: 'optimistic',
+        },
+      },
+      {kind: 'ERROR', error: {message: 'Document already exist'}},
     ])
 
     unsubscribe()

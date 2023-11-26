@@ -3,8 +3,8 @@ import {expect, test} from 'vitest'
 import {at, createIfNotExists, del, patch} from '../../mutations/creators'
 import {set} from '../../mutations/operations/creators'
 import {
+  squashMutationGroups,
   squashMutations,
-  squashTransactions,
 } from '../optimizations/squashMutations'
 import {chunkWhile} from '../utils/mergeMutationGroups'
 
@@ -73,7 +73,7 @@ test('squashMutations() removes mutations before delete()', () => {
   ])
 })
 
-test('squashTransactions() for a simple transaction', () => {
+test('squashMutationGroups() for a simple transaction', () => {
   const mutations = [
     patch('test', [
       at('foo', set('a')),
@@ -84,8 +84,9 @@ test('squashTransactions() for a simple transaction', () => {
     ]),
   ]
 
-  expect(squashTransactions([{mutations}])).toEqual([
+  expect(squashMutationGroups([{transaction: true, mutations}])).toEqual([
     {
+      transaction: true,
       mutations: [patch('test', [at('foo', set('abcde'))])],
     },
   ])
