@@ -5,6 +5,13 @@ export function encode(mutations: Mutation[]) {
   return mutations.flatMap(encodeMutation)
 }
 
+export function encodeTransaction(transaction: Transaction) {
+  return {
+    transactionId: transaction.id,
+    mutations: encode(transaction.mutations),
+  }
+}
+
 export function encodeMutation(mutation: Mutation) {
   if (
     mutation.type === 'create' ||

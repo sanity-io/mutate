@@ -11,14 +11,12 @@ interface DataStore {
 }
 export function squashDMPStrings(
   remote: DataStore,
-  transactions: ChangeSet[],
-): ChangeSet[] {
-  return transactions.map(
-    (transaction: ChangeSet): ChangeSet => ({
-      ...transaction,
-      mutations: dmpIfyMutations(remote, transaction.mutations),
-    }),
-  )
+  mutationGroups: MutationGroup[],
+): MutationGroup[] {
+  return mutationGroups.map(mutationGroup => ({
+    ...mutationGroup,
+    mutations: dmpIfyMutations(remote, mutationGroup.mutations),
+  }))
 }
 
 export function dmpIfyMutations(

@@ -61,3 +61,8 @@ export type NodePatch<
 export type PatchOptions = {
   ifRevision?: string
 }
+
+export interface Transaction {
+  id: string
+  mutations: Mutation[]
+}

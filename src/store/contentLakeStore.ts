@@ -20,7 +20,7 @@ import {applyMutations} from './datasets/applyMutations'
 import {commit} from './datasets/commit'
 import {createDataset} from './datasets/createDataset'
 import {squashDMPStrings} from './optimizations/squashDMPStrings'
-import {squashTransactions} from './optimizations/squashMutations'
+import {squashMutationGroups} from './optimizations/squashMutations'
 import {rebase} from './rebase'
 import {
   type ContentLakeStore,
@@ -39,7 +39,7 @@ export interface StoreBackend {
    * @param id
    */
   observe: (id: string) => Observable<RemoteListenerEvent>
-  submit: (transactions: StagedMutations[]) => Observable<SubmitResult>
+  submit: (mutationGroups: MutationGroup[]) => Observable<SubmitResult>
 }
 
 export function createContentLakeStore(
@@ -48,13 +48,13 @@ export function createContentLakeStore(
   const local = createDataset()
   const remote = createDataset()
   const memoize = createMemoizer()
-  let stagedChanges: StagedMutations[] = []
+  let stagedChanges: MutationGroup[] = []
 
   const localMutations$ = new Subject<OptimisticDocumentEvent>()
   const stage$ = new Subject<void>()
   const log$ = new Subject<RemoteDocumentEvent>()
 
-  function stage(nextPending: StagedMutations[]) {
+  function stage(nextPending: MutationGroup[]) {
     stagedChanges = nextPending
     stage$.next()
   }
@@ -153,7 +153,7 @@ export function createContentLakeStore(
       return results
     },
     transaction: mutationsOrTransaction => {
-      const transaction: TransactionalMutations = Array.isArray(
+      const transaction: TransactionalMutationGroup = Array.isArray(
         mutationsOrTransaction,
       )
         ? {mutations: mutationsOrTransaction, transaction: true}
@@ -181,7 +181,7 @@ export function createContentLakeStore(
         ),
       ),
     optimize: () => {
-      stage(squashTransactions(stagedChanges))
+      stage(squashMutationGroups(stagedChanges))
     },
     submit: () => {
       const pending = stagedChanges
@@ -190,7 +190,7 @@ export function createContentLakeStore(
         backend
           .submit(
             // Squashing DMP strings is the last thing we do before submitting
-            squashDMPStrings(remote, squashTransactions(pending)),
+            squashDMPStrings(remote, squashMutationGroups(pending)),
           )
           .pipe(toArray()),
       )
