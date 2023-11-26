@@ -11,6 +11,7 @@ import {
 } from 'rxjs'
 import {groupBy} from 'lodash'
 
+import {decode} from '../encoders/sanity'
 import {getMutationDocumentId} from './utils/getMutationDocumentId'
 import {createMemoizer} from './utils/memoize'
 import {squashTransactions} from './optimizations/squashMutations'
@@ -19,6 +20,7 @@ import {rebase} from './rebase'
 import {squashDMPStrings} from './optimizations/squashDMPStrings'
 import {createLocalDataset} from './datasets/local'
 import {createRemoteDataset} from './datasets/remote'
+import type {SanityMutation} from '../encoders/sanity'
 import type {Observable} from 'rxjs'
 
 import type {
@@ -97,6 +99,7 @@ export function createContentLakeStore(
             type: 'mutation',
             id,
             effects: event.effects,
+            mutations: decode(event.mutations as SanityMutation[]),
           })
         } else {
           throw new Error('Invalid event type')
@@ -108,8 +111,6 @@ export function createContentLakeStore(
   }
 
   return {
-    localLog: localLog$.asObservable(),
-    remoteLog: remoteLog$.asObservable(),
     outbox: outbox$.asObservable().pipe(map(() => outbox)),
     mutate: mutations => {
       outbox.push({mutations})
