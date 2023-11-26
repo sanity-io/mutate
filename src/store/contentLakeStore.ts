@@ -12,7 +12,6 @@ import {
   toArray,
 } from 'rxjs'
 
-import {createClient} from '@sanity/client'
 import {decode} from '../encoders/sanity'
 import {createMemoizer} from './utils/memoize'
 import {squashMutationGroups} from './optimizations/squashMutations'
@@ -23,6 +22,7 @@ import {createDataset} from './datasets/createDataset'
 import {applyMutations} from './datasets/applyMutations'
 import {commit} from './datasets/commit'
 import {applyMendozaPatch} from './datasets/applyMendoza'
+import type {Transaction} from '../mutations/types'
 import type {SanityMutation} from '../encoders/sanity'
 import type {Observable} from 'rxjs'
 
@@ -44,7 +44,7 @@ export interface StoreBackend {
    * @param id
    */
   observe: (id: string) => Observable<RemoteListenerEvent>
-  submit: (mutationGroups: MutationGroup[]) => Observable<SubmitResult>
+  submit: (mutationGroups: Transaction[]) => Observable<SubmitResult>
 }
 
 export function createContentLakeStore(
@@ -194,11 +194,22 @@ export function createContentLakeStore(
       return lastValueFrom(
         backend
           .submit(
-            // Squashing DMP strings is the last thing we do before submitting
-            squashDMPStrings(remote, squashMutationGroups(pending)),
+            toTransactions(
+              // Squashing DMP strings is the last thing we do before submitting
+              squashDMPStrings(remote, squashMutationGroups(pending)),
+            ),
           )
           .pipe(toArray()),
       )
     },
   }
+}
+
+function toTransactions(groups: MutationGroup[]): Transaction[] {
+  return groups.map(group => {
+    if (group.transaction && group.id !== undefined) {
+      return {id: group.id!, mutations: group.mutations}
+    }
+    return {mutations: group.mutations}
+  })
 }

@@ -14,6 +14,7 @@ export type {
   Mutation,
   PatchMutation,
   SanityDocumentBase,
+  Transaction,
 } from '../mutations/types'
 
 export type {Optional} from '../utils/typeUtils'
