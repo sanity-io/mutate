@@ -99,6 +99,7 @@ export function createContentLakeStore(
             type: 'mutation',
             id,
             effects: event.effects,
+            mutations: decode(event.mutations as SanityMutation[]),
           })
         } else {
           throw new Error('Invalid event type')
@@ -110,8 +111,6 @@ export function createContentLakeStore(
   }
 
   return {
-    localLog: localLog$.asObservable(),
-    remoteLog: remoteLog$.asObservable(),
     outbox: outbox$.asObservable().pipe(map(() => outbox)),
     mutate: mutations => {
       outbox.push({mutations})
