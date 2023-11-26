@@ -9,7 +9,7 @@ test('rebase() a simple case', () => {
   const oldRemote = {_id: 'test', _type: 'test', foo: 'bar\nbaz'}
   const newRemote = {_id: 'test', _type: 'test', foo: 'car\nbaz'}
 
-  const stage = [
+  const staged = [
     {
       transaction: false,
       mutations: [patch('test', [at('foo', set('bar\nbat'))])],
@@ -20,7 +20,7 @@ test('rebase() a simple case', () => {
     'test',
     oldRemote,
     newRemote,
-    stage,
+    staged,
   )
   expect(nextLocal).toEqual({_id: 'test', _type: 'test', foo: 'car\nbat'})
 

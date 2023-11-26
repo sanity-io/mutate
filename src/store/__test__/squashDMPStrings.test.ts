@@ -12,13 +12,13 @@ import {
 test('squashDMPStrings() a simple case', () => {
   const remote = {_id: 'test', _type: 'test', foo: 'bar\nbaz'}
 
-  const stage = [
+  const staged = [
     {
       mutations: [patch('test', [at('foo', set('bar\nbat'))])],
     },
   ]
 
-  const mutations = squashDMPStrings({get: () => remote}, stage)
+  const mutations = squashDMPStrings({get: () => remote}, staged)
 
   expect(mutations).toEqual([
     {
