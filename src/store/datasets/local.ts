@@ -1,5 +1,4 @@
 import {type Mutation, type SanityDocumentBase} from '../../mutations/types'
-import {apply} from '../apply'
 import {type Dataset} from '../types'
 import {getMutationDocumentId} from '../utils/getMutationDocumentId'
 
@@ -9,6 +8,7 @@ interface UpdateResult<T extends SanityDocumentBase> {
   before?: T
   after?: T
 }
+
 /**
  * The in-memory local dataset that holds all currently active documents
  */
@@ -34,7 +34,6 @@ export function createLocalDataset() {
   return {
     set: (id: string, doc: SanityDocumentBase | undefined) =>
       void documents.set(id, doc),
-    getAll: () => documents.values(),
     get: (id: string) => documents.get(id),
     has: (id: string) => documents.has(id),
     apply: applyOptimistically,
@@ -60,7 +59,7 @@ function applyInStore<T extends SanityDocumentBase>(
     }
 
     const before = updatedDocs[documentId]?.current || store.get(documentId)
-    const res = apply(before, mutation)
+    const res = applyMutiny(before, mutation)
     if (res.status === 'error') {
       throw new Error(res.message)
     }
