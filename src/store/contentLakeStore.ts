@@ -39,7 +39,7 @@ export interface StoreBackend {
    * @param id
    */
   observe: (id: string) => Observable<RemoteListenerEvent>
-  submit: (mutationGroups: MutationGroup[]) => Observable<SubmitResult>
+  submit: (mutationGroups: Transaction[]) => Observable<SubmitResult>
 }
 
 export function createContentLakeStore(
@@ -189,11 +189,22 @@ export function createContentLakeStore(
       return lastValueFrom(
         backend
           .submit(
-            // Squashing DMP strings is the last thing we do before submitting
-            squashDMPStrings(remote, squashMutationGroups(pending)),
+            toTransactions(
+              // Squashing DMP strings is the last thing we do before submitting
+              squashDMPStrings(remote, squashMutationGroups(pending)),
+            ),
           )
           .pipe(toArray()),
       )
     },
   }
+}
+
+function toTransactions(groups: MutationGroup[]): Transaction[] {
+  return groups.map(group => {
+    if (group.transaction && group.id !== undefined) {
+      return {id: group.id!, mutations: group.mutations}
+    }
+    return {mutations: group.mutations}
+  })
 }

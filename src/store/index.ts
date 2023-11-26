@@ -13,6 +13,7 @@ export type {
   NodePatchList,
   PatchMutation,
   SanityDocumentBase,
+  Transaction,
 } from '../mutations/types'
 export type * from '../path'
 export type {Optional} from '../utils/typeUtils'
