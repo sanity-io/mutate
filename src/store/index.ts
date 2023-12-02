@@ -17,4 +17,5 @@ export type {
   Transaction,
 } from '../mutations/types'
 
+export type * from './sanityApiTypes'
 export type {Optional} from '../utils/typeUtils'

@@ -1,6 +1,24 @@
 import type {SanityMutation} from '../encoders/sanity'
 import type {SanityDocumentBase} from '../mutations/types'
 
+export type {
+  SanityMutation,
+  SanityCreateMutation,
+  SanityDeleteMutation,
+  SanityCreateIfNotExistsMutation,
+  SanityCreateOrReplaceMutation,
+  SanityPatchMutation,
+  SanitySetPatch,
+  SanitySetIfMissingPatch,
+  SanityDecPatch,
+  SanityIncPatch,
+  SanityDiffMatchPatch,
+  SanityPatch,
+  SanityInsertPatch,
+  SanityUnsetPatch,
+  Insert,
+} from '../encoders/sanity'
+
 export type SanityMutationEvent = {
   type: 'mutation'
   documentId: string
