@@ -1,6 +1,6 @@
+import type {SanityMutationEvent} from './sanityApiTypes'
 import type {Path} from '../path'
 import type {Mutation, SanityDocumentBase} from '../mutations/types'
-import type {MutationEvent} from '@sanity/client'
 
 import type {Observable} from 'rxjs'
 import type {RawPatch} from 'mendoza'
@@ -14,8 +14,8 @@ export interface ListenerSyncEvent {
 export interface ListenerMutationEvent {
   type: 'mutation'
   transactionId: string
-  effects: Required<MutationEvent>['effects']['apply']
-  mutations: Required<MutationEvent>['mutations']
+  effects: Required<SanityMutationEvent>['effects']['apply']
+  mutations: Required<SanityMutationEvent>['mutations']
 }
 export interface ListenerErrorEvent {
   type: 'error'
