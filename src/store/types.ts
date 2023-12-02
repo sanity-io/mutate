@@ -12,8 +12,8 @@ export interface ListenerSyncEvent {
 export interface ListenerMutationEvent {
   type: 'mutation'
   transactionId: string
-  effects: Required<MutationEvent>['effects']['apply']
-  mutations: Required<MutationEvent>['mutations']
+  effects: Required<SanityMutationEvent>['effects']['apply']
+  mutations: Required<SanityMutationEvent>['mutations']
 }
 export interface ListenerErrorEvent {
   type: 'error'
