@@ -31,6 +31,7 @@ export interface OptimisticDocumentEvent {
   before: SanityDocumentBase | undefined
   after: SanityDocumentBase | undefined
   mutations: Mutation[]
+  stagedChanges: Mutation[]
 }
 
 export interface RemoteSyncEvent {
@@ -46,6 +47,7 @@ export interface RemoteSyncEvent {
   }
   rebasedStage: MutationGroup[]
 }
+
 export interface RemoteMutationEvent {
   type: 'mutation'
   id: string
@@ -87,14 +89,32 @@ export type MutationGroup =
   | NonTransactionalMutationGroup
   | TransactionalMutationGroup
 
-export type DataStoreLogEvent = MutationGroup // (for now)
+// todo: needs more work
+export type Conflict = {
+  path: Path
+  error: Error
+  base: SanityDocumentBase | undefined
+  local: SanityDocumentBase | undefined
+}
 
 export interface ContentLakeStore {
-  /**
-   * A stream of events for anything that happens in the store
-   */
-  // localLog: Observable<DataStoreLogEvent>
-  // remoteLog: Observable<RemoteDocumentEvent>
+  meta: {
+    // just some ideas…
+    /**
+     * A stream of events for anything that happens in the store
+     */
+    events: Observable<OptimisticDocumentEvent | RemoteDocumentEvent>
+
+    /**
+     * A stream of current staged changes
+     */
+    stage: Observable<MutationGroup[]>
+
+    /**
+     * A stream of current conflicts. TODO: Needs more work
+     */
+    conflicts: Observable<Conflict[]>
+  }
 
   /**
    * Applies the given mutations. Mutations are not guaranteed to be submitted in the same transaction
