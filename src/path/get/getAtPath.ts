@@ -2,6 +2,7 @@ import {isArrayElement, isKeyedElement} from '../utils/predicates'
 import type {AnyArray} from '../../utils/typeUtils'
 import type {FindInArray} from './types'
 import type {KeyedPathElement, Path, PathElement} from '../types'
+
 export type {AnyArray} from '../../utils/typeUtils'
 
 export type Get<
@@ -12,18 +13,18 @@ export type Get<
     ? FindInArray<P, T>
     : undefined
   : P extends keyof T
-  ? T[P]
-  : never
+    ? T[P]
+    : never
 
 export type GetAtPath<P extends readonly PathElement[], T> = P extends []
   ? T
   : P extends [infer Head, ...infer Tail]
-  ? Head extends PathElement
-    ? Tail extends PathElement[]
-      ? GetAtPath<Tail, Get<Head, T>>
+    ? Head extends PathElement
+      ? Tail extends PathElement[]
+        ? GetAtPath<Tail, Get<Head, T>>
+        : undefined
       : undefined
     : undefined
-  : undefined
 
 export function getAtPath<const Head extends PathElement, const T>(
   path: [head: Head],

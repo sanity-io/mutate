@@ -19,10 +19,10 @@ export type ApplyInObject<
         : Node[K]
     }
   : Tail extends EmptyArray
-  ? Head extends string
-    ? Format<Node & {[K in Head]: ApplyOp<Op, undefined>}>
-    : never
-  : Node
+    ? Head extends string
+      ? Format<Node & {[K in Head]: ApplyOp<Op, undefined>}>
+      : never
+    : Node
 
 export type ApplyAtIndex<
   Index extends number,
@@ -64,8 +64,8 @@ export type ApplyInArray<
 > = ItemSelector extends number
   ? ApplyAtIndex<ItemSelector, Tail, Op, Arr>
   : ItemSelector extends KeyedPathElement
-  ? ApplyAtSelector<ItemSelector, Tail, Op, Arr>
-  : never
+    ? ApplyAtSelector<ItemSelector, Tail, Op, Arr>
+    : never
 
 export type ApplyAtPath<
   Pth extends Path,
@@ -75,12 +75,12 @@ export type ApplyAtPath<
   ? // destination reached
     ApplyOp<Op, Node>
   : Pth extends [infer Head, ...infer Tail]
-  ? Node extends AnyArray
-    ? ApplyInArray<Head, Tail, Op, Node>
-    : Node extends {[K in string]: unknown}
-    ? ApplyInObject<Head, Tail, Op, Node>
+    ? Node extends AnyArray
+      ? ApplyInArray<Head, Tail, Op, Node>
+      : Node extends {[K in string]: unknown}
+        ? ApplyInObject<Head, Tail, Op, Node>
+        : never
     : never
-  : never
 
 export type ApplyPatches<Patches, Node> = Patches extends [
   infer HeadPatch,
@@ -90,8 +90,8 @@ export type ApplyPatches<Patches, Node> = Patches extends [
     ? TailPatch extends []
       ? ApplyNodePatch<HeadPatch, Node>
       : TailPatch extends NodePatch[]
-      ? ApplyPatches<TailPatch, ApplyNodePatch<HeadPatch, Node>>
-      : Node
+        ? ApplyPatches<TailPatch, ApplyNodePatch<HeadPatch, Node>>
+        : Node
     : Node
   : Node
 

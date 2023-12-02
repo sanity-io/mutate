@@ -6,8 +6,8 @@ export type NormalizeReadOnlyArray<T> = T extends readonly [
 ]
   ? [NP, ...Rest]
   : T extends readonly (infer NP)[]
-  ? NP[]
-  : T
+    ? NP[]
+    : T
 
 export type EmptyArray = never[] | readonly never[] | [] | readonly []
 export type AnyArray<T = any> = T[] | readonly T[]
@@ -29,5 +29,5 @@ export type Format<A> = A extends {[Key in keyof A]: A[Key]}
 export type Tuplify<T> = T extends readonly [infer NP, ...infer Rest]
   ? [NP, ...Rest]
   : T extends readonly (infer NP)[]
-  ? NP[]
-  : [T]
+    ? NP[]
+    : [T]

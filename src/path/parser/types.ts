@@ -21,8 +21,8 @@ export type TrimLeft<
 > = string extends Str
   ? Str
   : Str extends `${Char}${infer Trimmed}`
-  ? TrimLeft<Trimmed, Char>
-  : Str
+    ? TrimLeft<Trimmed, Char>
+    : Str
 
 export type TrimRight<
   Str extends string,
@@ -30,8 +30,8 @@ export type TrimRight<
 > = string extends Str
   ? Str
   : Str extends `${infer Trimmed}${Char}`
-  ? TrimRight<Trimmed, Char>
-  : Str
+    ? TrimRight<Trimmed, Char>
+    : Str
 
 export type Trim<S extends string, Char extends string = ' '> = TrimRight<
   TrimLeft<S, Char>,
@@ -65,8 +65,8 @@ export type OnlyDigits<S> = S extends `${infer Head}${infer Tail}`
     ? Tail extends ''
       ? true
       : OnlyDigits<Tail> extends true
-      ? true
-      : false
+        ? true
+        : false
     : false
   : false
 
@@ -77,8 +77,8 @@ export type ParseNumber<S extends string> =
         ? Ok<ToNumber<S>>
         : Err<ParseError<`Invalid integer value "${S}"`>>
       : OnlyDigits<S> extends true
-      ? Ok<ToNumber<S>>
-      : Err<ParseError<`Invalid integer value "${S}"`>>
+        ? Ok<ToNumber<S>>
+        : Err<ParseError<`Invalid integer value "${S}"`>>
     : Err<ParseError<`Invalid integer value "${S}"`>>
 
 export type ToNumber<T extends string> = T extends `${infer N extends number}`
@@ -88,17 +88,19 @@ export type ToNumber<T extends string> = T extends `${infer N extends number}`
 export type ParseValue<S extends string> = string extends S
   ? Err<ParseError<'ParseValue got generic string type'>>
   : S extends 'null'
-  ? Ok<null>
-  : S extends 'true'
-  ? Ok<true>
-  : S extends 'false'
-  ? Ok<false>
-  : S extends `"${infer Value}"`
-  ? Ok<Value>
-  : Try<
-      ParseNumber<S>,
-      Err<ParseError<`ParseValue failed. Can't parse "${S}" as a value.`>>
-    >
+    ? Ok<null>
+    : S extends 'true'
+      ? Ok<true>
+      : S extends 'false'
+        ? Ok<false>
+        : S extends `"${infer Value}"`
+          ? Ok<Value>
+          : Try<
+              ParseNumber<S>,
+              Err<
+                ParseError<`ParseValue failed. Can't parse "${S}" as a value.`>
+              >
+            >
 
 export type Result<E, V> = [E, V]
 export type Err<E> = Result<E, null>
@@ -152,10 +154,10 @@ export type ParseExpressions<S extends string> =
 export type ParseProperty<S extends string> = Trim<S> extends ''
   ? Err<ParseError<'Empty property'>>
   : Split<Trim<S>, '[', true> extends [`${infer Prop}`, `${infer Expression}`]
-  ? Trim<Prop> extends ''
-    ? ParseExpressions<Trim<Expression>>
-    : ConcatInner<Ok<[Trim<Prop>]>, ParseExpressions<Trim<Expression>>>
-  : Ok<[Trim<S>]>
+    ? Trim<Prop> extends ''
+      ? ParseExpressions<Trim<Expression>>
+      : ConcatInner<Ok<[Trim<Prop>]>, ParseExpressions<Trim<Expression>>>
+    : Ok<[Trim<S>]>
 
 export type ParseAllProps<Props extends string[]> = Props extends [
   `${infer Head}`,

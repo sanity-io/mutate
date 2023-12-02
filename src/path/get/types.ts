@@ -13,15 +13,15 @@ export type FindInArray<
 > = P extends KeyedPathElement
   ? FindBy<P, T>
   : P extends number
-  ? ByIndex<P, T>
-  : never
+    ? ByIndex<P, T>
+    : never
 
 export type AnyEmptyArray = [] | readonly []
 
 export type FindBy<P, T extends AnyArray> = T extends AnyEmptyArray
   ? undefined
   : T[0] extends P
-  ? T[0]
-  : T extends [any, ...infer Tail] | readonly [any, ...infer Tail]
-  ? FindBy<P, Tail>
-  : ElementType<T>
+    ? T[0]
+    : T extends [any, ...infer Tail] | readonly [any, ...infer Tail]
+      ? FindBy<P, Tail>
+      : ElementType<T>

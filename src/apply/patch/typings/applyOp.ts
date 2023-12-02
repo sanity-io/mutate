@@ -42,8 +42,8 @@ export type NormalizeIndex<
 > = LastIndexOnEmptyArray<Index, Length> extends true
   ? 0
   : Call<Numbers.LessThan<Index, 0>> extends true
-  ? Call<Numbers.Add, Length, Index>
-  : Index
+    ? Call<Numbers.Add, Length, Index>
+    : Index
 
 export type AdjustIndex<
   Pos extends 'before' | 'after',
@@ -96,59 +96,62 @@ export type ArrayInsert<
   ? number extends Ref
     ? (E | ArrayElement<Items>)[]
     : Ref extends number
-    ? InsertAtIndex<Current, Items, Pos, Ref>
-    : (E | ArrayElement<Items>)[]
+      ? InsertAtIndex<Current, Items, Pos, Ref>
+      : (E | ArrayElement<Items>)[]
   : Current
 
 export type Assign<Current, Attrs> = {
   [K in keyof Attrs | keyof Current]: K extends keyof Attrs
     ? Attrs[K]
     : K extends keyof Current
-    ? Current[K]
-    : never
+      ? Current[K]
+      : never
 }
 
 export type ApplyOp<O extends Operation, Current> = Current extends never
   ? never
   : O extends SetOp<infer Next>
-  ? Next
-  : O extends UnsetOp
-  ? undefined
-  : O extends IncOp<infer Amount>
-  ? Current extends number
-    ? number extends Current
-      ? number
-      : Call<Numbers.Add, Current, Amount>
-    : Current
-  : O extends DecOp<infer Amount>
-  ? Current extends number
-    ? number extends Current
-      ? number
-      : Call<Numbers.Sub, Current, Amount>
-    : Current
-  : O extends InsertOp<infer Items, infer Pos, infer Ref>
-  ? Current extends AnyArray<unknown>
-    ? ArrayInsert<
-        NormalizeReadOnlyArray<Current>,
-        NormalizeReadOnlyArray<Items>,
-        Pos,
-        Ref
-      >
-    : Current
-  : O extends ReplaceOp<infer Items, infer Ref>
-  ? Current extends any[]
-    ? (ArrayElement<Items> | ArrayElement<Current>)[]
-    : never
-  : O extends AssignOp<infer U>
-  ? Assign<Current, U>
-  : O extends SetIfMissingOp<infer V>
-  ? Current extends undefined | null
-    ? V
-    : Current
-  : O extends UnassignOp<infer U>
-  ? {
-      [K in keyof Current as Exclude<K, ArrayElement<U>>]: Current[K]
-    }
-  : O extends DiffMatchPatchOp
-  ? string
-  : never
+    ? Next
+    : O extends UnsetOp
+      ? undefined
+      : O extends IncOp<infer Amount>
+        ? Current extends number
+          ? number extends Current
+            ? number
+            : Call<Numbers.Add, Current, Amount>
+          : Current
+        : O extends DecOp<infer Amount>
+          ? Current extends number
+            ? number extends Current
+              ? number
+              : Call<Numbers.Sub, Current, Amount>
+            : Current
+          : O extends InsertOp<infer Items, infer Pos, infer Ref>
+            ? Current extends AnyArray<unknown>
+              ? ArrayInsert<
+                  NormalizeReadOnlyArray<Current>,
+                  NormalizeReadOnlyArray<Items>,
+                  Pos,
+                  Ref
+                >
+              : Current
+            : O extends ReplaceOp<infer Items, infer Ref>
+              ? Current extends any[]
+                ? (ArrayElement<Items> | ArrayElement<Current>)[]
+                : never
+              : O extends AssignOp<infer U>
+                ? Assign<Current, U>
+                : O extends SetIfMissingOp<infer V>
+                  ? Current extends undefined | null
+                    ? V
+                    : Current
+                  : O extends UnassignOp<infer U>
+                    ? {
+                        [K in keyof Current as Exclude<
+                          K,
+                          ArrayElement<U>
+                        >]: Current[K]
+                      }
+                    : O extends DiffMatchPatchOp
+                      ? string
+                      : never
