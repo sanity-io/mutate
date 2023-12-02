@@ -22,9 +22,10 @@ import {createDataset} from './datasets/createDataset'
 import {applyMutations} from './datasets/applyMutations'
 import {commit} from './datasets/commit'
 import {applyMendozaPatch} from './datasets/applyMendoza'
-import type {Transaction} from '../mutations/types'
+import {filterMutationGroupsById} from './utils/filterMutationGroups'
 import type {SanityMutation} from '../encoders/sanity'
 import type {Observable} from 'rxjs'
+import type {Transaction} from '../mutations/types'
 
 import type {
   ContentLakeStore,
@@ -55,9 +56,10 @@ export function createContentLakeStore(
   const memoize = createMemoizer()
   let stagedChanges: MutationGroup[] = []
 
+  const remoteEvents$ = new Subject<RemoteDocumentEvent>()
   const localMutations$ = new Subject<OptimisticDocumentEvent>()
+
   const stage$ = new Subject<void>()
-  const log$ = new Subject<RemoteDocumentEvent>()
 
   function stage(nextPending: MutationGroup[]) {
     stagedChanges = nextPending
@@ -128,7 +130,13 @@ export function createContentLakeStore(
         remote.set(event.id, event.after.remote)
         stage(event.rebasedStage)
       }),
-      tap(event => log$.next(event)),
+      tap({
+        next: event => remoteEvents$.next(event),
+        error: err => {
+          // todo: how to propagate errors?
+          // remoteEvents$.next()
+        },
+      }),
     )
   }
 
@@ -138,7 +146,20 @@ export function createContentLakeStore(
     )
   }
 
+  const metaEvents$ = merge(localMutations$, remoteEvents$)
+
   return {
+    meta: {
+      events: metaEvents$,
+      stage: stage$.pipe(
+        map(
+          () =>
+            // note: this should not be tampered with by consumers. We might want to do a deep-freeze during dev to avoid accidental mutations
+            stagedChanges,
+        ),
+      ),
+      conflicts: EMPTY, // does nothing for now
+    },
     mutate: mutations => {
       // add mutations to list of pending changes
       stagedChanges.push({transaction: false, mutations})
@@ -153,6 +174,7 @@ export function createContentLakeStore(
           after: result.after,
           mutations: result.mutations,
           id: result.id,
+          stagedChanges: filterMutationGroupsById(stagedChanges, result.id),
         })
       })
       return results
@@ -174,6 +196,7 @@ export function createContentLakeStore(
           id: result.id,
           before: result.before,
           after: result.after,
+          stagedChanges: filterMutationGroupsById(stagedChanges, result.id),
         })
       })
       return results
