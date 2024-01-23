@@ -2,3 +2,7 @@ dist
 node_modules
 tsconfig.vitest-temp.json
 coverage
+
+# legacy exports
+_unstable_apply.js
+path.js
