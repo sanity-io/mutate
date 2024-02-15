@@ -1,32 +1,32 @@
-export * from './patch/applyNodePatch'
-export * from './applyPatchMutation'
 export * from './applyInCollection'
 export * from './applyInIndex'
+export * from './applyPatchMutation'
+export * from './patch/applyNodePatch'
 export * from './patch/applyOp'
 export * from './store'
 
 /** Required support types */
-export type {NodePatch, PatchOptions} from '../mutations/types'
-export type * from '../path'
 export type * from '../mutations/operations/types'
-export type * from './patch/typings/applyNodePatch'
-export type * from './patch/typings/applyOp'
+export type {NodePatch, PatchOptions} from '../mutations/types'
 export type {
   CreateIfNotExistsMutation,
   CreateMutation,
   CreateOrReplaceMutation,
   DeleteMutation,
-  NodePatchList,
   Mutation,
+  NodePatchList,
   PatchMutation,
   SanityDocumentBase,
 } from '../mutations/types'
+export type * from '../path'
 export type {
-  Optional,
-  Format,
-  ArrayElement,
   AnyArray,
+  ArrayElement,
   ArrayLength,
   EmptyArray,
+  Format,
   NormalizeReadOnlyArray,
+  Optional,
 } from '../utils/typeUtils'
+export type * from './patch/typings/applyNodePatch'
+export type * from './patch/typings/applyOp'

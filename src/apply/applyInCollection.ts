@@ -1,15 +1,15 @@
-import {arrify} from '../utils/arrify'
-import {splice} from './utils/array'
-import {applyPatchMutation} from './applyPatchMutation'
-import type {
-  CreateIfNotExistsMutation,
-  CreateMutation,
-  CreateOrReplaceMutation,
-  DeleteMutation,
-  Mutation,
-  PatchMutation,
-  SanityDocumentBase,
+import {
+  type CreateIfNotExistsMutation,
+  type CreateMutation,
+  type CreateOrReplaceMutation,
+  type DeleteMutation,
+  type Mutation,
+  type PatchMutation,
+  type SanityDocumentBase,
 } from '../mutations/types'
+import {arrify} from '../utils/arrify'
+import {applyPatchMutation} from './applyPatchMutation'
+import {splice} from './utils/array'
 
 export function applyInCollection<Doc extends SanityDocumentBase>(
   collection: Doc[],

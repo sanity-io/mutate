@@ -1,8 +1,11 @@
 // An example of a compact formatter
 
-import {stringify} from '../path'
-import type {Index, KeyedPathElement} from '../path'
-import type {Mutation, NodePatch, SanityDocumentBase} from '../mutations/types'
+import {
+  type Mutation,
+  type NodePatch,
+  type SanityDocumentBase,
+} from '../mutations/types'
+import {type Index, type KeyedPathElement, stringify} from '../path'
 
 export type ItemRef = string | number
 

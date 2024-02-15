@@ -1,6 +1,5 @@
-import {isKeyedElement} from '../../path'
+import {isKeyedElement, type PathElement} from '../../path'
 import {keyOf} from './getKeyOf'
-import type {PathElement} from '../../path'
 
 export function findTargetIndex<T>(array: T[], pathSegment: PathElement) {
   if (typeof pathSegment === 'number') {

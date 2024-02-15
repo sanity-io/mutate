@@ -1,3 +1,4 @@
+import {type Index, type KeyedPathElement} from '../path'
 import {isObject} from '../utils/isObject'
 import {
   insert as _insert,
@@ -5,7 +6,6 @@ import {
   upsert as _upsert,
 } from './operations/creators'
 import {type RelativePosition} from './operations/types'
-import type {Index, KeyedPathElement} from '../path'
 
 export function autoKeys<Item>(generateKey: (item: Item) => string) {
   const ensureKeys = createEnsureKeys(generateKey)

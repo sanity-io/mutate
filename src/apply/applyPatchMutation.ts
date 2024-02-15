@@ -1,14 +1,15 @@
+import {type PatchMutation, type SanityDocumentBase} from '../mutations/types'
+import {type NormalizeReadOnlyArray} from '../utils/typeUtils'
 import {applyPatches} from './patch/applyNodePatch'
-import type {NormalizeReadOnlyArray} from '../utils/typeUtils'
-import type {ApplyPatches} from './patch/typings/applyNodePatch'
-import type {PatchMutation, SanityDocumentBase} from '../mutations/types'
+import {type ApplyPatches} from './patch/typings/applyNodePatch'
 
 export type ApplyPatchMutation<
   Mutation extends PatchMutation,
   Doc extends SanityDocumentBase,
-> = Mutation extends PatchMutation<infer Patches>
-  ? ApplyPatches<NormalizeReadOnlyArray<Patches>, Doc>
-  : Doc
+> =
+  Mutation extends PatchMutation<infer Patches>
+    ? ApplyPatches<NormalizeReadOnlyArray<Patches>, Doc>
+    : Doc
 
 export function applyPatchMutation<
   const Mutation extends PatchMutation,

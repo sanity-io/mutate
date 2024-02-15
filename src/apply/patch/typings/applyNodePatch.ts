@@ -1,9 +1,14 @@
-import type {Call, Numbers, Tuples} from 'hotscript'
-import type {AnyArray, EmptyArray, Format} from '../../../utils/typeUtils'
-import type {NodePatch} from '../../../mutations/types'
-import type {KeyedPathElement, Path} from '../../../path'
-import type {Operation} from '../../../mutations/operations/types'
-import type {ApplyOp} from './applyOp'
+import {type Call, type Numbers, type Tuples} from 'hotscript'
+
+import {type Operation} from '../../../mutations/operations/types'
+import {type NodePatch} from '../../../mutations/types'
+import {type KeyedPathElement, type Path} from '../../../path'
+import {
+  type AnyArray,
+  type EmptyArray,
+  type Format,
+} from '../../../utils/typeUtils'
+import {type ApplyOp} from './applyOp'
 
 export type PickOrUndef<T, Head> = Head extends keyof T ? T[Head] : undefined
 
@@ -19,10 +24,10 @@ export type ApplyInObject<
         : Node[K]
     }
   : Tail extends EmptyArray
-  ? Head extends string
-    ? Format<Node & {[K in Head]: ApplyOp<Op, undefined>}>
-    : never
-  : Node
+    ? Head extends string
+      ? Format<Node & {[K in Head]: ApplyOp<Op, undefined>}>
+      : never
+    : Node
 
 export type ApplyAtIndex<
   Index extends number,
@@ -40,11 +45,12 @@ export type ApplyAtSelector<
   Tail extends AnyArray,
   Op extends Operation,
   Arr extends AnyArray,
-> = FirstIndexOf<0, Selector, Arr> extends infer Index
-  ? Index extends number
-    ? ApplyAtIndex<Index, Tail, Op, Arr>
+> =
+  FirstIndexOf<0, Selector, Arr> extends infer Index
+    ? Index extends number
+      ? ApplyAtIndex<Index, Tail, Op, Arr>
+      : Arr
     : Arr
-  : Arr
 
 export type FirstIndexOf<
   StartIndex extends number,
@@ -64,8 +70,8 @@ export type ApplyInArray<
 > = ItemSelector extends number
   ? ApplyAtIndex<ItemSelector, Tail, Op, Arr>
   : ItemSelector extends KeyedPathElement
-  ? ApplyAtSelector<ItemSelector, Tail, Op, Arr>
-  : never
+    ? ApplyAtSelector<ItemSelector, Tail, Op, Arr>
+    : never
 
 export type ApplyAtPath<
   Pth extends Path,
@@ -75,12 +81,12 @@ export type ApplyAtPath<
   ? // destination reached
     ApplyOp<Op, Node>
   : Pth extends [infer Head, ...infer Tail]
-  ? Node extends AnyArray
-    ? ApplyInArray<Head, Tail, Op, Node>
-    : Node extends {[K in string]: unknown}
-    ? ApplyInObject<Head, Tail, Op, Node>
+    ? Node extends AnyArray
+      ? ApplyInArray<Head, Tail, Op, Node>
+      : Node extends {[K in string]: unknown}
+        ? ApplyInObject<Head, Tail, Op, Node>
+        : never
     : never
-  : never
 
 export type ApplyPatches<Patches, Node> = Patches extends [
   infer HeadPatch,
@@ -90,14 +96,12 @@ export type ApplyPatches<Patches, Node> = Patches extends [
     ? TailPatch extends []
       ? ApplyNodePatch<HeadPatch, Node>
       : TailPatch extends NodePatch[]
-      ? ApplyPatches<TailPatch, ApplyNodePatch<HeadPatch, Node>>
-      : Node
+        ? ApplyPatches<TailPatch, ApplyNodePatch<HeadPatch, Node>>
+        : Node
     : Node
   : Node
 
-export type ApplyNodePatch<
-  Patch extends NodePatch,
-  Node,
-> = Patch extends NodePatch<infer P, infer Op>
-  ? ApplyAtPath<P, Op, Node>
-  : ApplyAtPath<Patch['path'], Patch['op'], Node>
+export type ApplyNodePatch<Patch extends NodePatch, Node> =
+  Patch extends NodePatch<infer P, infer Op>
+    ? ApplyAtPath<P, Op, Node>
+    : ApplyAtPath<Patch['path'], Patch['op'], Node>

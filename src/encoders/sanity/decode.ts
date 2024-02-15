@@ -1,12 +1,12 @@
-import {parse as parsePath} from '../../path/parser/parse'
-import type {
-  Mutation,
-  NodePatch,
-  SanityDocumentBase,
+import {type SetIfMissingOp, type SetOp} from '../../mutations/operations/types'
+import {
+  type Mutation,
+  type NodePatch,
+  type SanityDocumentBase,
 } from '../../mutations/types'
-import type {SetIfMissingOp, SetOp} from '../../mutations/operations/types'
+import {parse as parsePath} from '../../path/parser/parse'
 
-export type {SanityDocumentBase, Mutation}
+export type {Mutation, SanityDocumentBase}
 
 export type SanityDiffMatchPatch = {
   id: string

@@ -1,4 +1,5 @@
 import {expect, test} from 'vitest'
+
 import {insert, replace} from '../../../mutations/operations/creators'
 import {applyOp} from '../applyOp'
 

@@ -1,10 +1,10 @@
 import {nanoid} from 'nanoid'
+
+import {type DocumentIndex, type Format} from '../../apply'
+import {type Mutation, type SanityDocumentBase} from '../../mutations/types'
 import {arrify} from '../../utils/arrify'
-import {applyInIndex} from '../applyInIndex'
+import {applyInIndex, type ToIdentified, type ToStored} from '../applyInIndex'
 import {assignId} from './utils'
-import type {ToIdentified, ToStored} from '../applyInIndex'
-import type {DocumentIndex, Format} from '../../apply'
-import type {Mutation, SanityDocumentBase} from '../../mutations/types'
 
 export type RequiredSelect<T, K extends keyof T> = Omit<T, K> & {
   [P in K]-?: T[P]

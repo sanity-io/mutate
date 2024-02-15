@@ -1,12 +1,16 @@
 // An example of a compact transport/serialization format
-import {stringify as stringifyPath} from '../../path/parser/stringify'
-import type {Index, KeyedPathElement} from '../../path'
-import type {CompactMutation, CompactPatchMutation, ItemRef} from './types'
-import type {
-  Mutation,
-  NodePatch,
-  SanityDocumentBase,
+import {
+  type Mutation,
+  type NodePatch,
+  type SanityDocumentBase,
 } from '../../mutations/types'
+import {type Index, type KeyedPathElement} from '../../path'
+import {stringify as stringifyPath} from '../../path/parser/stringify'
+import {
+  type CompactMutation,
+  type CompactPatchMutation,
+  type ItemRef,
+} from './types'
 
 export function encode<Doc extends SanityDocumentBase>(
   mutations: Mutation[],

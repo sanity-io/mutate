@@ -1,4 +1,5 @@
 import {expect, test} from 'vitest'
+
 import {
   at,
   createIfNotExists,
@@ -6,8 +7,8 @@ import {
   del,
   patch,
 } from '../../mutations/creators'
-import {applyInCollection} from '../applyInCollection'
 import {set, unset} from '../../mutations/operations/creators'
+import {applyInCollection} from '../applyInCollection'
 
 type FooDoc = {
   _id: 'foo'

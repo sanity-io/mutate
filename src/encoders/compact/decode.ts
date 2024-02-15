@@ -1,20 +1,19 @@
-import {parse as parsePath} from '../../path/parser/parse'
-import type {Index, KeyedPathElement} from '../../path'
-import type {
-  CompactMutation,
-  CompactPatchMutation,
-  CreateIfNotExistsMutation,
-  CreateMutation,
-  CreateOrReplaceMutation,
-  DeleteMutation,
-  ItemRef,
-} from './types'
-
-import type {
-  Mutation,
-  PatchMutation,
-  SanityDocumentBase,
+import {
+  type Mutation,
+  type PatchMutation,
+  type SanityDocumentBase,
 } from '../../mutations/types'
+import {type Index, type KeyedPathElement} from '../../path'
+import {parse as parsePath} from '../../path/parser/parse'
+import {
+  type CompactMutation,
+  type CompactPatchMutation,
+  type CreateIfNotExistsMutation,
+  type CreateMutation,
+  type CreateOrReplaceMutation,
+  type DeleteMutation,
+  type ItemRef,
+} from './types'
 
 export {Mutation, SanityDocumentBase}
 

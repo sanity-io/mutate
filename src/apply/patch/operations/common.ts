@@ -1,7 +1,7 @@
-import type {
-  SetIfMissingOp,
-  SetOp,
-  UnsetOp,
+import {
+  type SetIfMissingOp,
+  type SetOp,
+  type UnsetOp,
 } from '../../../mutations/operations/types'
 
 export function set<O extends SetOp<any>, CurrentValue>(

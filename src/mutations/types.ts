@@ -1,6 +1,6 @@
-import type {Operation} from './operations/types'
-import type {Optional} from '../utils/typeUtils'
-import type {Path} from '../path'
+import {type Path} from '../path'
+import {type Optional} from '../utils/typeUtils'
+import {type Operation} from './operations/types'
 
 export type NodePatchList =
   | [NodePatch, ...NodePatch[]]

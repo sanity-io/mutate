@@ -1,4 +1,3 @@
-import {applyPatchMutation} from '@bjoerge/mutiny/_unstable_apply'
 import {
   append,
   assign,
@@ -12,6 +11,7 @@ import {
   unassign,
   unset,
 } from '@bjoerge/mutiny'
+import {applyPatchMutation} from '@bjoerge/mutiny/_unstable_apply'
 
 const document = {
   _id: 'test',

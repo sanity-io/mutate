@@ -1,22 +1,22 @@
+import {parse, type Path, type StringToPath} from '../path'
 import {arrify} from '../utils/arrify'
-import {type StringToPath, parse} from '../path'
-import {type Operation} from './operations/types'
-import {type PatchMutation, type PatchOptions} from './types'
-import type {
-  CreateIfNotExistsMutation,
-  CreateMutation,
-  CreateOrReplaceMutation,
-  DeleteMutation,
-  NodePatch,
-  NodePatchList,
-  SanityDocumentBase,
-} from './types'
-import type {Path} from '../path'
-import type {
-  NormalizeReadOnlyArray,
-  Optional,
-  Tuplify,
+import {
+  type NormalizeReadOnlyArray,
+  type Optional,
+  type Tuplify,
 } from '../utils/typeUtils'
+import {type Operation} from './operations/types'
+import {
+  type CreateIfNotExistsMutation,
+  type CreateMutation,
+  type CreateOrReplaceMutation,
+  type DeleteMutation,
+  type NodePatch,
+  type NodePatchList,
+  type PatchMutation,
+  type PatchOptions,
+  type SanityDocumentBase,
+} from './types'
 
 export function create<Doc extends Optional<SanityDocumentBase, '_id'>>(
   document: Doc,

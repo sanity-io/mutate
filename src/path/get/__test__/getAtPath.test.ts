@@ -1,4 +1,5 @@
 import {expect, test} from 'vitest'
+
 import {getAtPath} from '../getAtPath'
 
 test('deepGet() function', () => {

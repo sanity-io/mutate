@@ -1,25 +1,25 @@
 import {arrify} from '../../utils/arrify'
-import type {
-  AnyArray,
-  ArrayElement,
-  NormalizeReadOnlyArray,
+import {
+  type AnyArray,
+  type ArrayElement,
+  type NormalizeReadOnlyArray,
 } from '../../utils/typeUtils'
-import type {
-  AssignOp,
-  DecOp,
-  DiffMatchPatchOp,
-  IncOp,
-  Index,
-  InsertOp,
-  KeyedPathElement,
-  RelativePosition,
-  ReplaceOp,
-  SetIfMissingOp,
-  SetOp,
-  TruncateOp,
-  UnassignOp,
-  UnsetOp,
-  UpsertOp,
+import {
+  type AssignOp,
+  type DecOp,
+  type DiffMatchPatchOp,
+  type IncOp,
+  type Index,
+  type InsertOp,
+  type KeyedPathElement,
+  type RelativePosition,
+  type ReplaceOp,
+  type SetIfMissingOp,
+  type SetOp,
+  type TruncateOp,
+  type UnassignOp,
+  type UnsetOp,
+  type UpsertOp,
 } from './types'
 
 export const set = <const T>(value: T): SetOp<T> => ({type: 'set', value})

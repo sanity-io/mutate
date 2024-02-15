@@ -1,7 +1,7 @@
 import {expectTypeOf, test} from 'vitest'
-import {getAtPath} from '../getAtPath'
-import type {Path} from '../../types'
-import type {Get, GetAtPath} from '../getAtPath'
+
+import {type Path} from '../../types'
+import {type Get, type GetAtPath, getAtPath} from '../getAtPath'
 
 test('Get (shallow) typings', () => {
   expectTypeOf<

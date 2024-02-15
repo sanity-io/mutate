@@ -1,5 +1,5 @@
-import type {AnyArray} from '../../utils/typeUtils'
-import type {Index, KeyedPathElement} from '../../path'
+import {type Index, type KeyedPathElement} from '../../path'
+import {type AnyArray} from '../../utils/typeUtils'
 
 export {Index, KeyedPathElement}
 

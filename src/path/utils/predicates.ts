@@ -1,4 +1,4 @@
-import type {KeyedPathElement, Path, PathElement} from '../types'
+import {type KeyedPathElement, type Path, type PathElement} from '../types'
 
 export function startsWith(parentPath: Path, path: Path): boolean {
   return (

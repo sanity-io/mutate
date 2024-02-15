@@ -1,5 +1,5 @@
 import {assertType, expectTypeOf, test} from 'vitest'
-import {applyOp} from '../applyOp'
+
 import {
   assign,
   dec,
@@ -9,24 +9,25 @@ import {
   unassign,
   unset,
 } from '../../../mutations/operations/creators'
-import type {
-  AdjustIndex,
-  ApplyOp,
-  InsertAtIndex,
-  NormalizeIndex,
-  SplitAtPos,
-} from './applyOp'
-import type {
-  AssignOp,
-  DecOp,
-  IncOp,
-  InsertOp,
-  ReplaceOp,
-  SetIfMissingOp,
-  SetOp,
-  UnassignOp,
-  UnsetOp,
+import {
+  type AssignOp,
+  type DecOp,
+  type IncOp,
+  type InsertOp,
+  type ReplaceOp,
+  type SetIfMissingOp,
+  type SetOp,
+  type UnassignOp,
+  type UnsetOp,
 } from '../../../mutations/operations/types'
+import {applyOp} from '../applyOp'
+import {
+  type AdjustIndex,
+  type ApplyOp,
+  type InsertAtIndex,
+  type NormalizeIndex,
+  type SplitAtPos,
+} from './applyOp'
 
 test('various support types', () => {
   assertType<InsertAtIndex<[1, 2, 3], [4, 5, 6], 'after', -1>>([

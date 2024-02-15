@@ -1,16 +1,16 @@
 import {nanoid} from 'nanoid'
-import {assignId, hasId} from './store'
-import {applyPatchMutation} from './applyPatchMutation'
-import type {RequiredSelect} from './store'
-import type {
-  CreateIfNotExistsMutation,
-  CreateMutation,
-  CreateOrReplaceMutation,
-  DeleteMutation,
-  Mutation,
-  PatchMutation,
-  SanityDocumentBase,
+
+import {
+  type CreateIfNotExistsMutation,
+  type CreateMutation,
+  type CreateOrReplaceMutation,
+  type DeleteMutation,
+  type Mutation,
+  type PatchMutation,
+  type SanityDocumentBase,
 } from '../mutations/types'
+import {applyPatchMutation} from './applyPatchMutation'
+import {assignId, hasId, type RequiredSelect} from './store'
 
 export type DocumentIndex<Doc extends SanityDocumentBase> = {[id: string]: Doc}
 

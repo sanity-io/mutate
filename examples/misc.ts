@@ -3,12 +3,12 @@ import {
   createIfNotExists,
   dec,
   inc,
+  type Mutation,
   patch,
   set,
   setIfMissing,
 } from '@bjoerge/mutiny'
 import {applyOp, applyPatches} from '@bjoerge/mutiny/_unstable_apply'
-import type {Mutation} from '@bjoerge/mutiny'
 
 const d = dec(1000)
 const f = applyOp(dec(1), 4)

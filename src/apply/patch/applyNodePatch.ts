@@ -1,17 +1,16 @@
+import {type Operation} from '../../mutations/operations/types'
+import {type NodePatch, type NodePatchList} from '../../mutations/types'
 import {isArrayElement, isPropertyElement, stringify} from '../../path'
 import {isObject} from '../../utils/isObject'
+import {type NormalizeReadOnlyArray} from '../../utils/typeUtils'
+import {type KeyedPathElement, type Path} from '../'
 import {findTargetIndex, splice} from '../utils/array'
 import {applyOp} from './applyOp'
-import type {KeyedPathElement, Path} from '../'
-
-import type {
-  ApplyAtPath,
-  ApplyNodePatch,
-  ApplyPatches,
+import {
+  type ApplyAtPath,
+  type ApplyNodePatch,
+  type ApplyPatches,
 } from './typings/applyNodePatch'
-import type {NormalizeReadOnlyArray} from '../../utils/typeUtils'
-import type {Operation} from '../../mutations/operations/types'
-import type {NodePatch, NodePatchList} from '../../mutations/types'
 
 export function applyPatches<Patches extends NodePatchList, const Doc>(
   patches: Patches,

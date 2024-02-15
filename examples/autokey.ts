@@ -1,6 +1,7 @@
-import {ulid} from 'ulid'
 import {autoKeys} from '@bjoerge/mutiny'
 import {applyInCollection} from '@bjoerge/mutiny/_unstable_apply'
+import {ulid} from 'ulid'
+
 import {at, patch} from '../src'
 
 type Item = {_key?: string; order: string}

@@ -1,8 +1,8 @@
 import {expect, test} from 'vitest'
-import {decode} from '../decode'
+
 import {at, patch} from '../../../mutations/creators'
 import {insert, set, unset} from '../../../mutations/operations/creators'
-import type {SanityMutation} from '../decode'
+import {decode, type SanityMutation} from '../decode'
 
 test('decode()', () => {
   const encoded: SanityMutation[] = [

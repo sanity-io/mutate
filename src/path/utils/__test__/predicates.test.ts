@@ -1,5 +1,7 @@
 import {expect, test} from 'vitest'
+
 import {startsWith} from '../predicates'
+
 test('startsWith()', () => {
   expect(startsWith(['foo'], ['foo', 'bar'])).toBe(true)
   expect(startsWith(['foo', 'bar'], ['foo', 'bar'])).toBe(true)

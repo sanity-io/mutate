@@ -1,5 +1,5 @@
+import {type Path, type PathElement} from '../types'
 import {isKeyedElement} from '../utils/predicates'
-import type {Path, PathElement} from '../types'
 
 const IS_DOTTABLE = /^[a-z_$]+/
 

@@ -1,5 +1,5 @@
-import {applyInCollection} from '@bjoerge/mutiny/_unstable_apply'
 import {createIfNotExists, del} from '@bjoerge/mutiny'
+import {applyInCollection} from '@bjoerge/mutiny/_unstable_apply'
 
 const initial = [{_id: 'deleteme', _type: 'foo'}]
 

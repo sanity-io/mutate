@@ -1,19 +1,20 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import {assertType, describe, test} from 'vitest'
-import type {
-  ApplyAtIndex,
-  ApplyAtPath,
-  ApplyAtSelector,
-  ApplyNodePatch,
-  FirstIndexOf,
-} from './applyNodePatch'
-import type {NodePatch} from '../../../mutations/types'
-import type {
-  DecOp,
-  IncOp,
-  SetIfMissingOp,
-  SetOp,
+
+import {
+  type DecOp,
+  type IncOp,
+  type SetIfMissingOp,
+  type SetOp,
 } from '../../../mutations/operations/types'
+import {type NodePatch} from '../../../mutations/types'
+import {
+  type ApplyAtIndex,
+  type ApplyAtPath,
+  type ApplyAtSelector,
+  type ApplyNodePatch,
+  type FirstIndexOf,
+} from './applyNodePatch'
 
 describe('helpers', () => {
   assertType<

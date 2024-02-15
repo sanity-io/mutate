@@ -1,5 +1,6 @@
 import * as DMP from 'diff-match-patch'
-import type {DiffMatchPatchOp} from '../../../mutations/operations/types'
+
+import {type DiffMatchPatchOp} from '../../../mutations/operations/types'
 
 const dmp = new DMP.diff_match_patch()
 

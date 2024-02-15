@@ -1,15 +1,14 @@
-import * as operations from './operations'
-import type {
-  AnyOp,
-  ArrayOp,
-  NumberOp,
-  ObjectOp,
-  Operation,
-  StringOp,
+import {
+  type AnyOp,
+  type ArrayOp,
+  type NumberOp,
+  type ObjectOp,
+  type Operation,
+  type StringOp,
 } from '../../mutations/operations/types'
-import type {AnyArray} from '../../utils/typeUtils'
-
-import type {ApplyOp} from './typings/applyOp'
+import {type AnyArray} from '../../utils/typeUtils'
+import * as operations from './operations'
+import {type ApplyOp} from './typings/applyOp'
 
 export function applyOp<const Op extends AnyOp, const CurrentValue>(
   op: Op,

@@ -1,7 +1,8 @@
 import {expect, test} from 'vitest'
-import {stringify} from '../stringify'
+
+import {type Path} from '../../types'
 import {parse} from '../parse'
-import type {Path} from '../../types'
+import {stringify} from '../stringify'
 
 type Equivalent = [Path, string]
 

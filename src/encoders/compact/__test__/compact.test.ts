@@ -1,8 +1,9 @@
 import {expect, test} from 'vitest'
+
 import {at, createIfNotExists, patch} from '../../../mutations/creators'
 import {set, unset} from '../../../mutations/operations/creators'
-import {encode} from '../encode'
 import {decode} from '../decode'
+import {encode} from '../encode'
 
 test('encode', () => {
   expect(

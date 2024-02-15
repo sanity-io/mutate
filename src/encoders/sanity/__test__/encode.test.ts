@@ -1,7 +1,8 @@
 import {expect, test} from 'vitest'
-import {encode} from '../encode'
+
 import {at, patch} from '../../../mutations/creators'
 import {insert, set, unset} from '../../../mutations/operations/creators'
+import {encode} from '../encode'
 
 test('encode()', () => {
   const mutations = [

@@ -1,7 +1,8 @@
 import {expect, test} from 'vitest'
-import {format} from '../compact'
+
 import {at, createIfNotExists, patch} from '../../mutations/creators'
 import {set, unset} from '../../mutations/operations/creators'
+import {format} from '../compact'
 
 test('format', () => {
   expect(

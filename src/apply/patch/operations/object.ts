@@ -1,7 +1,10 @@
+import {
+  type AssignOp,
+  type UnassignOp,
+} from '../../../mutations/operations/types'
+import {isObject} from '../../../utils/isObject'
 import {isEmpty} from '../../utils/isEmpty'
 import {omit} from '../../utils/omit'
-import {isObject} from '../../../utils/isObject'
-import type {AssignOp, UnassignOp} from '../../../mutations/operations/types'
 
 export function unassign<T extends object, K extends string[]>(
   op: UnassignOp<K>,

@@ -1,12 +1,12 @@
-import {findTargetIndex, getTargetIdx, splice} from '../../utils/array'
-import type {
-  InsertOp,
-  KeyedPathElement,
-  RelativePosition,
-  ReplaceOp,
-  TruncateOp,
-  UpsertOp,
+import {
+  type InsertOp,
+  type KeyedPathElement,
+  type RelativePosition,
+  type ReplaceOp,
+  type TruncateOp,
+  type UpsertOp,
 } from '../../../mutations/operations/types'
+import {findTargetIndex, getTargetIdx, splice} from '../../utils/array'
 
 export function insert<
   O extends InsertOp<unknown[], RelativePosition, number | KeyedPathElement>,

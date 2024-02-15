@@ -1,4 +1,4 @@
-import type {DecOp, IncOp} from '../../../mutations/operations/types'
+import {type DecOp, type IncOp} from '../../../mutations/operations/types'
 
 export function inc<O extends IncOp<number>, CurrentValue extends number>(
   op: O,

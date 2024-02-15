@@ -1,5 +1,5 @@
-import type {RelativePosition} from '../../mutations/operations/types'
-import type {AnyArray} from '../../utils/typeUtils'
+import {type RelativePosition} from '../../mutations/operations/types'
+import {type AnyArray} from '../../utils/typeUtils'
 
 export type Id = string
 export type RevisionLock = string

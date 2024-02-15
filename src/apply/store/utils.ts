@@ -1,5 +1,5 @@
-import type {StoredDocument} from '../applyInIndex'
-import type {SanityDocumentBase} from '../../mutations/types'
+import {type SanityDocumentBase} from '../../mutations/types'
+import {type StoredDocument} from '../applyInIndex'
 
 export function hasId(doc: SanityDocumentBase): doc is StoredDocument {
   return '_id' in doc

@@ -1,4 +1,5 @@
 import {expect, test} from 'vitest'
+
 import {
   at,
   create,
@@ -8,7 +9,7 @@ import {
   patch,
 } from '../creators'
 import {inc, insert, set, setIfMissing, unset} from '../operations/creators'
-import type {Mutation} from '../types'
+import {type Mutation} from '../types'
 
 test('single patch mutation', () => {
   expect(patch('cat', at(['title'], set('hello world')))).toStrictEqual({

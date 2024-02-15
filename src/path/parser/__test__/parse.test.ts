@@ -1,5 +1,6 @@
 import {test} from 'vitest'
-import type {ParseError, StringToPath} from '../types'
+
+import {type ParseError, type StringToPath} from '../types'
 
 // Asserts that type A is assignable to B
 function assertAssignable<A extends B, B>() {}
