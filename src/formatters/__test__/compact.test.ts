@@ -17,15 +17,15 @@ test('format', () => {
       patch('other', [at('sound', set('meow'))], {ifRevision: 'rev004'}),
     ]),
   ).toMatchInlineSnapshot(`
-    "createIfNotExists: {\\"_id\\":\\"cat\\",\\"_type\\":\\"cat\\"}
+    "createIfNotExists: {"_id":"cat","_type":"cat"}
     patch id=cat:
-      title: set(\\"hello world\\")
-      breed.name: set(\\"common house cat\\")
+      title: set("hello world")
+      breed.name: set("common house cat")
       title: unset()
       hello: unset()
     patch id=cat:
-      breed: set(\\"forest cat\\")
+      breed: set("forest cat")
     patch id=other (if revision==rev004):
-      sound: set(\\"meow\\")"
+      sound: set("meow")"
   `)
 })
