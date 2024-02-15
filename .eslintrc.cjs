@@ -8,12 +8,22 @@ module.exports = {
     es6: true,
     node: true,
   },
-  extends: ['eslint:recommended', 'plugin:prettier/recommended'],
+  extends: [
+    'eslint:recommended',
+    'plugin:prettier/recommended',
+    'plugin:@typescript-eslint/recommended',
+  ],
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'module',
   },
-  plugins: ['import', 'prettier'],
+  plugins: [
+    'import',
+    'prettier',
+    'simple-import-sort',
+    'unused-imports',
+    '@typescript-eslint',
+  ],
   rules: {
     'no-console': 'error',
     'no-shadow': 'error',
@@ -30,7 +40,7 @@ module.exports = {
       files: ['**/*.ts', '**/*.tsx'],
       parser: '@typescript-eslint/parser',
       parserOptions: {
-        project: ['./tsconfig.json'],
+        project: true,
       },
       extends: [
         'eslint:recommended',
@@ -48,26 +58,20 @@ module.exports = {
         '@typescript-eslint/no-explicit-any': 'off',
         '@typescript-eslint/consistent-type-imports': [
           'error',
-          {
-            prefer: 'type-imports',
-            disallowTypeAnnotations: true,
-            fixStyle: 'separate-type-imports',
-          },
+          {prefer: 'type-imports'},
         ],
-        'sort-imports': ['error', {ignoreDeclarationSort: true}],
-        'import/order': [
-          'error',
-          {
-            groups: [
-              'builtin',
-              'external',
-              'parent',
-              'sibling',
-              'index',
-              'type',
-            ],
-          },
-        ],
+        '@typescript-eslint/no-dupe-class-members': ['error'],
+        '@typescript-eslint/no-shadow': ['error'],
+        'unused-imports/no-unused-imports': 'error',
+        'unused-imports/no-unused-vars': ['warn'],
+        'import/no-duplicates': ['error', {'prefer-inline': true}],
+        'import/first': 'error',
+        'import/newline-after-import': 'error',
+        'import/consistent-type-specifier-style': ['error', 'prefer-inline'],
+        'import/order': 'off', // handled by simple-import-sort
+        'sort-imports': 'off', // handled by simple-import-sort
+        'simple-import-sort/imports': 'error',
+        'simple-import-sort/exports': 'error',
       },
     },
   ],
