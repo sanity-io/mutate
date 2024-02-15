@@ -56,7 +56,6 @@
     "pkg:check": "pkg check --strict",
     "pkg:watch": "pkg watch --strict",
     "typecheck": "tsc --build",
-    "prepublishOnly": "npm run build",
     "lint": "eslint . --ext .cjs,.js,.ts,.tsx",
     "test": "vitest run",
     "test:types": "vitest typecheck --no-watch",
@@ -66,7 +65,8 @@
     "coverage": "vitest run --coverage",
     "example": "tsx --tsconfig ./examples/tsconfig.json",
     "check": "run-s typecheck pkg:build pkg:check test test:types",
-    "dev": "run-p pkg:watch test:watch test:types:watch"
+    "dev": "run-p pkg:watch test:watch test:types:watch",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "diff-match-patch": "^1.0.5",
@@ -97,6 +97,7 @@
   "engines": {
     "node": ">=18"
   },
+  "packageManager": "pnpm@8.14.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bjoerge/mutiny.git"
