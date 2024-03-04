@@ -13,6 +13,7 @@
   },
   "license": "MIT",
   "author": "Bjørge Næss <bjoerge@gmail.com>",
+  "sideEffects": false,
   "type": "module",
   "exports": {
     ".": {
