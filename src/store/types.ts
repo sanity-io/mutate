@@ -2,6 +2,8 @@ import {type RawPatch} from 'mendoza'
 import {type Observable} from 'rxjs'
 
 import {type Mutation, type SanityDocumentBase} from '../mutations/types'
+import {type Path} from '../path'
+import {type SanityMutationEvent} from './sanityApiTypes'
 
 export interface ListenerSyncEvent {
   type: 'sync'

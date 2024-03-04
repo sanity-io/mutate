@@ -2,7 +2,7 @@ import {expect, test} from 'vitest'
 
 import {at, patch} from '../../../mutations/creators'
 import {insert, set, unset} from '../../../mutations/operations/creators'
-import {decode, type SanityMutation} from '../decode'
+import {decodeAll, type SanityMutation} from '../decode'
 
 test('decode()', () => {
   const encoded: SanityMutation[] = [
@@ -44,7 +44,7 @@ test('decode()', () => {
       },
     },
   ]
-  expect(decode(encoded)).toEqual([
+  expect(decodeAll(encoded)).toEqual([
     patch('cat', [at('title', set('hello world'))]),
     patch('cat', [at('title', unset())]),
     patch('cat', [at('hello', unset())]),
