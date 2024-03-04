@@ -159,48 +159,45 @@ function isInsertPatch(
   return 'insert' in sanityPatch
 }
 
-export function decode<Doc extends SanityDocumentBase>(
-  encodedMutation: SanityMutation<Doc>[],
+export function decodeAll<Doc extends SanityDocumentBase>(
+  sanityMutations: SanityMutation<Doc>[],
 ) {
-  return encodedMutation.reduce(
-    (muts: Mutation[], mut) => [...muts, ...decodeMutation(mut)],
-    [],
-  )
+  return sanityMutations.map(decodeMutation)
+}
+
+export function decode<Doc extends SanityDocumentBase>(
+  encodedMutation: SanityMutation<Doc>,
+) {
+  return decodeMutation(encodedMutation)
 }
 
 function decodeMutation<Doc extends SanityDocumentBase>(
   encodedMutation: SanityMutation<Doc>,
-): Mutation[] {
+): Mutation {
   if (isCreateIfNotExistsMutation(encodedMutation)) {
-    return [
-      {
-        type: 'createIfNotExists',
-        document: encodedMutation.createIfNotExists,
-      },
-    ]
+    return {
+      type: 'createIfNotExists',
+      document: encodedMutation.createIfNotExists,
+    }
   }
   if (isCreateOrReplaceMutation(encodedMutation)) {
-    return [
-      {
-        type: 'createOrReplace',
-        document: encodedMutation.createOrReplace,
-      },
-    ]
+    return {
+      type: 'createOrReplace',
+      document: encodedMutation.createOrReplace,
+    }
   }
   if (isCreateMutation(encodedMutation)) {
-    return [{type: 'create', document: encodedMutation.create}]
+    return {type: 'create', document: encodedMutation.create}
   }
   if (isDeleteMutation(encodedMutation)) {
-    return [{id: encodedMutation.delete.id, type: 'delete'}]
+    return {id: encodedMutation.delete.id, type: 'delete'}
   }
   if (isPatchMutation(encodedMutation)) {
-    return [
-      {
-        type: 'patch',
-        id: encodedMutation.patch.id,
-        patches: decodeNodePatches(encodedMutation.patch),
-      },
-    ]
+    return {
+      type: 'patch',
+      id: encodedMutation.patch.id,
+      patches: decodeNodePatches(encodedMutation.patch),
+    }
   }
   throw new Error(`Unknown mutation: ${JSON.stringify(encodedMutation)}`)
 }

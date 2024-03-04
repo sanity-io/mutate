@@ -1,14 +1,22 @@
-import {type Mutation, type NodePatch} from '../../mutations/types'
+import {
+  type Mutation,
+  type NodePatch,
+  type Transaction,
+} from '../../mutations/types'
 import {stringify as stringifyPath} from '../../path/parser/stringify'
 
-export function encode(mutations: Mutation[]) {
-  return mutations.flatMap(encodeMutation)
+export function encode(mutation: Mutation) {
+  return encodeMutation(mutation)
+}
+
+export function encodeAll(mutations: Mutation[]) {
+  return mutations.flatMap(encode)
 }
 
 export function encodeTransaction(transaction: Transaction) {
   return {
     transactionId: transaction.id,
-    mutations: encode(transaction.mutations),
+    mutations: encodeAll(transaction.mutations),
   }
 }
 

@@ -31,7 +31,7 @@ fetch(`https://${projectId}.api.sanity.io/v2023-08-01/data/mutate/${dataset}`, {
   headers: {
     'Content-Type': 'application/json',
   },
-  body: JSON.stringify(SanityEncoder.encode(mutations)),
+  body: JSON.stringify(SanityEncoder.encodeAll(mutations)),
 })
   .then(response => response.json())
   .then(result => console.log(result))

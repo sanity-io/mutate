@@ -2,7 +2,7 @@ import {expect, test} from 'vitest'
 
 import {at, patch} from '../../../mutations/creators'
 import {insert, set, unset} from '../../../mutations/operations/creators'
-import {encode} from '../encode'
+import {encodeAll} from '../encode'
 
 test('encode()', () => {
   const mutations = [
@@ -14,7 +14,7 @@ test('encode()', () => {
     patch('cat', [at('breed', set('forest cat'))]),
     patch('dog', [at('characteristics', insert(['furry'], 'after', -1))]),
   ]
-  expect(encode(mutations)).toEqual([
+  expect(encodeAll(mutations)).toEqual([
     {
       patch: {
         id: 'cat',

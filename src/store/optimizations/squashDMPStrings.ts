@@ -4,6 +4,7 @@ import {
   type PatchMutation,
   type SanityDocumentBase,
 } from '../../mutations/types'
+import {type MutationGroup} from '../types'
 import {compactDMPSetPatches} from './squashNodePatches'
 
 interface DataStore {

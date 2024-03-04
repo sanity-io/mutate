@@ -24,11 +24,14 @@ import {squashMutationGroups} from './optimizations/squashMutations'
 import {rebase} from './rebase'
 import {
   type ContentLakeStore,
+  type MutationGroup,
   type OptimisticDocumentEvent,
   type RemoteDocumentEvent,
   type RemoteListenerEvent,
   type SubmitResult,
+  type TransactionalMutationGroup,
 } from './types'
+import {filterMutationGroupsById} from './utils/filterMutationGroups'
 import {createMemoizer} from './utils/memoize'
 
 export interface StoreBackend {
@@ -113,7 +116,7 @@ export function createContentLakeStore(
             before: {remote: oldRemote, local: oldLocal},
             after: {remote: newRemote, local: newLocal},
             effects: event.effects,
-            mutations: decode(event.mutations as SanityMutation[]),
+            mutations: decodeAll(event.mutations as SanityMutation[]),
           })
         } else {
           throw new Error(`Unknown event type: ${event.type}`)
