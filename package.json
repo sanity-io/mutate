@@ -57,6 +57,9 @@
       ],
       "_unstable_apply": [
         "./dist/_unstable_apply.d.ts"
+      ],
+      "_unstable_store": [
+        "./dist/_unstable_store.d.ts"
       ]
     }
   },
