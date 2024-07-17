@@ -1,0 +1,26 @@
+{
+  "include": ["../../src", "./**/*.ts", "./**/*.tsx"],
+  "extends": "../../tsconfig.settings.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "esModuleInterop": true,
+    "target": "esnext",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "noUncheckedIndexedAccess": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "paths": {
+      "@bjoerge/mutiny": ["../../src"],
+      "@bjoerge/mutiny/_unstable_store": ["../../src/_unstable_store"],
+      "@bjoerge/mutiny/path": ["../../src/_path"]
+    }
+  }
+}

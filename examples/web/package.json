@@ -1,0 +1,42 @@
+{
+  "name": "example-webapp",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "main": "package.json",
+  "scripts": {
+    "dev": "vite dev",
+    "start": "vite dev"
+  },
+  "dependencies": {
+    "@bjoerge/mutiny": "workspace:",
+    "@sanity/client": "^6.21.0",
+    "@sanity/icons": "^3.3.0",
+    "@sanity/sanitype": "^0.2.0",
+    "@sanity/ui": "^2.7.0",
+    "dataloader": "^2.2.2",
+    "groq-js": "^1.10.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-jason": "^1.1.2",
+    "styled-components": "^6.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@typescript-eslint/eslint-plugin": "catalog:",
+    "@typescript-eslint/parser": "catalog:",
+    "@vitejs/plugin-react": "^4.3.1",
+    "eslint": "catalog:",
+    "eslint-config-prettier": "catalog:",
+    "eslint-plugin-import": "catalog:",
+    "eslint-plugin-prettier": "catalog:",
+    "eslint-plugin-react": "catalog:",
+    "eslint-plugin-react-hooks": "catalog:",
+    "eslint-plugin-simple-import-sort": "catalog:",
+    "eslint-plugin-unused-imports": "catalog:",
+    "typescript": "catalog:",
+    "vite": "^5.3.4"
+  }
+}

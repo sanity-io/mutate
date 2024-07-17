@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": ["../src/**/*.ts", "./**/*.ts"],
+  "compilerOptions": {
+    "noEmit": true,
+    "paths": {
+      "@bjoerge/mutiny": ["../../src"],
+      "@bjoerge/mutiny/_unstable_apply": ["../../src/_unstable_apply"],
+      "@bjoerge/mutiny/_unstable_store": ["../../src/_unstable_store"]
+    }
+  }
+}

@@ -19,7 +19,6 @@
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
     "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     // Module resolution
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
