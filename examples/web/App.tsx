@@ -130,12 +130,11 @@ const personDraft = draft(person)
 type PersonDraft = Infer<typeof personDraft>
 
 const client = createClient({
-  projectId: 'ppsg7ml5',
-  dataset: 'test',
+  projectId: import.meta.env.VITE_SANITY_API_PROJECT_ID,
+  dataset: import.meta.env.VITE_SANITY_API_DATASET,
   apiVersion: '2023-10-27',
   useCdn: false,
-  token:
-    'skmpNY5aQsWt7nWrBjBMg6nK9VtEN5WSuHiaoMfpRSh201ALhbBsZN1r2Vl4AmxpTI8NrpsES2PYBpPvrJEL3QaRg7l8ILRKPwwvbStxmXqPq6SgjMUkHzfd5mIBUFzz3NwCYv92ISaNEFaXEoVRiH2tovzU91AHBEzoimzL7YGqRIops83e',
+  token: import.meta.env.VITE_SANITY_API_TOKEN,
 })
 let _globalListener: {
   welcome$: Observable<any>
