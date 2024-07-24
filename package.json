@@ -16,29 +16,19 @@
   "sideEffects": false,
   "type": "module",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "source": "./src/index.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "default": "./dist/index.js"
-    },
     "./path": {
-      "types": "./dist/_path.d.ts",
       "source": "./src/_path.ts",
       "import": "./dist/_path.js",
       "require": "./dist/_path.cjs",
       "default": "./dist/_path.js"
     },
     "./_unstable_store": {
-      "types": "./dist/_unstable_store.d.ts",
       "source": "./src/_unstable_store.ts",
       "import": "./dist/_unstable_store.js",
       "require": "./dist/_unstable_store.cjs",
       "default": "./dist/_unstable_store.js"
     },
     "./_unstable_apply": {
-      "types": "./dist/_unstable_apply.d.ts",
       "source": "./src/_unstable_apply.ts",
       "import": "./dist/_unstable_apply.js",
       "require": "./dist/_unstable_apply.cjs",
@@ -49,7 +39,6 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "source": "./src/index.ts",
-  "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
       "path": [
@@ -63,6 +52,12 @@
       ]
     }
   },
+  "files": [
+    "dist",
+    "test",
+    "README.md",
+    "package.json"
+  ],
   "scripts": {
     "build": "run-s clean pkg:build pkg:check",
     "clean": "rimraf dist",
@@ -83,6 +78,7 @@
     "dev": "run-p pkg:watch test:watch test:types:watch",
     "prepublishOnly": "npm run build"
   },
+  "browserslist": "extends @sanity/browserslist-config",
   "dependencies": {
     "@sanity/diff-match-patch": "^3.1.1",
     "hotscript": "^1.0.13",
