@@ -55,19 +55,15 @@ import {
 } from '@sanity/ui'
 import {Fragment, type ReactNode, useCallback, useEffect, useState} from 'react'
 import {
-  concat,
   concatMap,
   defer,
-  EMPTY,
   filter,
   from,
   map,
   merge,
-  mergeMap,
   of,
   share,
   shareReplay,
-  takeUntil,
   tap,
   timer,
 } from 'rxjs'
@@ -208,23 +204,29 @@ function createSharedListener(
     filter((event): event is ReconnectEvent => event.type === 'reconnect'),
   )
 
-  // When the listener completes (typically happens when the last subscriber unsubscribes)
-  const completed = concat(allEvents$.pipe(mergeMap(() => EMPTY)), of(0))
+  // Welcome events are emitted when the listener is (re)connected
+  const welcome = allEvents$.pipe(
+    filter((event): event is WelcomeEvent => event.type === 'welcome'),
+  )
 
   // Mutation events coming from the listener
   const mutations = allEvents$.pipe(
     filter((event): event is ClientMutationEvent => event.type === 'mutation'),
   )
 
-  // create a separate stream for welcome events that will be emitted to new subscribers
-  const welcome = allEvents$.pipe(
-    filter((event): event is WelcomeEvent => event.type === 'welcome'),
-    shareReplay({refCount: true, bufferSize: 1}),
-    takeUntil(merge(reconnect, completed)),
+  // Replay the latest connection event that was emitted either when the connection was disconnected ('reconnect'), established or re-established ('welcome')
+  const connectionEvent = merge(welcome, reconnect).pipe(
+    shareReplay({bufferSize: 1, refCount: true}),
+  )
+
+  // Emit the welcome event if the latest connection event was the 'welcome' event.
+  // Downstream subscribers will typically map the welcome event to an initial fetch
+  const replayWelcome = connectionEvent.pipe(
+    filter(latestConnectionEvent => latestConnectionEvent.type === 'welcome'),
   )
 
   // Combine into a single stream
-  return merge(welcome, mutations, reconnect)
+  return merge(replayWelcome, mutations, reconnect)
 }
 
 const sanityClient = createClient({
@@ -349,7 +351,10 @@ function App() {
     },
     [documentId, handleMutate],
   )
-  const [attentionPath, setAttentionPath] = useState<Path>([])
+  const [attention, setAttention] = useState<{id: string; path: Path}>({
+    id: documentId,
+    path: [],
+  })
 
   const handleDelete = useCallback(() => {
     handleMutate([del(documentId)])
@@ -375,24 +380,24 @@ function App() {
                     />
                   ))}
                 </TabList>
-                {attentionPath.length > 0 ? (
+                {attention.id === documentId && attention.path.length > 0 ? (
                   <Flex padding={2} gap={2}>
                     <Text>
                       <Button
                         mode="bleed"
                         onClick={() => {
-                          setAttentionPath([])
+                          setAttention({id: documentId, path: []})
                         }}
                         text="/"
                       ></Button>
 
-                      {attentionPath.map((segment, i, arr) => {
+                      {attention.path.map((segment, i, arr) => {
                         const upToHere = arr.slice(0, i + 1)
                         return (
                           <Button
                             mode="bleed"
                             onClick={() => {
-                              setAttentionPath(upToHere)
+                              setAttention({id: documentId, path: upToHere})
                             }}
                             text={String(segment)}
                           ></Button>
@@ -413,7 +418,9 @@ function App() {
                     <Card padding={3} shadow={1} radius={2}>
                       <Stack flex={1} space={3}>
                         <FormNode
-                          path={attentionPath}
+                          path={
+                            attention.id === documentId ? attention.path : []
+                          }
                           value={
                             documentState.local || {
                               _id: documentId,
@@ -425,18 +432,22 @@ function App() {
                           onMutation={handleMutation}
                           renderInput={inputProps => {
                             const hasAttention =
-                              attentionPath === inputProps.path
+                              attention.path === inputProps.path
 
                             const attentionButton = !isStringInputProps(
                               inputProps,
                             ) ? null : (
                               <Button
                                 onClick={() => {
-                                  setAttentionPath(ap =>
-                                    ap === inputProps.path
-                                      ? []
-                                      : inputProps.path,
-                                  )
+                                  setAttention(ap => {
+                                    return {
+                                      id: documentId,
+                                      path:
+                                        ap.path === inputProps.path
+                                          ? []
+                                          : inputProps.path,
+                                    }
+                                  })
                                 }}
                                 mode="bleed"
                                 selected={hasAttention}
