@@ -3,7 +3,7 @@ import {EllipsisVerticalIcon, TransferIcon, TrashIcon} from '@sanity/icons'
 import {
   getInstanceName,
   isObjectSchema,
-  type ObjectUnionFieldOptions,
+  type ObjectUnionFormDef,
   pickDeep,
   type SanityObjectUnion,
 } from '@sanity/sanitype'
@@ -35,7 +35,7 @@ const NESTED_POPOVER_PROPS: MenuButtonProps['popover'] = {
 }
 
 export function UnionInput(props: InputProps<SanityObjectUnion>) {
-  const {value, schema, onPatch, form, resolveInput} = props
+  const {value, schema, onPatch, path, form, renderInput} = props
   const valueTypeName = value?._type
 
   const currentSchema = valueTypeName
@@ -103,9 +103,7 @@ export function UnionInput(props: InputProps<SanityObjectUnion>) {
           if (!name || !(name in form.types)) {
             throw new Error(`No form definition found for type ${name}`)
           }
-          const formDef = (form.types as any)[
-            name
-          ] as ObjectUnionFieldOptions<any>
+          const formDef = (form.types as any)[name] as ObjectUnionFormDef<any>
           return (
             <option key={name} value={name}>
               {formDef?.title}
@@ -187,9 +185,10 @@ export function UnionInput(props: InputProps<SanityObjectUnion>) {
         <ObjectInput
           schema={currentSchema}
           value={value}
-          form={((form.types as any)[valueTypeName!] as any).form}
+          path={path}
+          form={(form.types as any)[valueTypeName!] as any}
           onPatch={handlePatch}
-          resolveInput={resolveInput}
+          renderInput={renderInput}
         />
       </Box>
     </Stack>

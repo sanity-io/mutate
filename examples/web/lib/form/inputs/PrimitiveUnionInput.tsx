@@ -31,7 +31,7 @@ export function PrimitiveUnionInput(props: InputProps<SanityPrimitiveUnion>) {
             const literalValue = String(ut.value)
             return (
               <option key={i} value={literalValue}>
-                {((form as any).types as any)[literalValue]?.title}
+                {((form as any)?.types as any)?.[literalValue]?.title}
               </option>
             )
           })}

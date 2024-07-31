@@ -9,7 +9,7 @@ import {Field} from './Field'
 export function DocumentInput<T extends SanityDocument>(
   props: DocumentInputProps<T>,
 ) {
-  const {value, onMutation, resolveInput} = props
+  const {value, onMutation, renderInput} = props
   const handleFieldPatch = useCallback(
     (fieldName: string, patchEvent: PatchEvent) => {
       onMutation({
@@ -25,7 +25,8 @@ export function DocumentInput<T extends SanityDocument>(
       {Object.entries(props.form.fields).map(([fieldName, fieldOptions]) => {
         return (
           <Field
-            resolveInput={resolveInput}
+            path={[]}
+            renderInput={renderInput}
             key={fieldName}
             schema={props.schema.shape[fieldName]!}
             value={value?.[fieldName]}

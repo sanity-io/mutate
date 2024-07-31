@@ -10,13 +10,19 @@ import {
   type Infer,
   isDocumentSchema,
   isObjectSchema,
+  isObjectUnionSchema,
+  isOptionalSchema,
   type ObjectFormDef,
+  type ObjectUnionFormDef,
   type SanityDocument,
   type SanityFormDef,
   type SanityType,
+  type SanityTypedObject,
 } from '@sanity/sanitype'
+import {Stack, Text} from '@sanity/ui'
 import {useCallback, useMemo} from 'react'
 
+import {DocumentInput} from './inputs/objects/DocumentInput'
 import {type DocumentInputProps, type PatchEvent} from './types'
 
 type FormNodeProps<Schema extends SanityDocument> =
@@ -28,15 +34,15 @@ type Node = {
   type: 'field'
   pathElement: PathElement
   schema: SanityType
-  form: SanityFormDef<any>
+  form?: SanityFormDef<any>
   value: any
 }
 
 function resolveNode<Schema extends SanityType>(
   path: PathElement[] | readonly PathElement[],
   schema: Schema,
-  value: Infer<Schema>,
-  form: SanityFormDef<Schema>,
+  value: Infer<Schema> | undefined,
+  form?: SanityFormDef<Schema>,
 ): Node[] {
   if (path.length === 0) {
     return []
@@ -44,6 +50,7 @@ function resolveNode<Schema extends SanityType>(
 
   if (isObjectSchema(schema) || isDocumentSchema(schema)) {
     const [fieldName, ...rest] = path
+
     if (typeof fieldName !== 'string') {
       throw new Error('Expected field name')
     }
@@ -52,7 +59,7 @@ function resolveNode<Schema extends SanityType>(
       throw new Error(`Form definition for field "${fieldName}" not found`)
     }
     const fieldValue = value?.[fieldName]
-    const fieldForm = (form as ObjectFormDef<any>).fields[fieldName]?.form
+    const fieldForm = (form as ObjectFormDef<any>)?.fields[fieldName]
     return [
       {
         type: 'field',
@@ -65,13 +72,26 @@ function resolveNode<Schema extends SanityType>(
     ]
   }
 
+  if (isObjectUnionSchema(schema)) {
+    const type = value?._type
+    const valueType = schema.union.find(ut => getInstanceName(ut) === type)!
+    const typeForm = (
+      (form as ObjectUnionFormDef<SanityTypedObject>).types as any
+    )[type]
+    return resolveNode(path, valueType, value, typeForm)
+  }
+
+  if (isOptionalSchema(schema)) {
+    return resolveNode(path, schema.type, value, form)
+  }
+
   return []
 }
 
-export function FormNode<Schema extends SanityDocument>(
+function _FormNode<Schema extends SanityDocument>(
   props: FormNodeProps<Schema>,
 ) {
-  const {resolveInput, path, schema, value, onMutation, form} = props
+  const {renderInput, path, schema, value, onMutation, form} = props
 
   if (path.length === 0) {
     throw new Error('The FormNode component requires a non-empty path')
@@ -81,9 +101,16 @@ export function FormNode<Schema extends SanityDocument>(
     return resolveNode(path, schema, value, form)
   }, [form, path, schema, value])
 
-  const last = nodes.at(-1)!
+  const last = nodes.at(-1)
 
-  const Input = resolveInput(last.schema)
+  if (!last) {
+    throw new Error('Expected at least one node')
+  }
+
+  if (!last.form) {
+    throw new Error(`No form definition for field "${path.at(-1)}"`)
+  }
+
   const handlePatch = useCallback(
     (patchEvent: PatchEvent) => {
       const patches = nodes.reduceRight((prev, node) => {
@@ -101,14 +128,32 @@ export function FormNode<Schema extends SanityDocument>(
     },
     [nodes, onMutation, schema, value._id],
   )
-
+  const input = renderInput({
+    schema: last.schema as Schema,
+    onPatch: handlePatch,
+    value: last?.value,
+    path,
+    renderInput,
+    form: last.form,
+  })
+  console.log(nodes)
   return (
-    <Input
-      schema={last.schema}
-      onPatch={handlePatch}
-      value={last?.value}
-      resolveInput={resolveInput}
-      form={last?.form as SanityFormDef<Schema>}
-    />
+    <Stack space={3}>
+      <label>
+        <Text size={1} weight="semibold">
+          {last?.form?.title}
+        </Text>
+      </label>
+      {input}
+    </Stack>
+  )
+}
+export function FormNode<Schema extends SanityDocument>(
+  props: FormNodeProps<Schema>,
+) {
+  return props.path.length === 0 ? (
+    <DocumentInput {...props} />
+  ) : (
+    <_FormNode {...props} />
   )
 }

@@ -7,7 +7,7 @@ import {type InputProps, type PatchEvent} from '../../types'
 import {Field} from './Field'
 
 export function ObjectInput<T extends SanityObject>(props: InputProps<T>) {
-  const {schema, onPatch, value, resolveInput, form} = props
+  const {schema, onPatch, value, renderInput, path} = props
   const handleFieldPatch = useCallback(
     (fieldName: string, patchEvent: PatchEvent) => {
       const instanceName = getInstanceName(schema)
@@ -29,7 +29,8 @@ export function ObjectInput<T extends SanityObject>(props: InputProps<T>) {
         {Object.entries(props.form.fields).map(([fieldName, fieldOptions]) => {
           return (
             <Field
-              resolveInput={resolveInput}
+              path={path}
+              renderInput={renderInput}
               key={fieldName}
               schema={props.schema.shape[fieldName]!}
               value={value?.[fieldName]}

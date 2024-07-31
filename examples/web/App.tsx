@@ -2,6 +2,7 @@ import {
   createIfNotExists,
   del,
   type Mutation,
+  type Path,
   type SanityDocumentBase,
   SanityEncoder,
 } from '@bjoerge/mutiny'
@@ -10,14 +11,16 @@ import {
   type ListenerSyncEvent,
   type MutationGroup,
   type RemoteDocumentEvent,
-  type RemoteListenerEvent,
   type SanityMutation,
 } from '@bjoerge/mutiny/_unstable_store'
 import {
   createClient,
-  type ListenEvent,
-  type MutationEvent as APIMutationEvent,
+  type MutationEvent as ClientMutationEvent,
+  type ReconnectEvent,
+  type SanityClient,
+  type WelcomeEvent,
 } from '@sanity/client'
+import {CollapseIcon, ExpandIcon} from '@sanity/icons'
 import {
   draft,
   type Infer,
@@ -29,8 +32,12 @@ import {
   isPrimitiveUnionSchema,
   isStringSchema,
   type SanityAny,
+  type SanityBoolean,
+  type SanityObject,
+  type SanityObjectUnion,
   type SanityOptional,
-  type SanityType,
+  type SanityPrimitiveUnion,
+  type SanityString,
 } from '@sanity/sanitype'
 import {
   Box,
@@ -46,25 +53,21 @@ import {
   TabPanel,
   Text,
 } from '@sanity/ui'
-import React, {
-  type ComponentType,
-  Fragment,
-  useCallback,
-  useEffect,
-  useState,
-} from 'react'
+import {Fragment, type ReactNode, useCallback, useEffect, useState} from 'react'
 import {
+  concat,
   concatMap,
   defer,
+  EMPTY,
   filter,
   from,
   map,
   merge,
   mergeMap,
-  type MonoTypeOperatorFunction,
-  type Observable,
-  ReplaySubject,
+  of,
   share,
+  shareReplay,
+  takeUntil,
   tap,
   timer,
 } from 'rxjs'
@@ -75,6 +78,7 @@ import {personForm} from './forms/person'
 import {
   BooleanInput,
   DocumentInput,
+  type DocumentInputProps,
   type InputProps,
   type MutationEvent,
   ObjectInput,
@@ -94,126 +98,174 @@ function Unresolved<Schema extends SanityAny>(props: InputProps<Schema>) {
 function OptionalInput<Schema extends SanityOptional<SanityAny>>(
   props: InputProps<Schema>,
 ) {
-  const Input = props.resolveInput(props.schema.type)
-
-  return <Input {...props} schema={props.schema.type} />
+  return props.renderInput({
+    ...props,
+    schema: props.schema.type,
+  })
 }
 
-function resolveInput<Schema extends SanityType>(
-  schema: Schema,
-): ComponentType<InputProps<Schema>> {
-  if (isStringSchema(schema)) {
-    return StringInput as any
+function isStringInputProps(
+  props: InputProps<SanityAny>,
+): props is InputProps<SanityString> {
+  return isStringSchema(props.schema)
+}
+
+function isOptionalInputProps(
+  props: InputProps<SanityAny>,
+): props is InputProps<SanityOptional<SanityAny>> {
+  return isOptionalSchema(props.schema)
+}
+
+function isObjectInputProps(
+  props: InputProps<SanityAny>,
+): props is InputProps<SanityObject> {
+  return isObjectSchema(props.schema)
+}
+
+function isDocumentInputProps(
+  props: InputProps<SanityAny> | DocumentInputProps,
+): props is DocumentInputProps {
+  return isDocumentSchema(props.schema)
+}
+
+function isObjectUnionInputProps(
+  props: InputProps<SanityAny>,
+): props is InputProps<SanityObjectUnion> {
+  return isObjectUnionSchema(props.schema)
+}
+function isPrimitiveUnionInputProps(
+  props: InputProps<SanityAny>,
+): props is InputProps<SanityPrimitiveUnion> {
+  return isPrimitiveUnionSchema(props.schema)
+}
+function isBooleanInputProps(
+  props: InputProps<SanityAny>,
+): props is InputProps<SanityBoolean> {
+  return isBooleanSchema(props.schema)
+}
+
+function renderInput<Props extends InputProps<SanityAny>>(
+  props: Props,
+): ReactNode {
+  if (isStringInputProps(props)) {
+    return <StringInput {...props} />
   }
-  if (isOptionalSchema(schema)) {
-    return OptionalInput as any
+  if (isOptionalInputProps(props)) {
+    return <OptionalInput {...props} />
   }
-  if (isObjectSchema(schema)) {
-    return ObjectInput as any
+  if (isObjectInputProps(props)) {
+    return <ObjectInput {...props} />
   }
-  if (isDocumentSchema(schema)) {
-    return DocumentInput as any
+  if (isDocumentInputProps(props)) {
+    return <DocumentInput {...props} />
   }
-  if (isObjectUnionSchema(schema)) {
-    return UnionInput as any
+  if (isObjectUnionInputProps(props)) {
+    return <UnionInput {...props} />
   }
-  if (isPrimitiveUnionSchema(schema)) {
-    return PrimitiveUnionInput as any
+  if (isPrimitiveUnionInputProps(props)) {
+    return <PrimitiveUnionInput {...props} />
   }
-  if (isBooleanSchema(schema)) {
-    return BooleanInput as any
+  if (isBooleanInputProps(props)) {
+    return <BooleanInput {...props} />
   }
-  return Unresolved
+  return <Unresolved {...props} />
 }
 
 const personDraft = draft(person)
 type PersonDraft = Infer<typeof personDraft>
 
-const client = createClient({
+interface SharedListenerOptions {
+  shutdownDelay?: number
+  includeMutations?: boolean
+}
+
+function createSharedListener(
+  client: SanityClient,
+  options: SharedListenerOptions = {},
+) {
+  const {shutdownDelay, includeMutations} = options
+  const allEvents$ = client
+    .listen(
+      '*[!(_id in path("_.**"))]',
+      {},
+      {
+        events: ['welcome', 'mutation', 'reconnect'],
+        includeResult: false,
+        includePreviousRevision: false,
+        visibility: 'transaction',
+        effectFormat: 'mendoza',
+        ...(includeMutations ? {} : {includeMutations: false}),
+      },
+    )
+    .pipe(
+      share({
+        resetOnRefCountZero: shutdownDelay ? () => timer(shutdownDelay) : true,
+      }),
+    )
+
+  // Reconnect events emitted in case the connection is lost
+  const reconnect = allEvents$.pipe(
+    filter((event): event is ReconnectEvent => event.type === 'reconnect'),
+  )
+
+  // When the listener completes (typically happens when the last subscriber unsubscribes)
+  const completed = concat(allEvents$.pipe(mergeMap(() => EMPTY)), of(0))
+
+  // Mutation events coming from the listener
+  const mutations = allEvents$.pipe(
+    filter((event): event is ClientMutationEvent => event.type === 'mutation'),
+  )
+
+  // create a separate stream for welcome events that will be emitted to new subscribers
+  const welcome = allEvents$.pipe(
+    filter((event): event is WelcomeEvent => event.type === 'welcome'),
+    shareReplay({refCount: true, bufferSize: 1}),
+    takeUntil(merge(reconnect, completed)),
+  )
+
+  // Combine into a single stream
+  return merge(welcome, mutations, reconnect)
+}
+
+const sanityClient = createClient({
   projectId: import.meta.env.VITE_SANITY_API_PROJECT_ID,
   dataset: import.meta.env.VITE_SANITY_API_DATASET,
   apiVersion: '2023-10-27',
   useCdn: false,
   token: import.meta.env.VITE_SANITY_API_TOKEN,
 })
-let _globalListener: {
-  welcome$: Observable<any>
-  mutations$: Observable<ListenEvent<any>>
-} | null = null
 
-function shareReplayDelayedDisconnect<T>(
-  delay: number,
-): MonoTypeOperatorFunction<T> {
-  return share<T>({
-    connector: () => new ReplaySubject(1, Infinity),
-    resetOnError: true,
-    resetOnComplete: true,
-    resetOnRefCountZero: () => timer(delay),
-  })
-}
+const listener = createSharedListener(sanityClient)
 
-const getGlobalEvents = () => {
-  if (!_globalListener) {
-    const allEvents$ = defer(() =>
-      client.listen(
-        '*[!(_id in path("_.**"))]',
-        {},
-        {
-          events: ['welcome', 'mutation'],
-          includeResult: false,
-          visibility: 'query',
-          effectFormat: 'mendoza',
-        },
-      ),
-    ).pipe(shareReplayDelayedDisconnect(1000))
-
-    // This is a stream of welcome events from the server, each telling us that we have established listener connection
-    // We map these to snapshot fetch/sync. It is good to wait for the first welcome event before fetching any snapshots as, we may miss
-    // events that happens in the time period after initial fetch and before the listener is established.
-    const welcome$ = allEvents$.pipe(
-      filter((event: any) => event.type === 'welcome'),
-      shareReplayDelayedDisconnect(1000),
-    )
-
-    const mutations$ = allEvents$.pipe(
-      filter((event: any) => event.type === 'mutation'),
-    )
-
-    _globalListener = {
-      welcome$,
-      mutations$,
-    }
-  }
-
-  return _globalListener
-}
+const RECONNECT_EVENT: ReconnectEvent = {type: 'reconnect'}
 
 function observe(documentId: string) {
-  const globalEvents = getGlobalEvents()
-  return merge(
-    globalEvents.welcome$.pipe(
-      mergeMap(() => client.getDocument(documentId)),
-      map(
-        (doc: undefined | SanityDocumentBase): ListenerSyncEvent => ({
-          type: 'sync',
-          transactionId: doc?._id,
-          document: doc,
-        }),
-      ),
+  return defer(() => listener).pipe(
+    filter(
+      (event): event is WelcomeEvent | ClientMutationEvent | ReconnectEvent =>
+        event.type === 'welcome' ||
+        event.type === 'reconnect' ||
+        (event.type === 'mutation' && event.documentId === documentId),
     ),
-    globalEvents.mutations$.pipe(
-      filter(
-        (event): event is APIMutationEvent =>
-          event.type === 'mutation' && event.documentId === documentId,
-      ),
-      map(
-        (event): RemoteListenerEvent => ({
-          type: 'mutation',
-          transactionId: event.transactionId,
-          effects: event.effects!.apply,
-          mutations: event.mutations as SanityMutation[],
-        }),
-      ),
+    concatMap(event =>
+      event.type === 'reconnect'
+        ? of(RECONNECT_EVENT)
+        : event.type === 'welcome'
+          ? sanityClient.observable.getDocument(documentId).pipe(
+              map(
+                (doc: undefined | SanityDocumentBase): ListenerSyncEvent => ({
+                  type: 'sync',
+                  transactionId: doc?._id,
+                  document: doc,
+                }),
+              ),
+            )
+          : of({
+              type: 'mutation' as const,
+              transactionId: event.transactionId,
+              effects: event.effects!.apply,
+              mutations: event.mutations as SanityMutation[],
+            }),
     ),
   )
 }
@@ -222,10 +274,10 @@ const datastore = createContentLakeStore({
   observe,
   submit: transactions => {
     return from(transactions).pipe(
-      concatMap(transact =>
-        client.dataRequest(
+      concatMap(transaction =>
+        sanityClient.dataRequest(
           'mutate',
-          SanityEncoder.encodeTransaction(transact),
+          SanityEncoder.encodeTransaction(transaction),
           {visibility: 'async', returnDocuments: false},
         ),
       ),
@@ -297,32 +349,14 @@ function App() {
     },
     [documentId, handleMutate],
   )
+  const [attentionPath, setAttentionPath] = useState<Path>([])
 
   const handleDelete = useCallback(() => {
     handleMutate([del(documentId)])
   }, [handleMutate, documentId])
-
   return (
     <Card width="fill" height="fill" padding={2}>
       <Stack space={3}>
-        <Stack space={3}>
-          <Text>Edit node at path &quot;bio&quot;</Text>
-          <Card border padding={3} radius={3}>
-            <FormNode
-              path={['bio']}
-              value={
-                documentState.local || {
-                  _id: documentId,
-                  _type: person.shape._type.value,
-                }
-              }
-              schema={personDraft}
-              form={personForm}
-              onMutation={handleMutation}
-              resolveInput={resolveInput}
-            />
-          </Card>
-        </Stack>
         <Stack space={3}>
           <Flex size={2} gap={2}>
             <Card flex={2} width={3} padding={3} shadow={2} radius={2}>
@@ -341,6 +375,34 @@ function App() {
                     />
                   ))}
                 </TabList>
+                {attentionPath.length > 0 ? (
+                  <Flex padding={2} gap={2}>
+                    <Text>
+                      <Button
+                        mode="bleed"
+                        onClick={() => {
+                          setAttentionPath([])
+                        }}
+                        text="/"
+                      ></Button>
+
+                      {attentionPath.map((segment, i, arr) => {
+                        const upToHere = arr.slice(0, i + 1)
+                        return (
+                          <Button
+                            mode="bleed"
+                            onClick={() => {
+                              setAttentionPath(upToHere)
+                            }}
+                            text={String(segment)}
+                          ></Button>
+                        )
+                      })}
+                    </Text>
+                  </Flex>
+                ) : (
+                  <></>
+                )}
                 {DOCUMENT_IDS.map(id => (
                   <TabPanel
                     key={id}
@@ -350,7 +412,8 @@ function App() {
                   >
                     <Card padding={3} shadow={1} radius={2}>
                       <Stack flex={1} space={3}>
-                        <DocumentInput
+                        <FormNode
+                          path={attentionPath}
                           value={
                             documentState.local || {
                               _id: documentId,
@@ -360,7 +423,42 @@ function App() {
                           schema={personDraft}
                           form={personForm}
                           onMutation={handleMutation}
-                          resolveInput={resolveInput}
+                          renderInput={inputProps => {
+                            const hasAttention =
+                              attentionPath === inputProps.path
+
+                            const attentionButton = !isStringInputProps(
+                              inputProps,
+                            ) ? null : (
+                              <Button
+                                onClick={() => {
+                                  setAttentionPath(ap =>
+                                    ap === inputProps.path
+                                      ? []
+                                      : inputProps.path,
+                                  )
+                                }}
+                                mode="bleed"
+                                selected={hasAttention}
+                                icon={hasAttention ? CollapseIcon : ExpandIcon}
+                              />
+                            )
+                            return (
+                              <Stack space={1}>
+                                <Flex>
+                                  <Box flex={1}>{renderInput(inputProps)}</Box>
+
+                                  <Box>
+                                    {attentionButton ? (
+                                      <Flex justify="flex-end">
+                                        {attentionButton}
+                                      </Flex>
+                                    ) : null}
+                                  </Box>
+                                </Flex>
+                              </Stack>
+                            )
+                          }}
                         />
                         <Flex justify="flex-end" align="flex-end" gap={2}>
                           <Button

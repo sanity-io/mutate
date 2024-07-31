@@ -3,9 +3,10 @@ import {defineForm} from '@sanity/sanitype'
 import {address, person} from '../schema/person'
 
 const addressForm = defineForm(address, {
+  title: 'Address',
   fields: {
     street: {
-      form: {readonly: true},
+      readonly: true,
       title: 'Street',
     },
     city: {
@@ -26,104 +27,84 @@ export const personForm = defineForm(person, {
     name: {
       title: 'Name',
     },
+    foo: {
+      title: 'Optional',
+    },
     bio: {
-      title: 'Content',
-      form: {
-        types: {
-          code: {
-            title: 'Code',
-            form: {
-              fields: {
-                language: {
-                  title: 'Language',
-                  form: {
-                    types: {
-                      js: {title: 'JavaScript'},
-                      ts: {title: 'TypeScript'},
-                      py: {title: 'Python'},
-                    },
-                  },
-                },
-                text: {title: 'Text', form: {multiline: true}},
-                author: {title: 'Author'},
+      title: 'Bio',
+      types: {
+        code: {
+          title: 'Code',
+          fields: {
+            language: {
+              title: 'Language',
+              types: {
+                js: {title: 'JavaScript'},
+                ts: {title: 'TypeScript'},
+                py: {title: 'Python'},
               },
             },
+            text: {title: 'Text', multiline: true},
+            author: {title: 'Author'},
           },
-          blockquote: {
-            title: 'Block quote',
-            form: {
-              fields: {
-                text: {title: 'Text', form: {multiline: true}},
-                style: {
-                  title: 'Style',
-                  form: {
-                    types: {
-                      normal: {title: 'Normal'},
-                      fancy: {title: 'Fancy'},
-                    },
-                  },
-                },
-                author: {title: 'Author'},
+        },
+        blockquote: {
+          title: 'Block quote',
+          fields: {
+            text: {title: 'Text', multiline: true},
+            style: {
+              title: 'Style',
+              types: {
+                normal: {title: 'Normal'},
+                fancy: {title: 'Fancy'},
               },
             },
+            author: {title: 'Author'},
           },
-          paragraph: {
-            title: 'Paragraph',
-            form: {
-              fields: {
-                text: {title: 'Text', form: {multiline: true}},
-                author: {title: 'Author'},
-              },
-            },
+        },
+        paragraph: {
+          title: 'Paragraph',
+          fields: {
+            text: {title: 'Text', multiline: true},
+            author: {title: 'Author'},
           },
         },
       },
     },
-    address: {
-      title: 'Address',
-      form: addressForm,
-    },
+    address: addressForm,
     favoritePet: {
       title: 'Favorite pet',
-      form: {
-        types: {
-          feline: {
-            title: 'Feline',
-            form: {
-              fields: {
-                name: {
-                  title: 'Name',
-                },
-                meows: {
-                  title: 'Meows',
-                },
-              },
+      types: {
+        feline: {
+          title: 'Feline',
+          fields: {
+            name: {
+              title: 'Name',
+            },
+            meows: {
+              title: 'Meows',
             },
           },
-          canine: {
-            title: 'Canine',
-            form: {
-              fields: {
-                name: {
-                  title: 'Name',
-                },
-                barks: {
-                  title: 'Barks',
-                },
-              },
+        },
+        canine: {
+          title: 'Canine',
+          fields: {
+            name: {
+              title: 'Name',
+            },
+            barks: {
+              title: 'Barks',
             },
           },
-          avine: {
-            title: 'Avine',
-            form: {
-              fields: {
-                name: {
-                  title: 'Name',
-                },
-                squawks: {
-                  title: 'Squawks',
-                },
-              },
+        },
+        avine: {
+          title: 'Avine',
+          fields: {
+            name: {
+              title: 'Name',
+            },
+            squawks: {
+              title: 'Squawks',
             },
           },
         },

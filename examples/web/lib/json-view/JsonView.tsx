@@ -30,7 +30,11 @@ const OnelineWrapper = styled.span`
 
 export function JsonView(props: {value: any; oneline?: boolean}) {
   const jason = (
-    <ReactJason value={props.value} theme={theme} quoteAttributes={false} />
+    <ReactJason
+      value={props.value || null}
+      theme={theme}
+      quoteAttributes={false}
+    />
   )
 
   return props.oneline ? <OnelineWrapper>{jason}</OnelineWrapper> : jason

@@ -9,7 +9,7 @@ import {
   TabPanel,
   Text,
 } from '@sanity/ui'
-import React, {useState} from 'react'
+import {useState} from 'react'
 
 import {JsonView} from './lib/json-view/JsonView'
 

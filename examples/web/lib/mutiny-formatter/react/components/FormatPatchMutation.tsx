@@ -6,7 +6,6 @@ import {
 } from '@bjoerge/mutiny'
 import {stringify as stringifyPath} from '@bjoerge/mutiny/path'
 import {Flex, Inline, Text} from '@sanity/ui'
-import React from 'react'
 
 import {JsonView} from '../../../json-view/JsonView'
 

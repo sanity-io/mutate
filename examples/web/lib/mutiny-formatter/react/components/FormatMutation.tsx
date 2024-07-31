@@ -1,6 +1,5 @@
 import {type Mutation} from '@bjoerge/mutiny'
 import {Box, Flex, Inline, Stack, Text} from '@sanity/ui'
-import React from 'react'
 
 import {JsonView} from '../../../json-view/JsonView'
 import {FormatNodePatch} from './FormatPatchMutation'
