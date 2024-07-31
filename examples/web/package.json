@@ -30,6 +30,7 @@
     "@vitejs/plugin-react": "^4.3.1",
     "eslint": "catalog:",
     "eslint-config-prettier": "catalog:",
+    "eslint-config-sanity": "catalog:",
     "eslint-plugin-import": "catalog:",
     "eslint-plugin-prettier": "catalog:",
     "eslint-plugin-react": "catalog:",
