@@ -33,8 +33,8 @@ import {
   type SubmitResult,
   type TransactionalMutationGroup,
 } from './types'
+import {createReplayMemoizer} from './utils/createReplayMemoizer'
 import {filterMutationGroupsById} from './utils/filterMutationGroups'
-import {createMemoizer} from './utils/memoize'
 
 export interface StoreBackend {
   /**
@@ -70,7 +70,7 @@ export function createContentLakeStore(
 ): ContentLakeStore {
   const local = createDataset()
   const remote = createDataset()
-  const memoize = createMemoizer()
+  const memoize = createReplayMemoizer(1000)
   let stagedChanges: MutationGroup[] = []
 
   const remoteEvents$ = new Subject<RemoteDocumentEvent>()

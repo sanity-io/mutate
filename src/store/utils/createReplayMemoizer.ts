@@ -1,6 +1,6 @@
-import {finalize, type Observable, shareReplay} from 'rxjs'
+import {finalize, type Observable, ReplaySubject, share, timer} from 'rxjs'
 
-export function createMemoizer() {
+export function createReplayMemoizer(expiry: number) {
   const memo: {[key: string]: Observable<any>} = Object.create(null)
   return function memoize<T>(
     key: string,
@@ -8,9 +8,12 @@ export function createMemoizer() {
   ): Observable<T> {
     if (!(key in memo)) {
       memo[key] = observable.pipe(
-        shareReplay({refCount: true, bufferSize: 1}),
         finalize(() => {
           delete memo[key]
+        }),
+        share({
+          connector: () => new ReplaySubject(1),
+          resetOnRefCountZero: () => timer(expiry),
         }),
       )
     }
