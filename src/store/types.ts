@@ -17,15 +17,14 @@ export interface ListenerMutationEvent {
   effects: Required<SanityMutationEvent>['effects']['apply']
   mutations: Required<SanityMutationEvent>['mutations']
 }
-export interface ListenerErrorEvent {
-  type: 'error'
-  error: Error
+export interface ListenerReconnectEvent {
+  type: 'reconnect'
 }
 
 export type RemoteListenerEvent =
   | ListenerSyncEvent
   | ListenerMutationEvent
-  | ListenerErrorEvent
+  | ListenerReconnectEvent
 
 export interface OptimisticDocumentEvent {
   type: 'optimistic'

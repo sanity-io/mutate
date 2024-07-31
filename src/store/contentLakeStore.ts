@@ -1,3 +1,4 @@
+import {type ReconnectEvent} from '@sanity/client'
 import {
   defer,
   EMPTY,
@@ -28,6 +29,7 @@ import {
   type OptimisticDocumentEvent,
   type RemoteDocumentEvent,
   type RemoteListenerEvent,
+  type RemoteMutationEvent,
   type SubmitResult,
   type TransactionalMutationGroup,
 } from './types'
@@ -44,6 +46,24 @@ export interface StoreBackend {
   observe: (id: string) => Observable<RemoteListenerEvent>
   submit: (mutationGroups: Transaction[]) => Observable<SubmitResult>
 }
+
+let didEmitMutationsAccessWarning = false
+// certain components, like the portable text editor, rely on mutations to be present in the event
+// i.e. it's not enough to just have the mendoza-patches.
+// If the listener event did not include mutations (e.g. if excludeMutations was set to true),
+// this warning will be issued if a downstream consumers attempts to access event.mutations
+function warnNoMutationsReceived() {
+  if (!didEmitMutationsAccessWarning) {
+    console.warn(
+      new Error(
+        'No mutation received from backend. The listener is likely set up with `excludeMutations: true`. If your app need to now about mutations, make sure the listener is set up to include mutations',
+      ),
+    )
+    didEmitMutationsAccessWarning = true
+  }
+}
+
+const EMPTY_ARRAY: any[] = []
 
 export function createContentLakeStore(
   backend: StoreBackend,
@@ -69,6 +89,10 @@ export function createContentLakeStore(
 
   function getRemoteEvents(id: string) {
     return backend.observe(id).pipe(
+      filter(
+        (event): event is Exclude<RemoteListenerEvent, ReconnectEvent> =>
+          event.type !== 'reconnect',
+      ),
       mergeMap((event): Observable<RemoteDocumentEvent> => {
         const oldLocal = local.get(id)
         const oldRemote = remote.get(id)
@@ -108,17 +132,30 @@ export function createContentLakeStore(
           if (newLocal) {
             newLocal._rev = event.transactionId
           }
-
-          return of({
+          const emittedEvent: RemoteMutationEvent = {
             type: 'mutation',
             id,
             rebasedStage,
             before: {remote: oldRemote, local: oldLocal},
             after: {remote: newRemote, local: newLocal},
             effects: event.effects,
-            mutations: decodeAll(event.mutations as SanityMutation[]),
-          })
+            // overwritten below
+            mutations: EMPTY_ARRAY,
+          }
+          if (event.mutations) {
+            emittedEvent.mutations = decodeAll(
+              event.mutations as SanityMutation[],
+            )
+          } else {
+            Object.defineProperty(
+              emittedEvent,
+              'mutations',
+              warnNoMutationsReceived,
+            )
+          }
+          return of(emittedEvent)
         } else {
+          // @ts-expect-error should have covered all cases
           throw new Error(`Unknown event type: ${event.type}`)
         }
       }),
