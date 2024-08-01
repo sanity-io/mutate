@@ -16,6 +16,12 @@
   "sideEffects": false,
   "type": "module",
   "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.js"
+    },
     "./path": {
       "source": "./src/_path.ts",
       "import": "./dist/_path.js",
@@ -37,8 +43,8 @@
     "./package.json": "./package.json"
   },
   "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "source": "./src/index.ts",
+  "module": "./dist/index.esm.js",
+  "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
       "path": [
