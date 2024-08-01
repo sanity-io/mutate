@@ -136,7 +136,7 @@ function _FormNode<Schema extends SanityDocument>(
     renderInput,
     form: last.form,
   })
-  console.log(nodes)
+
   return (
     <Stack space={3}>
       <label>

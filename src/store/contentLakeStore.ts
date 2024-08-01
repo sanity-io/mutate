@@ -54,6 +54,7 @@ let didEmitMutationsAccessWarning = false
 // this warning will be issued if a downstream consumers attempts to access event.mutations
 function warnNoMutationsReceived() {
   if (!didEmitMutationsAccessWarning) {
+    // eslint-disable-next-line no-console
     console.warn(
       new Error(
         'No mutation received from backend. The listener is likely set up with `excludeMutations: true`. If your app need to now about mutations, make sure the listener is set up to include mutations',
