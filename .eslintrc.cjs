@@ -18,6 +18,7 @@ module.exports = {
     '@typescript-eslint',
   ],
   rules: {
+    'no-console': 'error',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/member-delimiter-style': 'off',
