@@ -81,10 +81,12 @@
   },
   "browserslist": "extends @sanity/browserslist-config",
   "dependencies": {
+    "@sanity/client": "^6.21.1",
     "@sanity/diff-match-patch": "^3.1.1",
     "hotscript": "^1.0.13",
     "mendoza": "^3.0.7",
-    "nanoid": "^5.0.7"
+    "nanoid": "^5.0.7",
+    "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@sanity/pkg-utils": "^6.10.7",
