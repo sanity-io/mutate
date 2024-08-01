@@ -171,6 +171,9 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 5.4.5
+      ulid:
+        specifier: ^2.3.0
+        version: 2.3.0
 
   examples/web:
     dependencies:
@@ -3250,6 +3253,10 @@ packages:
   typescript@5.4.5:
     resolution: {integrity: sha512-vcI4UpRgg81oIRUFwR0WSIHKt11nJ7SAVlYNIu+QpqeyXP+gpQJy/Z4+F0aGxSE4MqwjyXvW/TzgkLAx2AGHwQ==}
     engines: {node: '>=14.17'}
+    hasBin: true
+
+  ulid@2.3.0:
+    resolution: {integrity: sha512-keqHubrlpvT6G2wH0OEfSW4mquYRcbe/J8NMmveoQOjUqmo+hXtO+ORCpWhdbZ7k72UtY61BL7haGxW6enBnjw==}
     hasBin: true
 
   unbox-primitive@1.0.2:
@@ -6673,6 +6680,8 @@ snapshots:
   typescript@5.4.2: {}
 
   typescript@5.4.5: {}
+
+  ulid@2.3.0: {}
 
   unbox-primitive@1.0.2:
     dependencies:

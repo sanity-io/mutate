@@ -14,6 +14,7 @@
     "eslint-plugin-react-hooks": "catalog:",
     "eslint-plugin-simple-import-sort": "catalog:",
     "eslint-plugin-unused-imports": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "ulid": "^2.3.0"
   }
 }
