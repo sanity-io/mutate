@@ -17,6 +17,6 @@ export function createReplayMemoizer(expiry: number) {
         }),
       )
     }
-    return memo[key]
+    return memo[key]!
   }
 }

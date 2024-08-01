@@ -1,16 +1,27 @@
 import {type KeyedPathElement, type Path, type PathElement} from '../types'
 
+function safeGetElementAt<T>(array: T[] | readonly T[], index: number): T {
+  if (index < 0 || index >= array.length) {
+    throw new Error('Index out of bounds')
+  }
+  return array[index]!
+}
+
 export function startsWith(parentPath: Path, path: Path): boolean {
   return (
     parentPath.length <= path.length &&
-    parentPath.every((segment, i) => isElementEqual(segment, path[i]))
+    parentPath.every((segment, i) =>
+      isElementEqual(segment, safeGetElementAt(path, i)),
+    )
   )
 }
 
 export function isEqual(path: Path, otherPath: Path): boolean {
   return (
     path.length === otherPath.length &&
-    path.every((segment, i) => isElementEqual(segment, otherPath[i]))
+    path.every((segment, i) =>
+      isElementEqual(segment, safeGetElementAt(path, i)),
+    )
   )
 }
 

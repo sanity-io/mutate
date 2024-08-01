@@ -1,6 +1,6 @@
 {
-  "extends": "../../tsconfig.json",
-  "include": ["../src/**/*.ts", "./**/*.ts"],
+  "extends": "../../tsconfig.settings.json",
+  "include": ["./**/*.ts"],
   "compilerOptions": {
     "noEmit": true,
     "paths": {

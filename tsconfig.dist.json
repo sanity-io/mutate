@@ -1,7 +1,12 @@
 {
   "extends": "./tsconfig.settings",
   "include": ["./src/**/*.ts"],
-  "exclude": ["./src/**/__tests__/*"],
+  "exclude": [
+    "./src/**/__tests__/*",
+    "./src/**/__tests__/*.test.ts",
+    "./src/**/__tests__/*",
+    "./src/**/__tests__/*.test-d.ts"
+  ],
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./dist",

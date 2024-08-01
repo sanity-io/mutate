@@ -42,6 +42,6 @@ test('deepGet() function', () => {
   }
 
   expect(getAtPath(['items', 2, 'letters', 2], literal)).toEqual(
-    literal.items[2].letters[2],
+    literal.items[2]?.letters[2],
   )
 })

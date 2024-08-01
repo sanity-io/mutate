@@ -34,7 +34,7 @@ function applyAtPath<P extends Path, O extends Operation, T>(
   op: O,
   value: T,
 ): ApplyAtPath<P, O, T> {
-  if (isEmptyArray(path)) {
+  if (!isNonEmptyArray(path)) {
     return applyOp(op as any, value) as any
   }
 
@@ -110,6 +110,6 @@ function applyInArray<T>(
     : splice(value, index, 1, [patchedItem])
 }
 
-function isEmptyArray(a: any[] | readonly any[]): a is [] {
-  return a.length === 0
+function isNonEmptyArray<T>(a: T[] | readonly T[]): a is [T, ...T[]] {
+  return a.length > 0
 }

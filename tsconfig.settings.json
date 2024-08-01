@@ -13,6 +13,9 @@
     "strictPropertyInitialization": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noUncheckedIndexedAccess": true,
+
     // Additional checks
     "noUnusedLocals": false,
     "noImplicitReturns": true,

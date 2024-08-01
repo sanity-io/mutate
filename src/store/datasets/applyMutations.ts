@@ -48,7 +48,7 @@ export function applyMutations<T extends SanityDocumentBase>(
       if (!(documentId in updatedDocs)) {
         updatedDocs[documentId] = {before, after: undefined, muts: []}
       }
-      updatedDocs[documentId].after = res.after
+      updatedDocs[documentId]!.after = res.after
     }
   }
 

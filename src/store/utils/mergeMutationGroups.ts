@@ -9,7 +9,7 @@ export function mergeMutationGroups(
 ): MutationGroup[] {
   return chunkWhile(mutationGroups, group => !group.transaction).flatMap(
     chunk => ({
-      ...chunk[0],
+      ...chunk[0]!,
       mutations: chunk.flatMap(c => c.mutations),
     }),
   )
