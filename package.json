@@ -84,13 +84,13 @@
     "nanoid": "^5.0.7"
   },
   "devDependencies": {
-    "@sanity/pkg-utils": "^6.10.6",
+    "@sanity/pkg-utils": "^6.10.7",
     "@types/diff-match-patch": "^1.0.36",
     "@types/lodash": "^4.17.7",
     "@typescript-eslint/eslint-plugin": "catalog:",
     "@typescript-eslint/parser": "catalog:",
-    "@vitest/coverage-v8": "^2.0.4",
-    "@vitest/ui": "^2.0.4",
+    "@vitest/coverage-v8": "^2.0.5",
+    "@vitest/ui": "^2.0.5",
     "eslint": "catalog:",
     "eslint-config-prettier": "catalog:",
     "eslint-plugin-import": "catalog:",
@@ -104,9 +104,9 @@
     "prettier": "^3.3.3",
     "prettier-plugin-packagejson": "^2.5.1",
     "rimraf": "^6.0.1",
-    "tsx": "^4.16.2",
+    "tsx": "^4.16.5",
     "typescript": "catalog:",
-    "vitest": "^2.0.4"
+    "vitest": "^2.0.5"
   },
   "packageManager": "pnpm@9.5.0",
   "engines": {
