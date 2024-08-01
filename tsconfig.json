@@ -3,6 +3,7 @@
   "include": ["./src/**/**.ts", "./test/**/*.ts"],
   "compilerOptions": {
     "rootDir": ".",
-    "noEmit": true
+    "noEmit": true,
+    "incremental": true
   }
 }

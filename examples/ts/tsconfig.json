@@ -3,6 +3,7 @@
   "include": ["./**/*.ts"],
   "compilerOptions": {
     "noEmit": true,
+    "incremental": true,
     "paths": {
       "@bjoerge/mutiny": ["../../src"],
       "@bjoerge/mutiny/_unstable_apply": ["../../src/_unstable_apply"],

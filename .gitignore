@@ -7,3 +7,4 @@ coverage
 _unstable_apply.js
 _unstable_store.js
 path.js
+tsconfig.tsbuildinfo
