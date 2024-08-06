@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.7.1](https://github.com/sanity-io/mutate/compare/mutate-v0.7.1...mutate-v0.7.1) (2024-08-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* test breaking release
+
+### Bug Fixes
+
+* test breaking release ([646e48a](https://github.com/sanity-io/mutate/commit/646e48a19df29fc8b88ffe62f80e1aed3098c0f1))
+
 ## 0.7.1 (2024-08-06)
 
 
