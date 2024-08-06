@@ -1,5 +1,5 @@
-import {assign, at, set, unset} from '@sanity/mutate'
 import {EllipsisVerticalIcon, TransferIcon, TrashIcon} from '@sanity/icons'
+import {assign, at, set, unset} from '@sanity/mutate'
 import {
   getInstanceName,
   isObjectSchema,

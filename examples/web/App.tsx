@@ -84,7 +84,7 @@ import {
 import {FormNode} from './lib/form/FormNode'
 import {PrimitiveUnionInput} from './lib/form/inputs/PrimitiveUnionInput'
 import {JsonView} from './lib/json-view/JsonView'
-import {FormatMutation} from './lib/mutiny-formatter/react'
+import {FormatMutation} from './lib/mutate-formatter/react'
 import {person} from './schema/person'
 
 function Unresolved<Schema extends SanityAny>(props: InputProps<Schema>) {
