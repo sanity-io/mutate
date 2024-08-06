@@ -1,21 +1,33 @@
 name: Unit tests
 
 on:
-  pull_request:
   push:
-    branches: ["**"]
+    branches:
+      - main
+      # @TODO just for testing that the setup is correct
+      - crx-833
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read # for checkout
 
 jobs:
   test:
     timeout-minutes: 60
-    name: Test (${{ matrix.os }} / node ${{ matrix.node }})
-    runs-on: ${{ matrix.os }}
+    name: Test (${{ matrix.os-version }} / node ${{ matrix.node-version }})
+    runs-on: ${{ matrix.os-version }}
     strategy:
       # we want to know if a test fails on a specific node version
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        node: [18, 20]
+        os-version: [ubuntu-latest]
+        node-version: [lts/-1, lts/*]
 
     steps:
       - uses: actions/checkout@v4
@@ -23,16 +35,16 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
 
-      - name: Configure PNPM
-        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "pnpm"
+          cache: pnpm
+
+      - name: Authenticate with private NPM for installing @sanity/sanitype
+        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_SANITYPE_TOKEN}}
 
       - name: Install dependencies
         run: pnpm install
