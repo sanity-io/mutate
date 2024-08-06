@@ -33,7 +33,6 @@ jobs:
       - uses: googleapis/release-please-action@v4
         id: release
         with:
-          release-type: node
           token: ${{ steps.app-token.outputs.token }}
           # TODO just for testing that the setup is correct
           target-branch: crx-833
