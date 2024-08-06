@@ -63,7 +63,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.NPM_PUBLISH_TOKEN}}
       # Release Please has already incremented versions and published tags, so we just
       # need to publish the new version to npm here
-      - run: pnpm publish
+      - run: pnpm publish --publish-branch crx-833
         if: ${{ steps.release.outputs.release_created || github.event.inputs.publish == 'true' }}
         env:
           NPM_CONFIG_PROVENANCE: true
