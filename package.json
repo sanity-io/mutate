@@ -95,7 +95,7 @@
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
-    "@sanity/pkg-utils": "^6.10.7",
+    "@sanity/pkg-utils": "^6.10.9",
     "@types/diff-match-patch": "^1.0.36",
     "@types/lodash": "^4.17.7",
     "@typescript-eslint/eslint-plugin": "catalog:",

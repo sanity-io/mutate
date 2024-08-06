@@ -5,14 +5,14 @@ packages:
   - 'examples/**'
 # Define a catalog of version ranges.
 catalog:
-  "typescript": ^5.4.5
+  "typescript": 5.5.4
   "@typescript-eslint/eslint-plugin": ^7.16.1
   "@typescript-eslint/parser": ^7.16.1
   "eslint": ^8.57.0
   "eslint-config-prettier": ^9.1.0
   "eslint-plugin-import": ^2.29.1
   "eslint-plugin-prettier": ^5.2.1
-  "eslint-plugin-react": ^7.34.4
+  "eslint-plugin-react": ^7.35.0
   "eslint-plugin-react-hooks": ^4.6.2
   "eslint-plugin-simple-import-sort": ^12.1.1
   "eslint-config-sanity": ^7.1.2
