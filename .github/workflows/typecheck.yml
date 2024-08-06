@@ -3,8 +3,7 @@ name: Typecheck
 on:
   pull_request:
   push:
-    branches: ['**']
-
+    branches: ["**"]
 
 jobs:
   lint:
@@ -12,32 +11,32 @@ jobs:
     name: Typecheck
     runs-on: ubuntu-latest
     strategy:
-        matrix:
-            node-version: [20]
+      matrix:
+        node-version: [20]
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Install pnpm
-      uses: pnpm/action-setup@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
 
-    - name: Configure PNPM
-      run: pnpm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
-      env:
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Configure PNPM
+        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'pnpm'
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "pnpm"
 
-    - name: Install dependencies
-      run: pnpm install
+      - name: Install dependencies
+        run: pnpm install
 
-    - name: Typecheck
-      id: typecheck
-      run: |
-        node -v
-        pnpm run typecheck
-        pnpm run typecheck:examples
+      - name: Typecheck
+        id: typecheck
+        run: |
+          node -v
+          pnpm run typecheck
+          pnpm run typecheck:examples

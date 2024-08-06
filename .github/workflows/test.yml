@@ -3,8 +3,7 @@ name: Unit tests
 on:
   pull_request:
   push:
-    branches: ['**']
-
+    branches: ["**"]
 
 jobs:
   test:
@@ -17,7 +16,6 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         node: [18, 20]
-
 
     steps:
       - uses: actions/checkout@v4
@@ -34,7 +32,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install

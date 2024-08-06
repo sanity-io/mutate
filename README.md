@@ -5,6 +5,7 @@ Tiny toolkit for working with [Sanity](https://sanity.io) mutations in JavaScrip
 Disclaimer: This is work in progress, use at own risk!
 
 ## At a glance
+
 - Declarative & composable mutation creators
 - Utilities for applying mutations on in-memory documents (experimental)
 - Local in-memory dataset replica with support for optimistic updates (experimental)
@@ -22,6 +23,7 @@ Disclaimer: This is work in progress, use at own risk!
 - Great TypeScript support
 
 ## Usage Example
+
 ```ts
 import {
   at,
@@ -147,11 +149,11 @@ Define a set of operations and turn it into a patch mutation that can be applied
 
 ```js
 const patches = [
-  at("metadata", setIfMissing({})), // make sure metadata object exists
-  at("metadata.published", set(true)),
-  at("metadata.publishedAt", set(new Date().toISOString())),
+  at('metadata', setIfMissing({})), // make sure metadata object exists
+  at('metadata.published', set(true)),
+  at('metadata.publishedAt', set(new Date().toISOString())),
 ]
-const mutations = ["document-1", "document-2", "document-3"].map(id =>
+const mutations = ['document-1', 'document-2', 'document-3'].map(id =>
   patch(id, patches),
 )
 
@@ -275,4 +277,3 @@ To better align with a strict type system, mutiny differs slightly from the Sani
 
 - `set` and`setIfMissing` does not create intermediate empty objects - Using the Sanity API, `set` and `setIfMissing` will create intermediate empty objects if any object along the given path doesn't already exist. In `mutiny`, these patches will only apply to already existing objects.
 - Limited json match support. Sanity mutations supports a powerful path selection syntax for targeting multiple document nodes at once with [json-match](https://www.sanity.io/docs/json-match). To keep things simple, a mutiny patch can only target a single document node.
-
