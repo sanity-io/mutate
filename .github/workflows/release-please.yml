@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-      # @TODO just for testing that the setup is correct
-      - crx-833
   workflow_dispatch:
     inputs:
       publish:
@@ -34,13 +32,11 @@ jobs:
         id: release
         with:
           token: ${{ steps.app-token.outputs.token }}
-          # TODO just for testing that the setup is correct
-          target-branch: crx-833
 
       # Publish to NPM on new releases
       - uses: actions/checkout@v4
         if: ${{ steps.release.outputs.release_created || github.event.inputs.publish == 'true' }}
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v4
         if: ${{ steps.release.outputs.release_created || github.event.inputs.publish == 'true' }}
       - uses: actions/setup-node@v4
         if: ${{ steps.release.outputs.release_created || github.event.inputs.publish == 'true' }}
@@ -62,7 +58,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{secrets.NPM_PUBLISH_TOKEN}}
       # Release Please has already incremented versions and published tags, so we just
       # need to publish the new version to npm here
-      - run: pnpm publish --publish-branch crx-833
+      - run: pnpm publish
         if: ${{ steps.release.outputs.release_created || github.event.inputs.publish == 'true' }}
         env:
           NPM_CONFIG_PROVENANCE: true
