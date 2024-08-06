@@ -3,8 +3,7 @@
 > [!WARNING]
 > Disclaimer: This is work in progress, use at own risk!
 
-__Experimental__ toolkit for working with [Sanity](https://sanity.io) mutations in JavaScript & TypeScript
-
+**Experimental** toolkit for working with [Sanity](https://sanity.io) mutations in JavaScript & TypeScript
 
 ## At a glance
 
@@ -277,5 +276,5 @@ console.log(updated)
 
 To better align with a strict type system, `@sanity/mutate` differs slightly from the Sanity API when applying patches. Although all the mutation types you can express with `@sanity/mutate` can also be expressed as Sanity API mutations, the inverse is not necessarily true; The Sanity API (e.g. a listener) may produce patches that can't be represented in `@sanity/mutate` without an extra conversion step that takes the current document into account. In addition, applying a patch in `@sanity/mutate` behaves differently from applying the same patch using the Sanity API on a few accounts:
 
-- `set` and`setIfMissing` does not create intermediate empty objects - Using the Sanity API, `set` and `setIfMissing` will create intermediate empty objects if any object along the given path doesn't already exist. In ``@sanity/mutate``, these patches will only apply to already existing objects.
+- `set` and`setIfMissing` does not create intermediate empty objects - Using the Sanity API, `set` and `setIfMissing` will create intermediate empty objects if any object along the given path doesn't already exist. In `@sanity/mutate`, these patches will only apply to already existing objects.
 - Limited json match support. Sanity mutations supports a powerful path selection syntax for targeting multiple document nodes at once with [json-match](https://www.sanity.io/docs/json-match). To keep things simple, a `@sanity/mutate` patch can only target a single document node.

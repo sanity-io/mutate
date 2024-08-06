@@ -72,6 +72,9 @@ importers:
       '@sanity/pkg-utils':
         specifier: ^6.10.9
         version: 6.10.9(@types/babel__core@7.20.5)(@types/node@22.0.2)(typescript@5.5.4)
+      '@sanity/prettier-config':
+        specifier: ^1.0.2
+        version: 1.0.2(prettier@3.3.3)
       '@types/diff-match-patch':
         specifier: ^1.0.36
         version: 1.0.36
@@ -123,9 +126,6 @@ importers:
       prettier:
         specifier: ^3.3.3
         version: 3.3.3
-      prettier-plugin-packagejson:
-        specifier: ^2.5.1
-        version: 2.5.1(prettier@3.3.3)
       rimraf:
         specifier: ^6.0.1
         version: 6.0.1
@@ -1151,6 +1151,11 @@ packages:
     hasBin: true
     peerDependencies:
       typescript: 5.4.x || 5.5.x
+
+  '@sanity/prettier-config@1.0.2':
+    resolution: {integrity: sha512-V4HinfhMYxQoyXefJ2B8zJnwlf7A8mVzAzKk24B/iCg4pkVlMGc8bj0buu9Uieh4bNeHvEAHOIQv+Xd7tiLuNA==}
+    peerDependencies:
+      prettier: ^3.2.5
 
   '@sanity/sanitype@0.3.1':
     resolution: {integrity: sha512-rVgpkxI4QW8ksCEo14eMoXonDY2l5vpy0DeG5pTJN449gxXI6qZ+6nIgsE49SjEyh9ET/i+zynsdB28XGuQvZw==}
@@ -4324,6 +4329,11 @@ snapshots:
       - '@types/node'
       - debug
       - supports-color
+
+  '@sanity/prettier-config@1.0.2(prettier@3.3.3)':
+    dependencies:
+      prettier: 3.3.3
+      prettier-plugin-packagejson: 2.5.1(prettier@3.3.3)
 
   '@sanity/sanitype@0.3.1':
     dependencies:
