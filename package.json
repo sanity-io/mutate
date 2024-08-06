@@ -65,11 +65,9 @@
     "package.json"
   ],
   "scripts": {
-    "build": "run-s clean pkg:build pkg:check",
-    "clean": "rimraf dist",
+    "build": "run-p pkg:build",
     "format": "prettier --write --cache --ignore-unknown .",
-    "pkg:build": "pkg build --strict",
-    "pkg:check": "pkg check --strict",
+    "pkg:build": "pkg build --strict --check --clean",
     "pkg:watch": "pkg watch --strict",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false -p tsconfig.dist.json",
     "typecheck:examples": "run-p typecheck:examples:*",
