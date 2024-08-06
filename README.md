@@ -1,8 +1,10 @@
-# **mu**_tiny_
+# @sanity/mutate
 
-Tiny toolkit for working with [Sanity](https://sanity.io) mutations in JavaScript & TypeScript
+> [!WARNING]
+> Disclaimer: This is work in progress, use at own risk!
 
-Disclaimer: This is work in progress, use at own risk!
+__Experimental__ toolkit for working with [Sanity](https://sanity.io) mutations in JavaScript & TypeScript
+
 
 ## At a glance
 
@@ -80,7 +82,7 @@ fetch(`https://${projectId}.api.sanity.io/v2023-08-01/data/mutate/${dataset}`, {
 
 A patch is a combination of a node path and an operation. The node path is a
 simplified [JSONMatch](https://www.sanity.io/docs/json-match) path or an array of path segments that points to a
-specific node in the document. The operation is one of the operations described [below](https://github.com/bjoerge/mutiny#patch-operations).
+specific node in the document. The operation is one of the operations described [below](https://github.com/sanity-io/mutate#patch-operations).
 
 - `at(path: Path | string, operation: Operation)`: Create a patch from a path and an operation
 
@@ -273,7 +275,7 @@ console.log(updated)
 
 ### Differences from Sanity API
 
-To better align with a strict type system, mutiny differs slightly from the Sanity API when applying patches. Although all the mutation types you can express with mutiny can also be expressed as Sanity API mutations, the inverse is not necessarily true; The Sanity API (e.g. a listener) may produce patches that can't be represented in mutiny without an extra conversion step that takes the current document into account. In addition, applying a patch in mutiny behaves differently from applying the same patch using the Sanity API on a few accounts:
+To better align with a strict type system, `@sanity/mutate` differs slightly from the Sanity API when applying patches. Although all the mutation types you can express with `@sanity/mutate` can also be expressed as Sanity API mutations, the inverse is not necessarily true; The Sanity API (e.g. a listener) may produce patches that can't be represented in `@sanity/mutate` without an extra conversion step that takes the current document into account. In addition, applying a patch in `@sanity/mutate` behaves differently from applying the same patch using the Sanity API on a few accounts:
 
-- `set` and`setIfMissing` does not create intermediate empty objects - Using the Sanity API, `set` and `setIfMissing` will create intermediate empty objects if any object along the given path doesn't already exist. In `mutiny`, these patches will only apply to already existing objects.
-- Limited json match support. Sanity mutations supports a powerful path selection syntax for targeting multiple document nodes at once with [json-match](https://www.sanity.io/docs/json-match). To keep things simple, a mutiny patch can only target a single document node.
+- `set` and`setIfMissing` does not create intermediate empty objects - Using the Sanity API, `set` and `setIfMissing` will create intermediate empty objects if any object along the given path doesn't already exist. In ``@sanity/mutate``, these patches will only apply to already existing objects.
+- Limited json match support. Sanity mutations supports a powerful path selection syntax for targeting multiple document nodes at once with [json-match](https://www.sanity.io/docs/json-match). To keep things simple, a `@sanity/mutate` patch can only target a single document node.
