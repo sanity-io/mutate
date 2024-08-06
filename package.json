@@ -12,7 +12,11 @@
     "url": "git+https://github.com/bjoerge/mutiny.git"
   },
   "license": "MIT",
-  "author": "Bjørge Næss <bjoerge@gmail.com>",
+  "author": "Sanity.io <hello@sanity.io>",
+  "contributors": [
+    "Bjørge Næss <bjoerge@gmail.com>",
+    "Cody Olsen <stipsan@gmail.com> (https://github.com/stipsan)"
+  ],
   "sideEffects": false,
   "type": "module",
   "exports": {
