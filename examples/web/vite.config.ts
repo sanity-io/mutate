@@ -11,8 +11,8 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@bjoerge/mutiny': path.resolve(__dirname, '../../src'),
-      '@bjoerge/mutiny/_unstable_store': path.resolve(__dirname, '../../src'),
+      '@sanity/mutate': path.resolve(__dirname, '../../src'),
+      '@sanity/mutate/_unstable_store': path.resolve(__dirname, '../../src'),
     },
   },
 })

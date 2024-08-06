@@ -1,4 +1,4 @@
-import {at, setIfMissing} from '@bjoerge/mutiny'
+import {at, setIfMissing} from '@sanity/mutate'
 import {getInstanceName, type SanityObject} from '@sanity/sanitype'
 import {Card, Stack} from '@sanity/ui'
 import {useCallback} from 'react'

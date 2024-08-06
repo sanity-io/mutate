@@ -5,14 +5,14 @@ import {
   type Path,
   type SanityDocumentBase,
   SanityEncoder,
-} from '@bjoerge/mutiny'
+} from '@sanity/mutate'
 import {
   createContentLakeStore,
   type ListenerSyncEvent,
   type MutationGroup,
   type RemoteDocumentEvent,
   type SanityMutation,
-} from '@bjoerge/mutiny/_unstable_store'
+} from '@sanity/mutate/_unstable_store'
 import {
   createClient,
   type MutationEvent as ClientMutationEvent,

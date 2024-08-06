@@ -1,4 +1,4 @@
-import {at, set, unset} from '@bjoerge/mutiny'
+import {at, set, unset} from '@sanity/mutate'
 import {isLiteralSchema, type SanityPrimitiveUnion} from '@sanity/sanitype'
 import {Box, Flex, Select, Stack} from '@sanity/ui'
 import {useCallback} from 'react'

@@ -1,5 +1,5 @@
-import {at, createIfNotExists, patch, set} from '@bjoerge/mutiny'
-import {applyInCollection} from '@bjoerge/mutiny/_unstable_apply'
+import {at, createIfNotExists, patch, set} from '@sanity/mutate'
+import {applyInCollection} from '@sanity/mutate/_unstable_apply'
 
 const initial = [
   {

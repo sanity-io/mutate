@@ -4,7 +4,7 @@ import {
   type Path,
   type PathElement,
   setIfMissing,
-} from '@bjoerge/mutiny'
+} from '@sanity/mutate'
 import {
   getInstanceName,
   type Infer,

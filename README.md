@@ -31,7 +31,7 @@ import {
   SanityEncoder,
   set,
   setIfMissing,
-} from '@bjoerge/mutiny'
+} from '@sanity/mutate'
 
 const mutations = [
   create({_type: 'dog', name: 'Fido'}),
@@ -164,8 +164,8 @@ commitMutations(mutations)
 Mutations can be applied to an in-memory collection of documents
 
 ```ts
-import {applyInCollection} from '@bjoerge/mutiny/_unstable_apply'
-import {createIfNotExists, del} from '@bjoerge/mutiny'
+import {applyInCollection} from '@sanity/mutate/_unstable_apply'
+import {createIfNotExists, del} from '@sanity/mutate'
 
 const initial = [{_id: 'deleteme', _type: 'foo'}]
 
@@ -187,8 +187,8 @@ console.log(updated)
 Note: when applying mutations on a collection, referential integrity is preserved. This means that if a mutation is effectively a noop (e.g. nothing actually changed), the same object reference will be returned.
 
 ```ts
-import {applyInCollection} from '@bjoerge/mutiny/_unstable_apply'
-import {at, createIfNotExists, patch, set} from '@bjoerge/mutiny'
+import {applyInCollection} from '@sanity/mutate/_unstable_apply'
+import {at, createIfNotExists, patch, set} from '@sanity/mutate'
 
 const initial = [
   {
@@ -214,8 +214,8 @@ console.log(initial === updated)
 This is also the case for _nodes_ unaffected by the mutations:
 
 ```ts
-import {applyInCollection} from '@bjoerge/mutiny/_unstable_apply'
-import {at, createIfNotExists, patch, set} from '@bjoerge/mutiny'
+import {applyInCollection} from '@sanity/mutate/_unstable_apply'
+import {at, createIfNotExists, patch, set} from '@sanity/mutate'
 
 const initial = [
   {
@@ -244,8 +244,8 @@ console.log(initial[0].nested === updated[0].nested)
 Alternatively, a patch mutation can be applied to a single document as long as its id matches the document id of the mutation:
 
 ```ts
-import {applyPatchMutation} from '@bjoerge/mutiny/_unstable_apply'
-import {at, insert, patch, setIfMissing} from '@bjoerge/mutiny'
+import {applyPatchMutation} from '@sanity/mutate/_unstable_apply'
+import {at, insert, patch, setIfMissing} from '@sanity/mutate'
 
 const document = {_id: 'test', _type: 'foo'}
 

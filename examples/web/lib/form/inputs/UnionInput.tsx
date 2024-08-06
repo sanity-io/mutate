@@ -1,4 +1,4 @@
-import {assign, at, set, unset} from '@bjoerge/mutiny'
+import {assign, at, set, unset} from '@sanity/mutate'
 import {EllipsisVerticalIcon, TransferIcon, TrashIcon} from '@sanity/icons'
 import {
   getInstanceName,

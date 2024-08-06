@@ -1,4 +1,4 @@
-import {type Path} from '@bjoerge/mutiny'
+import {type Path} from '@sanity/mutate'
 import {
   type CommonFormOptions,
   type Infer,

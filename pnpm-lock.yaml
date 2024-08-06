@@ -141,7 +141,7 @@ importers:
 
   examples/ts:
     devDependencies:
-      '@bjoerge/mutiny':
+      '@sanity/mutate':
         specifier: workspace:^
         version: link:../..
       '@typescript-eslint/eslint-plugin':
@@ -183,7 +183,7 @@ importers:
 
   examples/web:
     dependencies:
-      '@bjoerge/mutiny':
+      '@sanity/mutate':
         specifier: 'workspace:'
         version: link:../..
       '@sanity/client':

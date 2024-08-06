@@ -6,7 +6,7 @@ import {
   SanityEncoder,
   set,
   setIfMissing,
-} from '@bjoerge/mutiny'
+} from '@sanity/mutate'
 
 const mutations = [
   create({_type: 'dog', name: 'Fido'}),
