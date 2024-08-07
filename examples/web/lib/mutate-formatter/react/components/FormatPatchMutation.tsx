@@ -3,8 +3,8 @@ import {
   type KeyedPathElement,
   type NodePatch,
   type Operation,
-} from '@bjoerge/mutiny'
-import {stringify as stringifyPath} from '@bjoerge/mutiny/path'
+} from '@sanity/mutate'
+import {stringify as stringifyPath} from '@sanity/mutate/path'
 import {Flex, Inline, Text} from '@sanity/ui'
 
 import {JsonView} from '../../../json-view/JsonView'

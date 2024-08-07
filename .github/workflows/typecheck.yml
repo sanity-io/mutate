@@ -1,43 +1,47 @@
 name: Typecheck
 
 on:
-  pull_request:
   push:
-    branches: ['**']
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read # for checkout
 
 jobs:
   lint:
     timeout-minutes: 10
     name: Typecheck
     runs-on: ubuntu-latest
-    strategy:
-        matrix:
-            node-version: [20]
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Install pnpm
-      uses: pnpm/action-setup@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
 
-    - name: Configure PNPM
-      run: pnpm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
-      env:
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
 
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'pnpm'
+      - name: Authenticate with private NPM for installing @sanity/sanitype
+        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_SANITYPE_TOKEN}}
 
-    - name: Install dependencies
-      run: pnpm install
+      - name: Install dependencies
+        run: pnpm install
 
-    - name: Typecheck
-      id: typecheck
-      run: |
-        node -v
-        pnpm run typecheck
-        pnpm run typecheck:examples
+      - name: Typecheck
+        run: |
+          node -v
+          pnpm run typecheck
+          pnpm run typecheck:examples

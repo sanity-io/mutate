@@ -1,7 +1,7 @@
 {
-  "name": "@bjoerge/mutiny",
+  "name": "@sanity/mutate",
   "version": "0.7.1",
-  "description": "Tiny toolkit for working with Sanity mutations in JavaScript & TypeScript",
+  "description": "Experimental toolkit for working with Sanity mutations in JavaScript & TypeScript",
   "keywords": [
     "sanity",
     "mutations",
@@ -9,10 +9,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bjoerge/mutiny.git"
+    "url": "git+https://github.com/sanity-io/mutate.git"
   },
   "license": "MIT",
-  "author": "Bjørge Næss <bjoerge@gmail.com>",
+  "author": "Sanity.io <hello@sanity.io>",
+  "contributors": [
+    "Bjørge Næss <bjoerge@gmail.com>",
+    "Cody Olsen <stipsan@gmail.com> (https://github.com/stipsan)"
+  ],
   "sideEffects": false,
   "type": "module",
   "exports": {
@@ -65,11 +69,9 @@
     "package.json"
   ],
   "scripts": {
-    "build": "run-s clean pkg:build pkg:check",
-    "clean": "rimraf dist",
+    "build": "run-p pkg:build",
     "format": "prettier --write --cache --ignore-unknown .",
-    "pkg:build": "pkg build --strict",
-    "pkg:check": "pkg check --strict",
+    "pkg:build": "pkg build --strict --check --clean",
     "pkg:watch": "pkg watch --strict",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false -p tsconfig.dist.json",
     "typecheck:examples": "run-p typecheck:examples:*",
@@ -95,7 +97,8 @@
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
-    "@sanity/pkg-utils": "^6.10.7",
+    "@sanity/pkg-utils": "^6.10.9",
+    "@sanity/prettier-config": "^1.0.2",
     "@types/diff-match-patch": "^1.0.36",
     "@types/lodash": "^4.17.7",
     "@typescript-eslint/eslint-plugin": "catalog:",
@@ -113,14 +116,16 @@
     "lodash": "^4.17.21",
     "npm-run-all": "^4.1.5",
     "prettier": "^3.3.3",
-    "prettier-plugin-packagejson": "^2.5.1",
     "rimraf": "^6.0.1",
     "tsx": "^4.16.5",
     "typescript": "catalog:",
     "vitest": "^2.0.5"
   },
-  "packageManager": "pnpm@9.5.0",
+  "packageManager": "pnpm@9.6.0",
   "engines": {
     "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

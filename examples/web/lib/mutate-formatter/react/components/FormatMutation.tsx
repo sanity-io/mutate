@@ -1,4 +1,4 @@
-import {type Mutation} from '@bjoerge/mutiny'
+import {type Mutation} from '@sanity/mutate'
 import {Box, Flex, Inline, Stack, Text} from '@sanity/ui'
 
 import {JsonView} from '../../../json-view/JsonView'

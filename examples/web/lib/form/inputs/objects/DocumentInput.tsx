@@ -1,4 +1,4 @@
-import {at, patch} from '@bjoerge/mutiny'
+import {at, patch} from '@sanity/mutate'
 import {type SanityDocument} from '@sanity/sanitype'
 import {Stack} from '@sanity/ui'
 import {useCallback} from 'react'

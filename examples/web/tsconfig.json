@@ -15,9 +15,9 @@
     "jsx": "preserve",
     "incremental": true,
     "paths": {
-      "@bjoerge/mutiny": ["../../src"],
-      "@bjoerge/mutiny/_unstable_store": ["../../src/_unstable_store"],
-      "@bjoerge/mutiny/path": ["../../src/_path"]
+      "@sanity/mutate": ["../../src"],
+      "@sanity/mutate/_unstable_store": ["../../src/_unstable_store"],
+      "@sanity/mutate/path": ["../../src/_path"]
     }
   }
 }

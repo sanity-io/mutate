@@ -1,5 +1,5 @@
-import {assign, at, insert, set, setIfMissing} from '@bjoerge/mutiny'
-import {applyNodePatch} from '@bjoerge/mutiny/_unstable_apply'
+import {assign, at, insert, set, setIfMissing} from '@sanity/mutate'
+import {applyNodePatch} from '@sanity/mutate/_unstable_apply'
 
 const res = applyNodePatch(at('foo', set('bar')), {other: 'ok'})
 

@@ -7,8 +7,8 @@ import {
   patch,
   set,
   setIfMissing,
-} from '@bjoerge/mutiny'
-import {applyOp, applyPatches} from '@bjoerge/mutiny/_unstable_apply'
+} from '@sanity/mutate'
+import {applyOp, applyPatches} from '@sanity/mutate/_unstable_apply'
 
 const d = dec(1000)
 const f = applyOp(dec(1), 4)

@@ -1,4 +1,4 @@
-import {at, set} from '@bjoerge/mutiny'
+import {at, set} from '@sanity/mutate'
 import {type SanityBoolean} from '@sanity/sanitype'
 import {Checkbox} from '@sanity/ui'
 import {type FormEventHandler, useCallback} from 'react'

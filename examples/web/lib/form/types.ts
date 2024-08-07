@@ -1,4 +1,4 @@
-import {type Mutation, type NodePatch, type Path} from '@bjoerge/mutiny'
+import {type Mutation, type NodePatch, type Path} from '@sanity/mutate'
 import {
   type Infer,
   type SanityAny,

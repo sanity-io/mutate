@@ -1,5 +1,5 @@
-import {at, patch, upsert} from '@bjoerge/mutiny'
-import {applyInCollection} from '@bjoerge/mutiny/_unstable_apply'
+import {at, patch, upsert} from '@sanity/mutate'
+import {applyInCollection} from '@sanity/mutate/_unstable_apply'
 
 type Doc = {_id: string; _type: string; array: any[]}
 const doc: Doc = {

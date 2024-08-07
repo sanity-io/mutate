@@ -10,8 +10,8 @@ import {
   setIfMissing,
   unassign,
   unset,
-} from '@bjoerge/mutiny'
-import {applyPatchMutation} from '@bjoerge/mutiny/_unstable_apply'
+} from '@sanity/mutate'
+import {applyPatchMutation} from '@sanity/mutate/_unstable_apply'
 
 const document = {
   _id: 'test',

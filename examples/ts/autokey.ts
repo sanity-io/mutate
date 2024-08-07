@@ -1,5 +1,5 @@
-import {at, autoKeys, patch} from '@bjoerge/mutiny'
-import {applyInCollection} from '@bjoerge/mutiny/_unstable_apply'
+import {at, autoKeys, patch} from '@sanity/mutate'
+import {applyInCollection} from '@sanity/mutate/_unstable_apply'
 import {ulid} from 'ulid'
 
 type Item = {_key?: string; order: string}

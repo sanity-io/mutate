@@ -1,19 +1,4 @@
 import {
-  createIfNotExists,
-  del,
-  type Mutation,
-  type Path,
-  type SanityDocumentBase,
-  SanityEncoder,
-} from '@bjoerge/mutiny'
-import {
-  createContentLakeStore,
-  type ListenerSyncEvent,
-  type MutationGroup,
-  type RemoteDocumentEvent,
-  type SanityMutation,
-} from '@bjoerge/mutiny/_unstable_store'
-import {
   createClient,
   type MutationEvent as ClientMutationEvent,
   type ReconnectEvent,
@@ -21,6 +6,21 @@ import {
   type WelcomeEvent,
 } from '@sanity/client'
 import {CollapseIcon, ExpandIcon} from '@sanity/icons'
+import {
+  createIfNotExists,
+  del,
+  type Mutation,
+  type Path,
+  type SanityDocumentBase,
+  SanityEncoder,
+} from '@sanity/mutate'
+import {
+  createContentLakeStore,
+  type ListenerSyncEvent,
+  type MutationGroup,
+  type RemoteDocumentEvent,
+  type SanityMutation,
+} from '@sanity/mutate/_unstable_store'
 import {
   draft,
   type Infer,
@@ -84,7 +84,7 @@ import {
 import {FormNode} from './lib/form/FormNode'
 import {PrimitiveUnionInput} from './lib/form/inputs/PrimitiveUnionInput'
 import {JsonView} from './lib/json-view/JsonView'
-import {FormatMutation} from './lib/mutiny-formatter/react'
+import {FormatMutation} from './lib/mutate-formatter/react'
 import {person} from './schema/person'
 
 function Unresolved<Schema extends SanityAny>(props: InputProps<Schema>) {

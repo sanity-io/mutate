@@ -6,8 +6,8 @@ import {
   patch,
   set,
   setIfMissing,
-} from '@bjoerge/mutiny'
-import {createStore} from '@bjoerge/mutiny/_unstable_apply'
+} from '@sanity/mutate'
+import {createStore} from '@sanity/mutate/_unstable_apply'
 
 const localStore = createStore([{_id: 'hello', _type: 'hello'}])
 console.log('initial', localStore.get('hello'))

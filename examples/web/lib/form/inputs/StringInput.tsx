@@ -1,4 +1,4 @@
-import {at, set, unset} from '@bjoerge/mutiny'
+import {at, set, unset} from '@sanity/mutate'
 import {type SanityString} from '@sanity/sanitype'
 import {TextArea, TextInput} from '@sanity/ui'
 import {type FormEventHandler, useCallback} from 'react'
