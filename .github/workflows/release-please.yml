@@ -49,7 +49,7 @@ jobs:
         if: ${{ steps.release.outputs.release_created || github.event.inputs.publish == 'true' }}
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_SANITYPE_TOKEN}}
-      - run: corepack enable && pnpm --version && pnpm install
+      - run: pnpm install --ignore-scripts
         if: ${{ steps.release.outputs.release_created || github.event.inputs.publish == 'true' }}
       - name: Set publishing config
         run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
