@@ -16,7 +16,7 @@ import {
 
 import {decodeAll, type SanityMutation} from '../encoders/sanity'
 import {type Transaction} from '../mutations/types'
-import {applyMendozaPatch} from './datasets/applyMendoza'
+import {applyMutationEventEffects} from './datasets/applyMendoza'
 import {applyMutations} from './datasets/applyMutations'
 import {commit} from './datasets/commit'
 import {createDataset} from './datasets/createDataset'
@@ -118,10 +118,7 @@ export function createContentLakeStore(
             return EMPTY
           }
 
-          const newRemote = applyMendozaPatch(oldRemote, event.effects)
-          if (newRemote) {
-            newRemote._rev = event.transactionId
-          }
+          const newRemote = applyMutationEventEffects(oldRemote, event)
 
           const [rebasedStage, newLocal] = rebase(
             id,
@@ -140,6 +137,8 @@ export function createContentLakeStore(
             before: {remote: oldRemote, local: oldLocal},
             after: {remote: newRemote, local: newLocal},
             effects: event.effects,
+            previousRev: event.previousRev,
+            resultRev: event.resultRev,
             // overwritten below
             mutations: EMPTY_ARRAY,
           }

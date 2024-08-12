@@ -1,3 +1,5 @@
+import {type RawPatch} from 'mendoza'
+
 import {type SanityMutation} from '../encoders/sanity'
 import {type SanityDocumentBase} from '../mutations/types'
 
@@ -29,7 +31,7 @@ export type SanityMutationEvent = {
   resultRev?: string
   result?: SanityDocumentBase
   previous?: SanityDocumentBase | null
-  effects?: {apply: unknown[]; revert: unknown[]}
+  effects?: {apply: RawPatch}
   timestamp: string
   transactionId: string
   transition: 'update' | 'appear' | 'disappear'

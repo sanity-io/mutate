@@ -14,8 +14,10 @@ export interface ListenerSyncEvent {
 export interface ListenerMutationEvent {
   type: 'mutation'
   transactionId: string
-  effects: Required<SanityMutationEvent>['effects']['apply']
-  mutations: Required<SanityMutationEvent>['mutations']
+  resultRev: string
+  previousRev: string
+  effects: Required<SanityMutationEvent>['effects']
+  mutations: Required<SanityMutationEvent['mutations']>
 }
 export interface ListenerReconnectEvent {
   type: 'reconnect'
@@ -60,7 +62,9 @@ export interface RemoteMutationEvent {
     local: SanityDocumentBase | undefined
     remote: SanityDocumentBase | undefined
   }
-  effects: RawPatch
+  effects: {apply: RawPatch}
+  previousRev: string
+  resultRev: string
   mutations: Mutation[]
   rebasedStage: MutationGroup[]
 }
