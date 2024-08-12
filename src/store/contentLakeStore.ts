@@ -23,6 +23,7 @@ import {createDataset} from './datasets/createDataset'
 import {squashDMPStrings} from './optimizations/squashDMPStrings'
 import {squashMutationGroups} from './optimizations/squashMutations'
 import {rebase} from './rebase'
+import {toTransactions} from './toTransactions'
 import {
   type ContentLakeStore,
   type MutationGroup,
@@ -260,13 +261,4 @@ export function createContentLakeStore(
       )
     },
   }
-}
-
-function toTransactions(groups: MutationGroup[]): Transaction[] {
-  return groups.map(group => {
-    if (group.transaction && group.id !== undefined) {
-      return {id: group.id!, mutations: group.mutations}
-    }
-    return {mutations: group.mutations}
-  })
 }
