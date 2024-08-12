@@ -19,7 +19,7 @@ export type ArrayLength<T extends AnyArray> = T extends never[]
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
 /**
- * Formats an intersection object type, so it outputs as `{"foo": 1, "bar": 1}` instead of `{"foo": 1} & {"bar": 2}``
+ * Formats an intersection object type, so it outputs as `{"foo": 1, "bar": 1}` instead of `{"foo": 1} & {"bar": 2}`
  */
 export type Format<A> = A extends {[Key in keyof A]: A[Key]}
   ? {[Key in keyof A]: A[Key]}

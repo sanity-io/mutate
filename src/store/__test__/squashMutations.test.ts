@@ -23,7 +23,7 @@ test('squashMutations() merges subsequent patch mutations for the same document'
   ])
 })
 
-test('squashMutations() merges subsequent patch mutations for the same document', () => {
+test('squashMutations() merges subsequent patch mutations for different documents', () => {
   const mutations = [
     patch('doc1', [at('foo', set('a'))]),
     patch('doc2', [at('bar', set('xyz'))]),
