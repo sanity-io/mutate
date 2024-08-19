@@ -27,8 +27,16 @@ export const personForm = defineForm(person, {
     name: {
       title: 'Name',
     },
+    favoriteColor: {
+      title: 'Favorite color',
+      fields: {
+        hex: {
+          title: 'Hex',
+        },
+      },
+    },
     foo: {
-      title: 'Optional',
+      title: 'Foo (optional)',
     },
     bio: {
       title: 'Bio',

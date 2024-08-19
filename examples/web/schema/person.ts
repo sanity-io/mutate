@@ -8,16 +8,21 @@ import {
   union,
 } from '@sanity/sanitype'
 
+import {color} from '../lib/form/inputs/color/schema'
+
 export const address = object({
   street: string(),
   city: string(),
   country: string(),
 })
 
+export const colorWithCustomName = color('colorWithCustomName')
+
 export const person = document({
   _type: literal('person'),
   name: string(),
   foo: optional(string()),
+  favoriteColor: optional(colorWithCustomName),
   bio: optional(
     union([
       object({

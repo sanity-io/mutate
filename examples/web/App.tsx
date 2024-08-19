@@ -82,10 +82,11 @@ import {
   UnionInput,
 } from './lib/form'
 import {FormNode} from './lib/form/FormNode'
+import {ColorInput} from './lib/form/inputs/color/ColorInput'
 import {PrimitiveUnionInput} from './lib/form/inputs/PrimitiveUnionInput'
 import {JsonView} from './lib/json-view/JsonView'
 import {FormatMutation} from './lib/mutate-formatter/react'
-import {person} from './schema/person'
+import {colorWithCustomName, person} from './schema/person'
 
 function Unresolved<Schema extends SanityAny>(props: InputProps<Schema>) {
   return <Text>Unresolved input for type {props.schema.typeName}</Text>
@@ -129,6 +130,11 @@ function isObjectUnionInputProps(
 ): props is InputProps<SanityObjectUnion> {
   return isObjectUnionSchema(props.schema)
 }
+function isColorInputProps(
+  props: InputProps<SanityAny>,
+): props is InputProps<typeof colorWithCustomName> {
+  return props.schema === colorWithCustomName
+}
 function isPrimitiveUnionInputProps(
   props: InputProps<SanityAny>,
 ): props is InputProps<SanityPrimitiveUnion> {
@@ -148,6 +154,9 @@ function renderInput<Props extends InputProps<SanityAny>>(
   }
   if (isOptionalInputProps(props)) {
     return <OptionalInput {...props} />
+  }
+  if (isColorInputProps(props)) {
+    return <ColorInput {...props} />
   }
   if (isObjectInputProps(props)) {
     return <ObjectInput {...props} />
