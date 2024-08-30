@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.9.0](https://github.com/sanity-io/mutate/compare/mutate-v0.8.0...mutate-v0.9.0) (2024-08-30)
+
+
+### Features
+
+* throw if attempting to apply mendoza patch on invalid revision ([#17](https://github.com/sanity-io/mutate/issues/17)) ([ef38ec2](https://github.com/sanity-io/mutate/commit/ef38ec2a128353528f410e839005b109e8e85c9e))
+
+
+### Bug Fixes
+
+* **deps:** Update non-major ([#16](https://github.com/sanity-io/mutate/issues/16)) ([61870fb](https://github.com/sanity-io/mutate/commit/61870fbd9353e5d3db52d90dfffcc1f2e4e6c996))
+
 ## [0.8.0](https://github.com/sanity-io/mutate/compare/mutate-v0.7.1...mutate-v0.8.0) (2024-08-07)
 
 
