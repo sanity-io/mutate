@@ -53,6 +53,7 @@ import {
   TabPanel,
   Text,
 } from '@sanity/ui'
+import {type RawPatch} from 'mendoza'
 import {Fragment, type ReactNode, useCallback, useEffect, useState} from 'react'
 import {
   concatMap,
@@ -265,7 +266,9 @@ function observe(documentId: string) {
           : of({
               type: 'mutation' as const,
               transactionId: event.transactionId,
-              effects: event.effects!.apply,
+              effects: event.effects as {apply: RawPatch},
+              previousRev: event.previousRev!,
+              resultRev: event.resultRev!,
               mutations: event.mutations as SanityMutation[],
             }),
     ),
