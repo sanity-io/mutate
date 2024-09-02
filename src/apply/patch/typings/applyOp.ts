@@ -89,7 +89,7 @@ export type InsertAtIndex<
   NormalizeIndex<Index, ArrayLength<Current>>
 >
 
-export type DropFirst<Array extends any> = Array extends [
+export type DropFirst<Array extends unknown[]> = Array extends [
   infer Head,
   ...infer Rest,
 ]
