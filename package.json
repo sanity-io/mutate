@@ -1,6 +1,6 @@
 {
   "name": "@sanity/mutate",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Experimental toolkit for working with Sanity mutations in JavaScript & TypeScript",
   "keywords": [
     "sanity",
