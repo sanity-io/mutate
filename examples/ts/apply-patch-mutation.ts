@@ -7,6 +7,7 @@ import {
   insertBefore,
   patch,
   prepend,
+  remove,
   setIfMissing,
   unassign,
   unset,
@@ -17,6 +18,7 @@ const document = {
   _id: 'test',
   _type: 'foo',
   unsetme: 'yes',
+  someArray: [{_key: 'foo'}, {_key: 'bar'}],
   unassignme: 'please',
   assigned: {existing: 'prop'},
 } as const
@@ -30,6 +32,7 @@ const patches = patch('test', [
   at('cities', insertAfter(['Chicago'], 1)),
   at('cities', insertBefore(['Raleigh'], 3)),
   at('unsetme', unset()),
+  at('someArray', remove({_key: 'foo'})),
   at([], unassign(['unassignme'])),
   at('hmmm', assign({other: 'value'})),
 ])
