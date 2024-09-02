@@ -13,6 +13,7 @@ import {
   type InsertOp,
   type KeyedPathElement,
   type RelativePosition,
+  type RemoveOp,
   type ReplaceOp,
   type SetIfMissingOp,
   type SetOp,
@@ -132,6 +133,18 @@ export function replace<
     type: 'replace',
     referenceItem,
     items: arrify(items) as Items,
+  }
+}
+
+/*
+  Remove an item from an array by either key or index
+ */
+export function remove<ReferenceItem extends Index | KeyedPathElement>(
+  referenceItem: ReferenceItem,
+): RemoveOp<ReferenceItem> {
+  return {
+    type: 'remove',
+    referenceItem,
   }
 }
 

@@ -105,6 +105,9 @@ function encodePatchMutation(
   if (op.type === 'truncate') {
     return ['patch', 'truncate', id, path, [op.startIndex, op.endIndex]]
   }
+  if (op.type === 'remove') {
+    return ['patch', 'remove', id, path, [encodeItemRef(op.referenceItem)]]
+  }
   // @ts-expect-error all cases are covered
   throw new Error(`Invalid operation type: ${op.type}`)
 }

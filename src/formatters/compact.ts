@@ -90,6 +90,9 @@ function formatPatchMutation(patch: NodePatch<any>): string {
   if (op.type === 'truncate') {
     return [path, `truncate(${op.startIndex}, ${op.endIndex}`].join(': ')
   }
+  if (op.type === 'remove') {
+    return [path, `remove(${encodeItemRef(op.referenceItem)})`].join(': ')
+  }
   // @ts-expect-error all cases are covered
   throw new Error(`Invalid operation type: ${op.type}`)
 }
