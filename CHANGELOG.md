@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.0](https://github.com/sanity-io/mutate/compare/mutate-v0.9.0...mutate-v0.10.0) (2024-09-02)
+
+
+### Features
+
+* add support for array remove operation ([#19](https://github.com/sanity-io/mutate/issues/19)) ([17e7a3c](https://github.com/sanity-io/mutate/commit/17e7a3c1a37558a3aceb7bcb1630f0dde51749a1))
+
 ## [0.9.0](https://github.com/sanity-io/mutate/compare/mutate-v0.8.0...mutate-v0.9.0) (2024-08-30)
 
 
