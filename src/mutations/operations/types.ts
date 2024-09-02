@@ -45,6 +45,12 @@ export type TruncateOp = {
   startIndex: number
   endIndex?: number
 }
+
+export type RemoveOp<ReferenceItem extends Index | KeyedPathElement> = {
+  type: 'remove'
+  referenceItem: ReferenceItem
+}
+
 export type ReplaceOp<
   Items extends AnyArray,
   ReferenceItem extends Index | KeyedPathElement,
@@ -90,5 +96,6 @@ export type ArrayOp =
   | UpsertOp<AnyArray, RelativePosition, Index | KeyedPathElement>
   | ReplaceOp<AnyArray, Index | KeyedPathElement>
   | TruncateOp
+  | RemoveOp<Index | KeyedPathElement>
 
 export type PrimitiveOp = AnyOp | StringOp | NumberOp

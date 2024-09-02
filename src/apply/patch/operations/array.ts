@@ -2,6 +2,7 @@ import {
   type InsertOp,
   type KeyedPathElement,
   type RelativePosition,
+  type RemoveOp,
   type ReplaceOp,
   type TruncateOp,
   type UpsertOp,
@@ -86,6 +87,20 @@ export function replace<
     throw new Error(`Found no matching array element to replace`)
   }
   return splice(currentValue, index, op.items.length, op.items)
+}
+export function remove<
+  O extends RemoveOp<number | KeyedPathElement>,
+  CurrentValue extends unknown[],
+>(op: O, currentValue: CurrentValue) {
+  if (!Array.isArray(currentValue)) {
+    throw new TypeError('Cannot apply "remove()" on non-array value')
+  }
+
+  const index = findTargetIndex(currentValue, op.referenceItem)
+  if (index === null) {
+    throw new Error(`Found no matching array element to replace`)
+  }
+  return splice(currentValue, index, 1, [])
 }
 
 export function truncate<O extends TruncateOp, CurrentValue extends unknown[]>(

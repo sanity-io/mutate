@@ -113,6 +113,11 @@ function patchToSanity(patch: NodePatch) {
       },
     }
   }
+  if (op.type === 'remove') {
+    return {
+      unset: [stringifyPath(path.concat(op.referenceItem))],
+    }
+  }
   //@ts-expect-error all cases should be covered
   throw new Error(`Unknown operation type ${op.type}`)
 }

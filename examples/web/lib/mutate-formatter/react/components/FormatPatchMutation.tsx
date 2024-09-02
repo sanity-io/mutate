@@ -125,6 +125,13 @@ function FormatOp(props: {op: Operation}) {
       </Text>
     )
   }
+  if (op.type === 'remove') {
+    return (
+      <Text size={1} weight="semibold">
+        {op.type} ({formatReferenceItem(op.referenceItem)}))
+      </Text>
+    )
+  }
   // @ts-expect-error all cases are covered
   throw new Error(`Invalid operation type: ${op.type}`)
 }

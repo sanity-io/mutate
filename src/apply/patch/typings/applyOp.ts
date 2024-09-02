@@ -8,6 +8,7 @@ import {
   type InsertOp,
   type KeyedPathElement,
   type Operation,
+  type RemoveOp,
   type ReplaceOp,
   type SetIfMissingOp,
   type SetOp,
@@ -88,6 +89,36 @@ export type InsertAtIndex<
   NormalizeIndex<Index, ArrayLength<Current>>
 >
 
+export type DropFirst<Array extends unknown[]> = Array extends [
+  infer Head,
+  ...infer Rest,
+]
+  ? Rest
+  : []
+
+export type _RemoveAtIndex<Current extends unknown[], Index extends number> =
+  Between<Index, 0, ArrayLength<Current>> extends true
+    ? Call<Tuples.SplitAt<Index>, Current> extends [infer Head, infer Tail]
+      ? Head extends AnyArray
+        ? Tail extends AnyArray
+          ? [
+              ...(Head extends never[] ? [] : Head),
+              ...(Tail extends never[]
+                ? []
+                : Tail extends unknown[]
+                  ? DropFirst<Tail>
+                  : Tail),
+            ]
+          : never
+        : never
+      : never
+    : Current
+
+export type RemoveAtIndex<
+  Current extends unknown[],
+  Index extends number,
+> = _RemoveAtIndex<Current, NormalizeIndex<Index, ArrayLength<Current>>>
+
 export type ArrayInsert<
   Current extends unknown[],
   Items extends unknown[],
@@ -100,6 +131,16 @@ export type ArrayInsert<
       ? InsertAtIndex<Current, Items, Pos, Ref>
       : (E | ArrayElement<Items>)[]
   : Current
+
+export type ArrayRemove<
+  Current extends unknown[],
+  Ref extends number | KeyedPathElement,
+> = number extends Ref
+  ? Current
+  : Ref extends number
+    ? RemoveAtIndex<Current, Ref>
+    : // todo: look up index of item with _key
+      Current
 
 export type Assign<Current, Attrs> = {
   [K in keyof Attrs | keyof Current]: K extends keyof Attrs
@@ -155,4 +196,9 @@ export type ApplyOp<O extends Operation, Current> = Current extends never
                       }
                     : O extends DiffMatchPatchOp
                       ? string
-                      : never
+                      : O extends RemoveOp<infer Ref>
+                        ? Current extends AnyArray<unknown>
+                          ? ArrayRemove<NormalizeReadOnlyArray<Current>, Ref>
+                          : Current
+                        : // fallback
+                          Current

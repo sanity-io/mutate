@@ -86,6 +86,14 @@ export type ReplaceMutation = [
   [ItemRef, AnyArray],
   RevisionLock?,
 ]
+export type RemoveMutation = [
+  'patch',
+  'remove',
+  Id,
+  CompactPath,
+  [ItemRef],
+  RevisionLock?,
+]
 export type SetMutation = ['patch', 'set', Id, CompactPath, any, RevisionLock?]
 export type SetIfMissingMutation = [
   'patch',
@@ -118,6 +126,7 @@ export type CompactPatchMutation =
   | AssignMutation
   | UnassignMutation
   | ReplaceMutation
+  | RemoveMutation
 
 export type CompactMutation<Doc> =
   | DeleteMutation

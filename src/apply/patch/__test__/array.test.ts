@@ -1,6 +1,6 @@
 import {expect, test} from 'vitest'
 
-import {insert, replace} from '../../../mutations/operations/creators'
+import {insert, remove, replace} from '../../../mutations/operations/creators'
 import {applyOp} from '../applyOp'
 
 test('replace on item', () => {
@@ -150,4 +150,38 @@ test('insert relative to nonexisting keyed path elements', () => {
   expect(() =>
     applyOp(insert(['INSERT!'], 'after', {_key: 'foo'}), []),
   ).toThrow()
+})
+
+test('remove item at key', () => {
+  expect(
+    applyOp(remove({_key: 'foo'}), [
+      {_key: 'one'},
+      {_key: 'foo'},
+      {_key: 'two'},
+    ]),
+  ).toEqual([{_key: 'one'}, {_key: 'two'}])
+
+  expect(
+    applyOp(remove({_key: 'foo'}), [{_key: 'foo'}, {_key: 'two'}]),
+  ).toEqual([{_key: 'two'}])
+  expect(
+    applyOp(remove({_key: 'foo'}), [{_key: 'one'}, {_key: 'foo'}]),
+  ).toEqual([{_key: 'one'}])
+
+  expect(applyOp(remove({_key: 'foo'}), [{_key: 'foo'}])).toEqual([])
+})
+
+test('remove item at index', () => {
+  expect(
+    applyOp(remove(1), [{_key: 'one'}, {_key: 'foo'}, {_key: 'two'}]),
+  ).toEqual([{_key: 'one'}, {_key: 'two'}])
+
+  expect(applyOp(remove(0), [{_key: 'foo'}, {_key: 'two'}])).toEqual([
+    {_key: 'two'},
+  ])
+  expect(applyOp(remove(1), [{_key: 'one'}, {_key: 'foo'}])).toEqual([
+    {_key: 'one'},
+  ])
+
+  expect(applyOp(remove(0), [{_key: 'foo'}])).toEqual([])
 })
