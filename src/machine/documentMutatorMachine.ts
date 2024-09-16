@@ -8,6 +8,7 @@ import {asapScheduler, defer, filter, observeOn} from 'rxjs'
 import {
   assertEvent,
   assign,
+  enqueueActions,
   fromEventObservable,
   fromPromise,
   raise,
@@ -49,6 +50,8 @@ export type DocumentMutatorMachineParentEvent =
       previousRev: string
       resultRev: string
     }
+  | {type: 'rebased.local'; id: string; document: SanityDocumentBase}
+  | {type: 'rebased.remote'; id: string; document: SanityDocumentBase}
 
 export const documentMutatorMachine = setup({
   types: {} as {
@@ -127,59 +130,69 @@ export const documentMutatorMachine = setup({
       },
       stashedChanges: [],
     }),
-    'rebase fetched remote snapshot': assign(({event, context}) => {
-      assertEvent(event, 'xstate.done.actor.getDocument')
-      const previousRemote = context.remote
-      let nextRemote = event.output
+    'rebase fetched remote snapshot': enqueueActions(({enqueue}) => {
+      enqueue.assign(({event, context}) => {
+        assertEvent(event, 'xstate.done.actor.getDocument')
+        const previousRemote = context.remote
+        let nextRemote = event.output
 
-      /**
-       * We assume all patches that happen while we're waiting for the document to resolve are already applied.
-       * But if we do see a patch that has the same revision as the document we just fetched, we should apply any patches following it
-       */
-      let seenCurrentRev = false
-      for (const patch of context.mutationEvents) {
-        if (
-          !patch.effects?.apply ||
-          (!patch.previousRev && patch.transition !== 'appear')
-        )
-          continue
-        if (!seenCurrentRev && patch.previousRev === nextRemote?._rev) {
-          seenCurrentRev = true
-        }
-        if (seenCurrentRev) {
-          nextRemote = applyMendozaPatch(
-            nextRemote,
-            patch.effects.apply,
-            patch.resultRev,
+        /**
+         * We assume all patches that happen while we're waiting for the document to resolve are already applied.
+         * But if we do see a patch that has the same revision as the document we just fetched, we should apply any patches following it
+         */
+        let seenCurrentRev = false
+        for (const patch of context.mutationEvents) {
+          if (
+            !patch.effects?.apply ||
+            (!patch.previousRev && patch.transition !== 'appear')
           )
+            continue
+          if (!seenCurrentRev && patch.previousRev === nextRemote?._rev) {
+            seenCurrentRev = true
+          }
+          if (seenCurrentRev) {
+            nextRemote = applyMendozaPatch(
+              nextRemote,
+              patch.effects.apply,
+              patch.resultRev,
+            )
+          }
         }
-      }
 
-      if (
-        context.cache &&
-        // If the shared cache don't have the document already we can just set it
-        (!context.cache.has(context.id) ||
-          // But when it's in the cache, make sure it's necessary to update it
-          context.cache.get(context.id)!._rev !== nextRemote?._rev)
-      ) {
-        context.cache.set(context.id, nextRemote as unknown as any)
-      }
+        if (
+          context.cache &&
+          // If the shared cache don't have the document already we can just set it
+          (!context.cache.has(context.id) ||
+            // But when it's in the cache, make sure it's necessary to update it
+            context.cache.get(context.id)!._rev !== nextRemote?._rev)
+        ) {
+          context.cache.set(context.id, nextRemote as unknown as any)
+        }
 
-      const [stagedChanges, local] = rebase(
-        context.id,
-        // It's annoying to convert between null and undefined, reach consensus
-        previousRemote === null ? undefined : previousRemote,
-        nextRemote === null ? undefined : (nextRemote as unknown as any),
-        context.stagedChanges,
+        const [stagedChanges, local] = rebase(
+          context.id,
+          // It's annoying to convert between null and undefined, reach consensus
+          previousRemote === null ? undefined : previousRemote,
+          nextRemote === null ? undefined : (nextRemote as unknown as any),
+          context.stagedChanges,
+        )
+
+        return {
+          remote: nextRemote as unknown as any,
+          local: local as unknown as any,
+          stagedChanges,
+          // Since the snapshot handler applies all the patches they are no longer needed, allow GC
+          mutationEvents: [],
+        }
+      })
+      enqueue.sendParent(
+        ({context}) =>
+          ({
+            type: 'rebased.remote',
+            id: context.id,
+            document: context.remote!,
+          }) satisfies DocumentMutatorMachineParentEvent,
       )
-
-      return {
-        remote: nextRemote as unknown as any,
-        local: local as unknown as any,
-        stagedChanges,
-        // Since the snapshot handler applies all the patches they are no longer needed, allow GC
-        mutationEvents: [],
-      }
     }),
     'apply mendoza patch': assign(({event, context}) => {
       assertEvent(event, 'mutation')
@@ -251,21 +264,31 @@ export const documentMutatorMachine = setup({
         ]
       },
     }),
-    'rebase local snapshot': assign({
-      local: ({event, context}) => {
-        assertEvent(event, 'mutate')
-        // @TODO would be helpful to not have to convert back and forth between maps
-        const localDataset = new Map()
-        if (context.local) {
-          localDataset.set(context.id, context.local)
-        }
-        // Apply mutations to local dataset (note: this is immutable, and doesn't change the dataset)
-        const results = applyMutations(event.mutations, localDataset)
-        // Write the updated results back to the "local" dataset
-        commit(results, localDataset)
-        // Read the result from the local dataset again
-        return localDataset.get(context.id)
-      },
+    'rebase local snapshot': enqueueActions(({enqueue}) => {
+      enqueue.assign({
+        local: ({event, context}) => {
+          assertEvent(event, 'mutate')
+          // @TODO would be helpful to not have to convert back and forth between maps
+          const localDataset = new Map()
+          if (context.local) {
+            localDataset.set(context.id, context.local)
+          }
+          // Apply mutations to local dataset (note: this is immutable, and doesn't change the dataset)
+          const results = applyMutations(event.mutations, localDataset)
+          // Write the updated results back to the "local" dataset
+          commit(results, localDataset)
+          // Read the result from the local dataset again
+          return localDataset.get(context.id)
+        },
+      })
+      enqueue.sendParent(
+        ({context}) =>
+          ({
+            type: 'rebased.local',
+            id: context.id,
+            document: context.local!,
+          }) satisfies DocumentMutatorMachineParentEvent,
+      )
     }),
     'send sync event to parent': sendParent(
       ({context}) =>
