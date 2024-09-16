@@ -1,5 +1,6 @@
 export {type Insert} from './encoders/sanity'
 export * from './machine'
+export type * from './mendozaTypes'
 export {
   type SanityCreateIfNotExistsMutation,
   type SanityCreateMutation,
