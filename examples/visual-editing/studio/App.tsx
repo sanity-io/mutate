@@ -278,6 +278,19 @@ function App(props: {inspect: InspectType}) {
     DocumentMutatorMachineParentEvent[]
   >([])
 
+  // const cody = useSelector(datasetMutatorActorRef, state => {
+  //   const documents = Object.keys(state.context.documents)
+  //   const staged: MutationGroup[] = []
+  //   for (const id of documents) {
+  //     const document = state.context.documents[id]?.getSnapshot()
+  //     if (document && document.context.stagedChanges.length > 0) {
+  //       staged.push(...document.context.stagedChanges)
+  //     }
+  //   }
+  //   return staged
+  // })
+  // console.log({cody})
+
   useEffect(() => {
     const sub = datasetMutatorActorRef.on('*', event => {
       switch (event.type) {
