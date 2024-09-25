@@ -52,6 +52,7 @@ export type DocumentMutatorMachineParentEvent =
     }
   | {type: 'rebased.local'; id: string; document: SanityDocumentBase}
   | {type: 'rebased.remote'; id: string; document: SanityDocumentBase}
+  | {type: 'pristine'; id: string}
 
 export const documentMutatorMachine = setup({
   types: {} as {
@@ -290,6 +291,13 @@ export const documentMutatorMachine = setup({
           }) satisfies DocumentMutatorMachineParentEvent,
       )
     }),
+    'send pristine event to parent': sendParent(
+      ({context}) =>
+        ({
+          type: 'pristine',
+          id: context.id,
+        }) satisfies DocumentMutatorMachineParentEvent,
+    ),
     'send sync event to parent': sendParent(
       ({context}) =>
         ({
@@ -383,7 +391,7 @@ export const documentMutatorMachine = setup({
       Math.pow(2, context.submitTransactionsAttempts) * 1000,
   },
 }).createMachine({
-  /** @xstate-layout N4IgpgJg5mDOIC5QQPYGMCuBbMA7ALgLRYb4CG+KATgMQnn5gDaADALqKgAOKsAlvj4pcnEAA9EADhYAWAHQA2AMwLJSgKxLJkhQoBMkgDQgAnogCMegL5XjqTDgLFSFanIh9YaYbjBpGEDTeuL7+rBxIIDz8gsKiEgh6LCxy5pIA7DIAnFl6MjKa6cZmCDIs5nKSelkK6ZlaWUrmMuk2dujYeET0rlRywaGCuFA0AO5gADbeOOGi0QJCIpEJ6ulZchqNdQWNeunmxYh66gpyWSz6J-qy5uYKbSD2nU49lH0DfkMjVH4+n7OReaxJagFaSdabJTbdS7faHBBKFjpORlfR7dR3GosLIPJ6ObouN79P7+PjDGhgKhUagA7i8BZxZaIVbwvLmZF6FSyDSaLLqSS4jr45wMNwffwAMTIfAmGB+QRJ+FpUXpwPiiFqrOOKU0BhhChhOkFDi6It6ch+4q+Y0m02Y7DmqsW6sSULkx3SklWGnMWTqSnh7NkchO2Kyai0MiSMmNzwJor6lsVZJGlOpVGVQOdTNdHNWXvSPr9ha1yTkLCUewUSNynL2seFrzFisgdEJi0zTsZoIsSPUG3U6mySjKQ908MyendVU9ez56QUMdsjyFpqb7xbgSTIX+DsBXZB4iObo9BaL-sDMlu5c2uhk1a06XUDbXhObO-8kDkExQZA85NQXw5DJAA3FAAGswDkGB8AAEVXAhOxibMe1KZpyx0FhOR0WpNEXQMVCnVRzmaFgxwUcMXxeN8Nw-AJv1-f9UypNwuAmCgADNqCwaCwDghClT3OlkO7I8EF0ZE1AfFQqj0O4ilMRAsXdDRwWxWQFwFZc8VfBNiTor8fz-VtXg7ISVREw8EnMZIKgXX0Ln9DFzADRSEExeRsXUTklEaLI7iXdoTWovSrUMxivy4KhPCGMA2wYe0ImEhkrOZTRUj5KMWG0KTXJKNIDXLGRJDKK9VHyHFtIEs0iTCiAGOM+qPCofATBoWAMAAIywAQkJSl0bLSEN0m5bER32NJAxIkNyhaBcKINXIqPjc06oaiAvw67qBGtQCoNAiCoK2nr8AAFSoMhcFgMhSWEWA+rVHMbOKlFNBHFzbhOTRWWaJRXvvHJVH2bRlpq99BnCxq5GOnaUwpFi+jYzjuOhrqTvOy7rtuq6HpQsTnvWT1GhhFR5uUKbvPLcpVgNKEDF0UH130iH6qMjb6ph-BrVeRLHUsgbRwwhQ7hHJpCxZNzfSyeRfJkKFzEHbztFaKrgpW2rN3Wza0YEKUZTlOKfnwKgTFx0TrPKSRhtGxoWluIxJZydZ1GpuT8iqKolEZmjmc+SH2dR7b8D12V5TEWAErkMgOMYKgAApOYxq6buBWBTr4HAUFIABKGgdJC1bNbZ7Wg5Dg2zdS9zLetuWxrtya3KSF2qeaXIR2Kpp7lVuMwdoln1rL+UjZNiuXVqSSuSUGS9DkzVJcG1I1LlhXJEsJFvdCovGMHuLw8j6PY7jji+LQAALAAlMAsBQRgAGVcDILhYFPm-08znO8+qpm1rZnfR5zcelRJ7T1ngpfKyRkTi3BOGcoiJ6wPFwCgDa8BIj53VtQPm-UcyEAOJLGeKILh5H5CNDSmQN7mg8F4TcmDHqoRaPCKM-ZERoh0OkPQqgSrkI1nRFMNC8YJDllbEmhYDDHC9CVMBiBGEbEIfTNhHDAorjVr3X2kppShzAHw82iAp79icoiGEfo8gyFZFPP6OhnpPijPZLhbhtyDF4fufmOYqiBhGlOUMOQIwlSSF3IKPdv7UKcVg1CoshZYS0BJPCJi3JVD0apbQCtjg1GfN3RsPsf6MUcclWhYlMqKHZHJG4tRmiSKrtlOQ+w8hyVuJWCi5hbF9z9qzCKEAtGV18hUbK1ZsJRJUDE-KdRkRDhKrUdhI1MhaX8ekzeBkWlQyijFMkmjgm5IEb5cJvTcL9J+oWDYxj6gUW0H6Rpqj6LFyanwFqJQcn8KkFGRQ+RLjVgxNoBQU0sItyHHcQcvo1CnMyVDTmXx2kDURJJcMBpqwWPvD9fB0gLjskYVPRcAKt5Ap1sHdRBtQU5isZUaMNTfR5B0FNTILdipehntoEcaK5kD2xT8XFdDgzdIiThJ8OzJZkX7CcMo5RZD8i9F3GwQA */
+  /** @xstate-layout N4IgpgJg5mDOIC5QQPYGMCuBbMA7ALgLRYb4CG+KATgMQnn5gDaADALqKgAOKsAlvj4pcnEAA9EADhYAWAHQA2GSwUBmAKwBOaQEZJkhQBoQAT0Q6ATAF8rx1JhwFipCtTkQ+sNMNxg0jCBpvXF9-Vg4kEB5+QWFRCQQLFhY5PQB2dRU1SQsdGSVjMwRlHTkWNM00nR1VKryKmzt0bDwielcqOWDQwVwoGgB3MAAbbxxw0WiBIRFIhPUKuQ1NVU0tTU0WFdVCxAt1dTlNhX2WdRltGUk061sQexandspO7r9e-qo-H3eJyKnYrNQPNJJollpVutNttdghVCo5MoTgoMpo8jIkqpGvdmo42i4Xl0fv4+H0aGAqFRqH9uLxpnE5ogFrCLFd5CtNBYFJkdOpuaosXcHnjnAw3G9-AAxMh8YYYL5BYn4GlROmA+KIFEs1R6ORpZYWHIXGR6bHC1qijpyL4Sj6DEZjZjsSZqmYaxK1ORcvlc-ZqSoyNKwnRpGTyK4WDK5BQ6BQ5BRm3EW55uG1K0n9ClUqgqgFuxketJe7nIv2rUNB0x7LmSL2qGMsSySevcmSJhzJgnipWQOgEma510M4HmcqHZYyWqaOMqTQyWGh0osVSGiwC5uGyftx74sWvHuBNMhX7O-5DoHiPae72lvnlwPBydFlRVS7qPIl7cilP74-+SByMMKBkB4ZKoL4cikgAbigADWYByDA+AACJJgQg4xPmI7FHkZQrKGsjqKcCiaMG9YpJOxySBiCiyPoX6dnuRJ-gEgHAaBmaUm4XDDBQABm1BYIhYAoWhyqnrSmHDpeCAKCicjUbU6g6nkFichYsJrLWVxaPsk7KdICZCmJlqEraAFASBvbPAOEmqlJF4JJURbVDcy4Yvk1GVkUsabApMjKZGqjNg2kgMU8Xa-j0FnsQBXBUJ4vRgH2DBOhEkn0o5TLKV6y6WDG6lhkYVYIDoKzyBkeR8pUDZqOFu5WuZEBsVZzUeFQ+AmDQsAYAARlgAgYZl7o6I2tYLJINSSO+3JaMGlQpGkhFhryo2jW2xkdhFTFNS1EAAT1-UCHa4EIdBcEIYdA34AAKlQZC4LAZAksIsBDeqBbrdpym8iuByxlcLK5BYqQLBUZyTcFvL1aZ3YsTFrVyFdx0ZuSXGdDx-GCUjfXXXdD1PS9j3vVhMnrWCFRxtNaRLdcfIsiwuS5fkgZaOUlhpDDP7MdFzWWftzXI-gdrPGlLoOSNyiHFstRySisjcgzahyFoUYBbRsac5tO6w1F7wIwLONHfg0qyvKyVfPgVAmCT0kJGt41pJD02xgcpElUkcZ6rI+q5JcckbU0W0NWZB57QduMCKbcoKmIsCpXIZB8YwVAABRC-jj3PYCsA3XwOAoKQACUNDmttjVh-zEfG9H5u21lpVjSrTtTTNbsstUYJJAFWgA37XORTz+t8+xtcKpb1v1+6KJFopGQqRi6nBlstYcqNK5riusYDztlejzKMfJXHCdJynqd8SJaAABYAEpgFgKCMAAyrgZBcLAV+P3nBfF6XJnc7tfmY8xZnglgWGe-klILzUhYDSJVRpnCONNOcWxWRKBRDYO4uAUD7XgJEMuIdqDi2GgWQgOhgxMyRKyFc8IuQkXUDvK0HgvAHmIR9bCD4SoeSWCoLkoZpxrmXIw0OLEMxsNJgkSc418KhnrHyG4oZYTcPhMifhJx4SCiDjrABSpgHiLtogAUhwW77DRIGXkk55wexKCrJQsg1jBTnPsYRqZviiL6PohuORgyhhBhGKMsZYzxhcXrf8EBPHulUJOPCtRlABWIu7IoORVBIIhMpNYGJyghKHmEvaYjQEkOwhkxQrJtBES0JDOBPlkgKD1JYZSjZORyTXNkwBsVwkFPYTJVYS58JxPKbOYM0gUj7FjGcEMOpciaJxMHXWOTWJV2avFRKpIwARILJRGJBF4mZBIkDE0KtIxLSSDkDYGhWl70Ru1Tq6zsLURBkoLyWRmz8PmlUZmcY1zXDKdMghcy2mIyFh8W5ZN4RFmOFyKaZwiLeT2GVJcy5pBrguCiMK2tvyDwBYbIWejOkSMQBkeQORJq0RNCUDIDNondxuGpPQmRqIXPhiPECuKMpdMkbILZ-SEnLxyjqOJMZsj1jRTYIAA */
 
   id: 'document-mutator',
 
@@ -541,7 +549,11 @@ export const documentMutatorMachine = setup({
 
                 onDone: {
                   target: 'pristine',
-                  actions: ['restore stashed changes', 'reset submit attempts'],
+                  actions: [
+                    'restore stashed changes',
+                    'reset submit attempts',
+                    'send pristine event to parent',
+                  ],
                 },
               },
               /**
