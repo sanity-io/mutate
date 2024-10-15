@@ -133,7 +133,7 @@
     "vitest": "^2.1.4"
   },
   "peerDependencies": {
-    "xstate": "^5.18.0"
+    "xstate": "^5.18.2"
   },
   "peerDependenciesMeta": {
     "xstate": {
