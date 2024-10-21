@@ -42,7 +42,12 @@ describe('set', () => {
     const patch = at('objects[_key=="first"].title', set('first'))
 
     const result = applyNodePatch(patch, document)
-
+    expect(result).toEqual({
+      objects: [
+        {_key: 'first', title: 'first'},
+        {_key: 'second', title: 'second'},
+      ],
+    })
     assertType<{_key: string; title: string}[]>(result.objects)
   })
 })
