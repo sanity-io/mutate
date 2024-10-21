@@ -41,7 +41,7 @@ function applyAtPath<P extends Path, O extends Operation, T>(
   const [head, ...tail] = path
 
   if (isArrayElement(head) && Array.isArray(value)) {
-    return applyInArray(head, tail, op, value)
+    return applyInArray(head, tail, op, value) as any
   }
 
   if (isPropertyElement(head) && isObject(value)) {
@@ -106,7 +106,7 @@ function applyInArray<T>(
   // a noop and don't modify our value. If we get a new value back, we return a
   // new array with the modified item replaced
   return patchedItem === current
-    ? current
+    ? value
     : splice(value, index, 1, [patchedItem])
 }
 

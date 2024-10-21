@@ -30,6 +30,21 @@ describe('set', () => {
 
     assertType<{_key: string; title: string}[]>(result.objects)
   })
+
+  test('set same value inside object array', () => {
+    const document = {
+      objects: [
+        {_key: 'first', title: 'first'},
+        {_key: 'second', title: 'second'},
+      ],
+    }
+
+    const patch = at('objects[_key=="first"].title', set('first'))
+
+    const result = applyNodePatch(patch, document)
+
+    assertType<{_key: string; title: string}[]>(result.objects)
+  })
 })
 
 describe('setIfMissing', () => {
