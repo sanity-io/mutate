@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.10.1](https://github.com/sanity-io/mutate/compare/mutate-v0.10.0...mutate-v0.10.1) (2024-10-22)
+
+
+### Bug Fixes
+
+* return correct value on `applyInArray` assumed noop ([#21](https://github.com/sanity-io/mutate/issues/21)) ([0735ca2](https://github.com/sanity-io/mutate/commit/0735ca255826055f224dbf1c6fe584f2d2ca4a70))
+* stop inlining lodash ([#24](https://github.com/sanity-io/mutate/issues/24)) ([3009e84](https://github.com/sanity-io/mutate/commit/3009e84e9a41f9fee31ba318bd5f85606e64e324))
+
 ## [0.10.0](https://github.com/sanity-io/mutate/compare/mutate-v0.9.0...mutate-v0.10.0) (2024-09-02)
 
 
