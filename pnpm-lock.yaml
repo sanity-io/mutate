@@ -59,6 +59,9 @@ importers:
       hotscript:
         specifier: ^1.0.13
         version: 1.0.13
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
       mendoza:
         specifier: ^3.0.7
         version: 3.0.7
@@ -117,9 +120,6 @@ importers:
       eslint-plugin-unused-imports:
         specifier: 'catalog:'
         version: 3.2.0(@typescript-eslint/eslint-plugin@7.16.1(@typescript-eslint/parser@7.16.1(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)(typescript@5.5.4))(eslint@8.57.0)
-      lodash:
-        specifier: ^4.17.21
-        version: 4.17.21
       npm-run-all2:
         specifier: ^5.0.0
         version: 5.0.2
@@ -1803,6 +1803,7 @@ packages:
   eslint@8.57.0:
     resolution: {integrity: sha512-dZ6+mexnaTIbSBZWgou51U6OmzIhYM2VcNdtiTtI7qPNZm35Akpr0f6vtw3w1Kmn5PYo+tZVfh13WrhpS6oLqQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
 
   espree@9.6.1:
