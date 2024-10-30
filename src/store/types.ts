@@ -3,7 +3,7 @@ import {type Observable} from 'rxjs'
 
 import {type Mutation, type SanityDocumentBase} from '../mutations/types'
 import {type Path} from '../path'
-import {type SanityMutationEvent} from './sanityApiTypes'
+import {type SanityMutation} from './sanityMutationTypes'
 
 export interface ListenerSyncEvent<
   Doc extends SanityDocumentBase = SanityDocumentBase,
@@ -18,8 +18,8 @@ export interface ListenerMutationEvent {
   transactionId: string
   resultRev: string
   previousRev: string
-  effects: Required<SanityMutationEvent>['effects']
-  mutations: Required<SanityMutationEvent['mutations']>
+  effects: {apply: RawPatch}
+  mutations: SanityMutation[]
   transition: 'update' | 'appear' | 'disappear'
 }
 
