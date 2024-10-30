@@ -3,7 +3,7 @@ import {type SanityDocumentBase} from '../../mutations/types'
 /**
  * Minimalistic dataset implementation that only supports what's strictly necessary
  */
-export function createDataset() {
+export function createDocumentMap() {
   const documents = new Map<string, SanityDocumentBase | undefined>()
   return {
     set: (id: string, doc: SanityDocumentBase | undefined) =>

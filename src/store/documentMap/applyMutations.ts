@@ -11,11 +11,11 @@ export interface UpdateResult<T extends SanityDocumentBase> {
 }
 
 /**
- * Takes a list of mutations and applies them to documents in a dataset
+ * Takes a list of mutations and applies them to documents in a documentMap
  */
 export function applyMutations<T extends SanityDocumentBase>(
   mutations: Mutation[],
-  dataset: {get: (id: string) => T | undefined},
+  documentMap: {get: (id: string) => T | undefined},
 ): UpdateResult<T>[] {
   const updatedDocs: Record<
     string,
@@ -32,7 +32,7 @@ export function applyMutations<T extends SanityDocumentBase>(
       throw new Error('Unable to get document id from mutation')
     }
 
-    const before = updatedDocs[documentId]?.after || dataset.get(documentId)
+    const before = updatedDocs[documentId]?.after || documentMap.get(documentId)
     const res = applyDocumentMutation(before, mutation)
     if (res.status === 'error') {
       throw new Error(res.message)

@@ -1,4 +1,4 @@
-export * from './contentLakeStore'
+export * from './createLocalDataset'
 export type * from './types'
 
 /** Required support types */
