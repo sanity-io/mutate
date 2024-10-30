@@ -1,5 +1,5 @@
 export {type Insert} from './encoders/sanity'
-export * from './store'
+export * from './local'
 export {
   type SanityCreateIfNotExistsMutation,
   type SanityCreateMutation,
@@ -13,4 +13,4 @@ export {
   type SanitySetIfMissingPatch,
   type SanitySetPatch,
   type SanityUnsetPatch,
-} from './store/sanityApiTypes'
+} from './local/sanityApiTypes'

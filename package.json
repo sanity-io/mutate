@@ -32,11 +32,11 @@
       "require": "./dist/_path.cjs",
       "default": "./dist/_path.js"
     },
-    "./_unstable_store": {
-      "source": "./src/_unstable_store.ts",
-      "import": "./dist/_unstable_store.js",
-      "require": "./dist/_unstable_store.cjs",
-      "default": "./dist/_unstable_store.js"
+    "./_unstable_local": {
+      "source": "./src/_unstable_local.ts",
+      "import": "./dist/_unstable_local.js",
+      "require": "./dist/_unstable_local.cjs",
+      "default": "./dist/_unstable_local.js"
     },
     "./_unstable_apply": {
       "source": "./src/_unstable_apply.ts",
@@ -57,8 +57,8 @@
       "_unstable_apply": [
         "./dist/_unstable_apply.d.ts"
       ],
-      "_unstable_store": [
-        "./dist/_unstable_store.d.ts"
+      "_unstable_local": [
+        "./dist/_unstable_local.d.ts"
       ]
     }
   },

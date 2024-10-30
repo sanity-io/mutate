@@ -1,12 +1,12 @@
 import {concat, delay, NEVER, of, take} from 'rxjs'
 import {describe, expect, test} from 'vitest'
 
-import {createContentLakeStore} from '../contentLakeStore'
+import {createLocalDataset} from '../createLocalDataset'
 import {allValuesFrom, collectNotifications, sleep} from './helpers'
 
 describe('observing documents', () => {
   test('observing a document that does not exist on the backend', async () => {
-    const store = createContentLakeStore({
+    const store = createLocalDataset({
       observe: id => of({type: 'sync', id, document: undefined}),
       submit: () => NEVER,
     })
@@ -24,7 +24,7 @@ describe('observing documents', () => {
   })
   test('observing a document that exist on the backend', async () => {
     const doc = {_id: 'foo', _type: 'foo'}
-    const store = createContentLakeStore({
+    const store = createLocalDataset({
       observe: id =>
         of({type: 'sync', id, document: doc} as const).pipe(delay(10)),
       submit: () => NEVER,
@@ -47,7 +47,7 @@ describe('observing documents', () => {
 
   test("observing a document that doesn't exist initially, but later is created", async () => {
     const doc = {_id: 'foo', _type: 'foo'}
-    const store = createContentLakeStore({
+    const store = createLocalDataset({
       observe: id =>
         concat(
           of({type: 'sync', id, document: undefined} as const),
@@ -80,7 +80,7 @@ describe('observing documents', () => {
 })
 describe('local mutations', () => {
   test('mutating a document that does not exist on the backend', () => {
-    const store = createContentLakeStore({
+    const store = createLocalDataset({
       observe: id => of({type: 'sync', id, document: undefined}),
       submit: () => NEVER,
     })
@@ -137,7 +137,7 @@ describe('local mutations', () => {
 
   test("observing a document that doesn't exist initially, but later is created locally", async () => {
     const doc = {_id: 'foo', _type: 'foo'}
-    const store = createContentLakeStore({
+    const store = createLocalDataset({
       observe: id =>
         concat(
           of({type: 'sync', id, document: undefined} as const).pipe(delay(10)),
@@ -248,7 +248,7 @@ describe('local mutations', () => {
 
   test("error when creating a document locally using 'create', when it turns out later that it exists on the server ", async () => {
     const doc = {_id: 'foo', _type: 'foo'}
-    const store = createContentLakeStore({
+    const store = createLocalDataset({
       observe: id =>
         concat(of({type: 'sync', id, document: doc} as const).pipe(delay(10))),
       submit: () => NEVER,

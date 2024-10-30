@@ -70,7 +70,7 @@ export interface RemoteMutationEvent {
 }
 export type RemoteDocumentEvent = RemoteSyncEvent | RemoteMutationEvent
 
-export type Dataset<Doc extends SanityDocumentBase> = {
+export type DocumentMap<Doc extends SanityDocumentBase> = {
   get(id: string): Doc | undefined
   set(id: string, doc: Doc | undefined): void
   delete(id: string): void
@@ -102,7 +102,7 @@ export type Conflict = {
   local: SanityDocumentBase | undefined
 }
 
-export interface ContentLakeStore {
+export interface LocalDataset {
   meta: {
     // just some ideas…
     /**

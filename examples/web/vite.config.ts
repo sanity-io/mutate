@@ -12,7 +12,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@sanity/mutate': path.resolve(__dirname, '../../src'),
-      '@sanity/mutate/_unstable_store': path.resolve(__dirname, '../../src'),
+      '@sanity/mutate/_unstable_local': path.resolve(__dirname, '../../src'),
     },
   },
 })

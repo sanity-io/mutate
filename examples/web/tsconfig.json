@@ -16,7 +16,7 @@
     "incremental": true,
     "paths": {
       "@sanity/mutate": ["../../src"],
-      "@sanity/mutate/_unstable_store": ["../../src/_unstable_store"],
+      "@sanity/mutate/_unstable_local": ["../../src/_unstable_local"],
       "@sanity/mutate/path": ["../../src/_path"]
     }
   }

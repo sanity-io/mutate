@@ -1,5 +1,6 @@
 /dist
 _unstable_apply.js
 _unstable_store.js
+_unstable_local.js
 path.js
 .eslintrc.cjs
