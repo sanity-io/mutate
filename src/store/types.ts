@@ -5,27 +5,30 @@ import {type Mutation, type SanityDocumentBase} from '../mutations/types'
 import {type Path} from '../path'
 import {type SanityMutationEvent} from './sanityApiTypes'
 
-export interface ListenerSyncEvent {
+export interface ListenerSyncEvent<
+  Doc extends SanityDocumentBase = SanityDocumentBase,
+> {
   type: 'sync'
-  document: SanityDocumentBase | undefined
+  document: Doc | undefined
 }
 
 export interface ListenerMutationEvent {
   type: 'mutation'
+  documentId: string
   transactionId: string
   resultRev: string
   previousRev: string
   effects: Required<SanityMutationEvent>['effects']
   mutations: Required<SanityMutationEvent['mutations']>
+  transition: 'update' | 'appear' | 'disappear'
 }
+
 export interface ListenerReconnectEvent {
   type: 'reconnect'
 }
 
-export type RemoteListenerEvent =
-  | ListenerSyncEvent
-  | ListenerMutationEvent
-  | ListenerReconnectEvent
+export type ListenerEvent<Doc extends SanityDocumentBase = SanityDocumentBase> =
+  ListenerSyncEvent<Doc> | ListenerMutationEvent | ListenerReconnectEvent
 
 export interface OptimisticDocumentEvent {
   type: 'optimistic'
