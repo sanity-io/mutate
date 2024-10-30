@@ -16,15 +16,15 @@ import {
 
 import {decodeAll, type SanityMutation} from '../encoders/sanity'
 import {type Transaction} from '../mutations/types'
-import {applyMutationEventEffects} from './datasets/applyMendoza'
-import {applyMutations} from './datasets/applyMutations'
-import {commit} from './datasets/commit'
-import {createDataset} from './datasets/createDataset'
+import {applyMutationEventEffects} from './documentMap/applyMendoza'
+import {applyMutations} from './documentMap/applyMutations'
+import {commit} from './documentMap/commit'
+import {createDocumentMap} from './documentMap/createDocumentMap'
 import {squashDMPStrings} from './optimizations/squashDMPStrings'
 import {squashMutationGroups} from './optimizations/squashMutations'
 import {rebase} from './rebase'
 import {
-  type ContentLakeStore,
+  type LocalDataset,
   type MutationGroup,
   type OptimisticDocumentEvent,
   type RemoteDocumentEvent,
@@ -36,7 +36,7 @@ import {
 import {createReplayMemoizer} from './utils/createReplayMemoizer'
 import {filterMutationGroupsById} from './utils/filterMutationGroups'
 
-export interface StoreBackend {
+export interface LocalDatasetBackend {
   /**
    * Sets up a subscription to a document
    * The first event should either be a sync event or an error event.
@@ -57,7 +57,7 @@ function warnNoMutationsReceived() {
     // eslint-disable-next-line no-console
     console.warn(
       new Error(
-        'No mutation received from backend. The listener is likely set up with `excludeMutations: true`. If your app need to now about mutations, make sure the listener is set up to include mutations',
+        'No mutation received from backend. The listener is likely set up with `excludeMutations: true`. If your app need to know about mutations, make sure the listener is set up to include mutations',
       ),
     )
     didEmitMutationsAccessWarning = true
@@ -66,11 +66,13 @@ function warnNoMutationsReceived() {
 
 const EMPTY_ARRAY: any[] = []
 
-export function createContentLakeStore(
-  backend: StoreBackend,
-): ContentLakeStore {
-  const local = createDataset()
-  const remote = createDataset()
+/**
+ * Creates a local dataset that allows subscribing to documents by id and submitting mutations to be optimistically applied
+ * @param backend
+ */
+export function createLocalDataset(backend: LocalDatasetBackend): LocalDataset {
+  const local = createDocumentMap()
+  const remote = createDocumentMap()
   const memoize = createReplayMemoizer(1000)
   let stagedChanges: MutationGroup[] = []
 

@@ -6,7 +6,7 @@ import {
   type SanityDocumentBase,
 } from '../mutations/types'
 import {getAtPath} from '../path'
-import {applyAll} from './datasets/applyDocumentMutation'
+import {applyAll} from './documentMap/applyDocumentMutation'
 import {compactDMPSetPatches} from './optimizations/squashNodePatches'
 import {type MutationGroup} from './types'
 import {getMutationDocumentId} from './utils/getMutationDocumentId'
