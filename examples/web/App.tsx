@@ -16,6 +16,7 @@ import {
 } from '@sanity/mutate'
 import {
   createLocalDataset,
+  type ListenerEvent,
   type ListenerSyncEvent,
   type MutationGroup,
   type RemoteDocumentEvent,
@@ -62,6 +63,7 @@ import {
   from,
   map,
   merge,
+  type Observable,
   of,
   share,
   shareReplay,
@@ -250,26 +252,29 @@ function observe(documentId: string) {
         event.type === 'reconnect' ||
         (event.type === 'mutation' && event.documentId === documentId),
     ),
-    concatMap(event =>
-      event.type === 'reconnect'
-        ? of(RECONNECT_EVENT)
-        : event.type === 'welcome'
-          ? sanityClient.observable.getDocument(documentId).pipe(
-              map(
-                (doc: undefined | SanityDocumentBase): ListenerSyncEvent => ({
-                  type: 'sync',
-                  document: doc,
-                }),
-              ),
-            )
-          : of({
-              type: 'mutation' as const,
-              transactionId: event.transactionId,
-              effects: event.effects as {apply: RawPatch},
-              previousRev: event.previousRev!,
-              resultRev: event.resultRev!,
-              mutations: event.mutations as SanityMutation[],
-            }),
+    concatMap(
+      (event): Observable<ListenerEvent> =>
+        event.type === 'reconnect'
+          ? of(RECONNECT_EVENT)
+          : event.type === 'welcome'
+            ? sanityClient.observable.getDocument(documentId).pipe(
+                map(
+                  (doc: undefined | SanityDocumentBase): ListenerSyncEvent => ({
+                    type: 'sync',
+                    document: doc,
+                  }),
+                ),
+              )
+            : of({
+                type: 'mutation' as const,
+                documentId: event.documentId,
+                transactionId: event.transactionId,
+                transition: 'update',
+                effects: event.effects as {apply: RawPatch},
+                previousRev: event.previousRev!,
+                resultRev: event.resultRev!,
+                mutations: event.mutations as SanityMutation[],
+              }),
     ),
   )
 }
