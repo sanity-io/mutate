@@ -24,3 +24,4 @@ export type {
 } from '../mutations/types'
 export type * from '../path'
 export type {Optional} from '../utils/typeUtils'
+export type * from './sanityMutationTypes'
