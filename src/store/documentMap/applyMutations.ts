@@ -1,4 +1,5 @@
 import {type Mutation, type SanityDocumentBase} from '../../mutations/types'
+import {type DocumentMap} from '../types'
 import {getMutationDocumentId} from '../utils/getMutationDocumentId'
 import {applyDocumentMutation} from './applyDocumentMutation'
 
@@ -15,7 +16,7 @@ export interface UpdateResult<T extends SanityDocumentBase> {
  */
 export function applyMutations<T extends SanityDocumentBase>(
   mutations: Mutation[],
-  documentMap: {get: (id: string) => T | undefined},
+  documentMap: DocumentMap<T>,
 ): UpdateResult<T>[] {
   const updatedDocs: Record<
     string,
@@ -48,6 +49,8 @@ export function applyMutations<T extends SanityDocumentBase>(
       if (!(documentId in updatedDocs)) {
         updatedDocs[documentId] = {before, after: undefined, muts: []}
       }
+      documentMap.set(documentId, res.after)
+
       updatedDocs[documentId]!.after = res.after
     }
   }
