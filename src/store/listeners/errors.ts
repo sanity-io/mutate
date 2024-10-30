@@ -1,4 +1,21 @@
+import {ClientError as SanityClientError} from '@sanity/client'
+
 import {type ListenerSequenceState} from './utils/sequentializeListenerEvents'
+
+/*
+ * This file should include all errors that can be thrown by the document observer
+ */
+
+export const ClientError = SanityClientError
+
+export class FetchError extends Error {
+  cause?: Error
+  constructor(message: string, extra?: {cause?: Error}) {
+    super(message)
+    this.cause = extra?.cause
+    this.name = 'FetchError'
+  }
+}
 
 export class ChannelError extends Error {
   constructor(message: string) {
@@ -6,12 +23,14 @@ export class ChannelError extends Error {
     this.name = 'ChannelError'
   }
 }
+
 export class DisconnectError extends Error {
   constructor(message: string) {
     super(message)
     this.name = 'DisconnectError'
   }
 }
+
 export class OutOfSyncError extends Error {
   /**
    * Attach state to the error for debugging/reporting
@@ -35,4 +54,10 @@ export class MaxBufferExceededError extends OutOfSyncError {
     super(message, state)
     this.name = 'MaxBufferExceededError'
   }
+}
+
+export function isClientError(e: unknown): e is SanityClientError {
+  if (typeof e !== 'object') return false
+  if (!e) return false
+  return 'statusCode' in e && 'response' in e
 }
