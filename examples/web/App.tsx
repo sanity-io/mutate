@@ -15,7 +15,7 @@ import {
   SanityEncoder,
 } from '@sanity/mutate'
 import {
-  createContentLakeStore,
+  createLocalDataset,
   type ListenerSyncEvent,
   type MutationGroup,
   type RemoteDocumentEvent,
@@ -274,7 +274,7 @@ function observe(documentId: string) {
   )
 }
 
-const datastore = createContentLakeStore({
+const datastore = createLocalDataset({
   observe,
   submit: transactions => {
     return from(transactions).pipe(
