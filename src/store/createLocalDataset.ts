@@ -24,11 +24,11 @@ import {squashDMPStrings} from './optimizations/squashDMPStrings'
 import {squashMutationGroups} from './optimizations/squashMutations'
 import {rebase} from './rebase'
 import {
+  type ListenerEvent,
   type LocalDataset,
   type MutationGroup,
   type OptimisticDocumentEvent,
   type RemoteDocumentEvent,
-  type RemoteListenerEvent,
   type RemoteMutationEvent,
   type SubmitResult,
   type TransactionalMutationGroup,
@@ -43,7 +43,7 @@ export interface LocalDatasetBackend {
    * After that, it should emit mutation events, error events or sync events
    * @param id
    */
-  observe: (id: string) => Observable<RemoteListenerEvent>
+  observe: (id: string) => Observable<ListenerEvent>
   submit: (mutationGroups: Transaction[]) => Observable<SubmitResult>
 }
 
@@ -93,7 +93,7 @@ export function createLocalDataset(backend: LocalDatasetBackend): LocalDataset {
   function getRemoteEvents(id: string) {
     return backend.observe(id).pipe(
       filter(
-        (event): event is Exclude<RemoteListenerEvent, ReconnectEvent> =>
+        (event): event is Exclude<ListenerEvent, ReconnectEvent> =>
           event.type !== 'reconnect',
       ),
       mergeMap((event): Observable<RemoteDocumentEvent> => {
