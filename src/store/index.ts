@@ -1,3 +1,4 @@
+export * from './createMemoryBackend'
 export * from './createOptimisticStore'
 export * from './createReadOnlyStore'
 export * from './listeners/createDocumentEventListener'

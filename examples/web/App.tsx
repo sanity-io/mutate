@@ -1,17 +1,8 @@
-import {createClient} from '@sanity/client'
 import {CollapseIcon, ExpandIcon} from '@sanity/icons'
+import {createIfNotExists, del, type Mutation, type Path} from '@sanity/mutate'
 import {
-  createIfNotExists,
-  del,
-  type Mutation,
-  type Path,
-  SanityEncoder,
-} from '@sanity/mutate'
-import {
-  createDocumentEventListener,
-  createDocumentLoader,
+  createMemoryBackend,
   createOptimisticStore,
-  createSharedListener,
   type MutationGroup,
   type RemoteDocumentEvent,
 } from '@sanity/mutate/_unstable_store'
@@ -48,7 +39,7 @@ import {
   Text,
 } from '@sanity/ui'
 import {Fragment, type ReactNode, useCallback, useEffect, useState} from 'react'
-import {concatMap, filter, from, merge, tap} from 'rxjs'
+import {filter, merge, tap} from 'rxjs'
 import styled from 'styled-components'
 
 import {DocumentView} from './DocumentView'
@@ -152,39 +143,7 @@ function renderInput<Props extends InputProps<SanityAny>>(
 const personDraft = draft(person)
 type PersonDraft = Infer<typeof personDraft>
 
-const sanityClient = createClient({
-  projectId: import.meta.env.VITE_SANITY_API_PROJECT_ID,
-  dataset: import.meta.env.VITE_SANITY_API_DATASET,
-  apiVersion: '2023-10-27',
-  useCdn: false,
-  token: import.meta.env.VITE_SANITY_API_TOKEN,
-})
-
-const sharedListener = createSharedListener({
-  client: sanityClient,
-})
-
-const loadDocument = createDocumentLoader({client: sanityClient})
-
-const listenDocument = createDocumentEventListener({
-  loadDocument,
-  listenerEvents: sharedListener,
-})
-
-const datastore = createOptimisticStore({
-  listen: listenDocument,
-  submit: transactions => {
-    return from(transactions).pipe(
-      concatMap(transaction =>
-        sanityClient.dataRequest(
-          'mutate',
-          SanityEncoder.encodeTransaction(transaction),
-          {visibility: 'async', returnDocuments: false},
-        ),
-      ),
-    )
-  },
-})
+const datastore = createOptimisticStore(createMemoryBackend())
 
 const DOCUMENT_IDS = ['some-document', 'some-other-document']
 
