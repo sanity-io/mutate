@@ -121,7 +121,7 @@
     "typescript": "catalog:",
     "vitest": "^2.0.5"
   },
-  "packageManager": "pnpm@9.7.0",
+  "packageManager": "pnpm@9.12.3",
   "engines": {
     "node": ">=18"
   },
