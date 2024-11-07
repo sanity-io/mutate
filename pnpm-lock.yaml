@@ -65,9 +65,6 @@ importers:
       mendoza:
         specifier: ^3.0.7
         version: 3.0.7
-      nanoid:
-        specifier: ^5.0.7
-        version: 5.0.8
       rxjs:
         specifier: ^7.8.1
         version: 7.8.1
@@ -123,6 +120,9 @@ importers:
       eslint-plugin-unused-imports:
         specifier: 'catalog:'
         version: 3.2.0(@typescript-eslint/eslint-plugin@8.13.0(@typescript-eslint/parser@8.13.0(eslint@8.57.0)(typescript@5.6.3))(eslint@8.57.0)(typescript@5.6.3))(eslint@8.57.0)
+      nanoid:
+        specifier: ^5.0.8
+        version: 5.0.8
       npm-run-all2:
         specifier: ^5.0.2
         version: 5.0.2
@@ -5425,7 +5425,7 @@ snapshots:
       sirv: 3.0.0
       tinyglobby: 0.2.10
       tinyrainbow: 1.2.0
-      vitest: 2.1.4(@types/node@20.14.11)(@vitest/ui@2.1.4)(terser@5.31.3)
+      vitest: 2.1.4(@types/node@22.0.2)(@vitest/ui@2.1.4)(terser@5.31.3)
 
   '@vitest/utils@2.1.4':
     dependencies:

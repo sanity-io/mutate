@@ -1,6 +1,6 @@
 {
   "name": "@sanity/mutate",
-  "version": "0.11.0-canary.0",
+  "version": "0.11.0-canary.1",
   "description": "Experimental toolkit for working with Sanity mutations in JavaScript & TypeScript",
   "keywords": [
     "sanity",
@@ -40,6 +40,11 @@
     },
     "./_unstable_machine": {
       "source": "./src/_unstable_machine.ts",
+      "browser": {
+        "source": "./src/_unstable_machine.ts",
+        "import": "./dist/_unstable_machine.browser.js",
+        "require": "./dist/_unstable_machine.browser.cjs"
+      },
       "import": "./dist/_unstable_machine.js",
       "require": "./dist/_unstable_machine.cjs",
       "default": "./dist/_unstable_machine.js"
@@ -102,7 +107,6 @@
     "hotscript": "^1.0.13",
     "lodash": "^4.17.21",
     "mendoza": "^3.0.7",
-    "nanoid": "^5.0.7",
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
@@ -122,6 +126,7 @@
     "eslint-plugin-react-hooks": "catalog:",
     "eslint-plugin-simple-import-sort": "catalog:",
     "eslint-plugin-unused-imports": "catalog:",
+    "nanoid": "^5.0.8",
     "npm-run-all2": "^5.0.2",
     "prettier": "^3.3.3",
     "rimraf": "^6.0.1",
