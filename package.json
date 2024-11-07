@@ -89,7 +89,7 @@
   },
   "browserslist": "extends @sanity/browserslist-config",
   "dependencies": {
-    "@sanity/client": "^6.21.1",
+    "@sanity/client": "^6.22.3",
     "@sanity/diff-match-patch": "^3.1.1",
     "hotscript": "^1.0.13",
     "lodash": "^4.17.21",
@@ -98,14 +98,14 @@
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
-    "@sanity/pkg-utils": "^6.10.10",
-    "@sanity/prettier-config": "^1.0.2",
+    "@sanity/pkg-utils": "^6.11.9",
+    "@sanity/prettier-config": "^1.0.3",
     "@types/diff-match-patch": "^1.0.36",
-    "@types/lodash": "^4.17.7",
+    "@types/lodash": "^4.17.13",
     "@typescript-eslint/eslint-plugin": "catalog:",
     "@typescript-eslint/parser": "catalog:",
-    "@vitest/coverage-v8": "^2.0.5",
-    "@vitest/ui": "^2.0.5",
+    "@vitest/coverage-v8": "^2.1.4",
+    "@vitest/ui": "^2.1.4",
     "eslint": "catalog:",
     "eslint-config-prettier": "catalog:",
     "eslint-plugin-import": "catalog:",
@@ -114,12 +114,12 @@
     "eslint-plugin-react-hooks": "catalog:",
     "eslint-plugin-simple-import-sort": "catalog:",
     "eslint-plugin-unused-imports": "catalog:",
-    "npm-run-all2": "^5.0.0",
+    "npm-run-all2": "^5.0.2",
     "prettier": "^3.3.3",
     "rimraf": "^6.0.1",
-    "tsx": "^4.19.0",
+    "tsx": "^4.19.2",
     "typescript": "catalog:",
-    "vitest": "^2.0.5"
+    "vitest": "^2.1.4"
   },
   "packageManager": "pnpm@9.12.3",
   "engines": {

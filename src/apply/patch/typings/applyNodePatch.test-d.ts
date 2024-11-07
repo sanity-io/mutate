@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import {assertType, describe, test} from 'vitest'
 
 import {

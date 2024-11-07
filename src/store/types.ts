@@ -76,8 +76,10 @@ export type Dataset<Doc extends SanityDocumentBase> = {
   delete(id: string): void
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface MutationResult {}
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface SubmitResult {}
 
 export interface NonTransactionalMutationGroup {

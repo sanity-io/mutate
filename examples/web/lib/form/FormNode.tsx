@@ -88,7 +88,7 @@ function resolveNode<Schema extends SanityType>(
   return []
 }
 
-function _FormNode<Schema extends SanityDocument>(
+function FormNodeComponent<Schema extends SanityDocument>(
   props: FormNodeProps<Schema>,
 ) {
   const {renderInput, path, schema, value, onMutation, form} = props
@@ -154,6 +154,6 @@ export function FormNode<Schema extends SanityDocument>(
   return props.path.length === 0 ? (
     <DocumentInput {...props} />
   ) : (
-    <_FormNode {...props} />
+    <FormNodeComponent {...props} />
   )
 }
