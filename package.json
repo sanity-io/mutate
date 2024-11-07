@@ -1,6 +1,6 @@
 {
   "name": "@sanity/mutate",
-  "version": "0.10.1-canary.5",
+  "version": "0.11.0-canary.0",
   "description": "Experimental toolkit for working with Sanity mutations in JavaScript & TypeScript",
   "keywords": [
     "sanity",
@@ -73,10 +73,7 @@
   },
   "files": [
     "dist",
-    "_unstable_apply.js",
-    "_unstable_machine.js",
-    "_unstable_store.js",
-    "path.js"
+    "test"
   ],
   "scripts": {
     "build": "run-p pkg:build",
