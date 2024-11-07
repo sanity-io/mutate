@@ -1,6 +1,6 @@
 {
   "name": "@sanity/mutate",
-  "version": "0.11.0-canary.1",
+  "version": "0.11.0-canary.2",
   "description": "Experimental toolkit for working with Sanity mutations in JavaScript & TypeScript",
   "keywords": [
     "sanity",
@@ -45,6 +45,7 @@
         "import": "./dist/_unstable_machine.browser.js",
         "require": "./dist/_unstable_machine.browser.cjs"
       },
+      "worker": "./dist/_unstable_machine.browser.js",
       "import": "./dist/_unstable_machine.js",
       "require": "./dist/_unstable_machine.cjs",
       "default": "./dist/_unstable_machine.js"
