@@ -346,11 +346,10 @@ function App() {
 
   const handleMutation = useCallback(
     (event: MutationEvent) => {
-      createIfNotExists({_id: documentId, _type: person.shape._type.value}),
-        handleMutate([
-          createIfNotExists({_id: documentId, _type: person.shape._type.value}),
-          ...event.mutations,
-        ])
+      handleMutate([
+        createIfNotExists({_id: documentId, _type: person.shape._type.value}),
+        ...event.mutations,
+      ])
     },
     [documentId, handleMutate],
   )
