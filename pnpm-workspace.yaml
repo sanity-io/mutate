@@ -3,7 +3,6 @@ packages:
   - '.'
   # all packages in subdirs of components/
   - 'examples/**'
-  - 'packages/**'
 # Define a catalog of version ranges.
 catalog:
   "typescript": 5.6.3

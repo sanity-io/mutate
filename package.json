@@ -1,6 +1,6 @@
 {
   "name": "@sanity/mutate",
-  "version": "0.11.0-canary.2",
+  "version": "0.11.0-canary.3",
   "description": "Experimental toolkit for working with Sanity mutations in JavaScript & TypeScript",
   "keywords": [
     "sanity",
@@ -103,7 +103,7 @@
   },
   "browserslist": "extends @sanity/browserslist-config",
   "dependencies": {
-    "@sanity/client": "^6.22.3",
+    "@sanity/client": "^6.22.4",
     "@sanity/diff-match-patch": "^3.1.1",
     "hotscript": "^1.0.13",
     "lodash": "^4.17.21",
@@ -111,7 +111,7 @@
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
-    "@sanity/pkg-utils": "^6.11.9",
+    "@sanity/pkg-utils": "^6.11.10",
     "@sanity/prettier-config": "^1.0.3",
     "@types/diff-match-patch": "^1.0.36",
     "@types/lodash": "^4.17.13",
@@ -136,7 +136,7 @@
     "vitest": "^2.1.4"
   },
   "peerDependencies": {
-    "xstate": "^5.18.2"
+    "xstate": "^5.19.0"
   },
   "peerDependenciesMeta": {
     "xstate": {
