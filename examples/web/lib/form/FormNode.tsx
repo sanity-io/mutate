@@ -9,6 +9,7 @@ import {
   getInstanceName,
   type Infer,
   isDocumentSchema,
+  isNeverSchema,
   isObjectSchema,
   isObjectUnionSchema,
   isOptionalSchema,
@@ -74,7 +75,9 @@ function resolveNode<Schema extends SanityType>(
 
   if (isObjectUnionSchema(schema)) {
     const type = value?._type
-    const valueType = schema.union.find(ut => getInstanceName(ut) === type)!
+    const valueType = schema.union.find(
+      ut => !isNeverSchema(ut) && getInstanceName(ut) === type,
+    )!
     const typeForm = (
       (form as ObjectUnionFormDef<SanityTypedObject>).types as any
     )[type]
