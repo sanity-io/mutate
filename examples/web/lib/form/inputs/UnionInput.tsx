@@ -2,6 +2,7 @@ import {EllipsisVerticalIcon, TransferIcon, TrashIcon} from '@sanity/icons'
 import {assign, at, set, unset} from '@sanity/mutate'
 import {
   getInstanceName,
+  isNeverSchema,
   isObjectSchema,
   type ObjectUnionFormDef,
   pickDeep,
@@ -39,7 +40,9 @@ export function UnionInput(props: InputProps<SanityObjectUnion>) {
   const valueTypeName = value?._type
 
   const currentSchema = valueTypeName
-    ? schema.union.find(ut => getInstanceName(ut) === valueTypeName)
+    ? schema.union.find(
+        ut => !isNeverSchema(ut) && getInstanceName(ut) === valueTypeName,
+      )
     : undefined
 
   const handlePatch = useCallback(
@@ -56,7 +59,7 @@ export function UnionInput(props: InputProps<SanityObjectUnion>) {
   const handleTurnInto = useCallback(
     (nextTypeName: string) => {
       const nextSchema = schema.union.find(
-        ut => getInstanceName(ut) === nextTypeName,
+        ut => !isNeverSchema(ut) && getInstanceName(ut) === nextTypeName,
       )
       if (!nextSchema) {
         throw new Error(`No valid union type named ${nextTypeName}.`)
@@ -74,7 +77,7 @@ export function UnionInput(props: InputProps<SanityObjectUnion>) {
   const handleSelectType = useCallback(
     (nextTypeName: string) => {
       const nextSchema = schema.union.find(
-        ut => getInstanceName(ut) === nextTypeName,
+        ut => !isNeverSchema(ut) && getInstanceName(ut) === nextTypeName,
       )
       if (!nextSchema) {
         throw new Error(`No valid union type named ${nextTypeName}.`)
@@ -99,7 +102,7 @@ export function UnionInput(props: InputProps<SanityObjectUnion>) {
       <Select onChange={e => handleSelectType(e.currentTarget.value)}>
         <option value="">Select type</option>
         {schema.union.map(ut => {
-          const name = getInstanceName(ut)
+          const name = !isNeverSchema(ut) && getInstanceName(ut)
           if (!name || !(name in form.types)) {
             throw new Error(`No form definition found for type ${name}`)
           }
@@ -143,6 +146,9 @@ export function UnionInput(props: InputProps<SanityObjectUnion>) {
                     text="Turn into…"
                   >
                     {otherTypes.map(type => {
+                      if (isNeverSchema(type)) {
+                        return null
+                      }
                       const sharedProperties = intersection(
                         Object.keys(type.shape),
                         Object.keys(currentSchema.shape),
