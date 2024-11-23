@@ -258,7 +258,6 @@ function observe(documentId: string) {
               map(
                 (doc: undefined | SanityDocumentBase): ListenerSyncEvent => ({
                   type: 'sync',
-                  transactionId: doc?._id,
                   document: doc,
                 }),
               ),

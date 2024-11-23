@@ -7,7 +7,6 @@ import {type SanityMutationEvent} from './sanityApiTypes'
 
 export interface ListenerSyncEvent {
   type: 'sync'
-  transactionId?: string
   document: SanityDocumentBase | undefined
 }
 
