@@ -51,8 +51,8 @@ importers:
   .:
     dependencies:
       '@sanity/client':
-        specifier: ^6.22.3
-        version: 6.22.3
+        specifier: 6.22.5-beta.1
+        version: 6.22.5-beta.1
       '@sanity/diff-match-patch':
         specifier: ^3.1.1
         version: 3.1.1
@@ -184,8 +184,8 @@ importers:
   examples/web:
     dependencies:
       '@sanity/client':
-        specifier: ^6.21.1
-        version: 6.22.3
+        specifier: 6.22.5-beta.1
+        version: 6.22.5-beta.1
       '@sanity/icons':
         specifier: ^3.3.1
         version: 3.3.1(react@18.3.1)
@@ -1191,6 +1191,10 @@ packages:
     resolution: {integrity: sha512-CJDUXPdw4q6VtdUmKbkH8D4iRqYIfIPNQ4U2Y1jzjez7NORnflX1vfgfMLSkNMc9xoK0xji4qhQgvcQHUNh4Lw==}
     engines: {node: '>=14.18'}
 
+  '@sanity/client@6.22.5-beta.1':
+    resolution: {integrity: sha512-t7K1mQkCluLg2nzEQBpBqZgdfL2vKUoqpAja87ff2K/UkrCOUyrz6+VG5gVhLb0Zo5xCfrTAn6I9PzTfdgS60Q==}
+    engines: {node: '>=14.18'}
+
   '@sanity/color@3.0.6':
     resolution: {integrity: sha512-2TjYEvOftD0v7ukx3Csdh9QIu44P2z7NDJtlC3qITJRYV36J7R6Vfd3trVhFnN77/7CZrGjqngrtohv8VqO5nw==}
     engines: {node: '>=18.0.0'}
@@ -1947,9 +1951,17 @@ packages:
   event-source-polyfill@1.0.31:
     resolution: {integrity: sha512-4IJSItgS/41IxN5UVAVuAyczwZF7ZIEsM1XAoUzIHA6A+xzusEZUutdXz2Nr+MQPLxfTiCvqE79/C8HT8fKFvA==}
 
+  eventsource-parser@3.0.0:
+    resolution: {integrity: sha512-T1C0XCUimhxVQzW4zFipdx0SficT651NnkR0ZSH3yQwh+mFMdLfgjABVi4YtMTtaL4s168593DaoaRLMqryavA==}
+    engines: {node: '>=18.0.0'}
+
   eventsource@2.0.2:
     resolution: {integrity: sha512-IzUmBGPR3+oUG9dUeXynyNmf91/3zUSJg1lCktzKw47OXuhco54U3r9B7O4XX+Rb1Itm9OZ2b0RkTs10bICOxA==}
     engines: {node: '>=12.0.0'}
+
+  eventsource@3.0.0-beta.0:
+    resolution: {integrity: sha512-VL1epPiVzE1oAt4lZzMR5HBoTpNrAyNXPfRQukjnEK7TwuQgTXYoUgsb2RW+v1lMoMqsLBkjtTbLYCL71VT4JA==}
+    engines: {node: '>=18.0.0'}
 
   expect-type@1.1.0:
     resolution: {integrity: sha512-bFi65yM+xZgk+u/KRIpekdSYkTB5W1pEf0Lt8Q8Msh7b+eQ7LXVtIB1Bkm4fvclDEL1b2CZkMhv2mOeF8tMdkA==}
@@ -4214,6 +4226,14 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
+  '@sanity/client@6.22.5-beta.1':
+    dependencies:
+      eventsource: 3.0.0-beta.0
+      get-it: 8.6.5
+      rxjs: 7.8.1
+    transitivePeerDependencies:
+      - debug
+
   '@sanity/color@3.0.6': {}
 
   '@sanity/diff-match-patch@3.1.1': {}
@@ -5237,7 +5257,13 @@ snapshots:
 
   event-source-polyfill@1.0.31: {}
 
+  eventsource-parser@3.0.0: {}
+
   eventsource@2.0.2: {}
+
+  eventsource@3.0.0-beta.0:
+    dependencies:
+      eventsource-parser: 3.0.0
 
   expect-type@1.1.0: {}
 
