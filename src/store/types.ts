@@ -141,12 +141,12 @@ export interface LocalDataset {
   /**
    * Checkout a document for editing. This is required to be able to see optimistic changes
    */
-  observe(id: string): Observable<SanityDocumentBase | undefined>
+  listen(id: string): Observable<SanityDocumentBase | undefined>
 
   /**
-   * Observe events for a given document id
+   * Listen for events for a given document id
    */
-  observeEvents(
+  listenEvents(
     id: string,
   ): Observable<RemoteDocumentEvent | OptimisticDocumentEvent>
 
