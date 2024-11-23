@@ -8,7 +8,7 @@ export type NodePatchList =
   | readonly NodePatch[]
   | readonly [NodePatch, ...NodePatch[]]
 
-export type SanityDocumentBase = {
+export interface SanityDocumentBase {
   _id?: string
   _type: string
   _createdAt?: string
