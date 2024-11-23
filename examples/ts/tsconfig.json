@@ -2,6 +2,7 @@
   "extends": "../../tsconfig.settings.json",
   "include": ["./**/*.ts"],
   "compilerOptions": {
+    "lib": ["es2023", "dom"],
     "noEmit": true,
     "incremental": true,
     "paths": {
