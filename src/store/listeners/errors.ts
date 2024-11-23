@@ -3,7 +3,7 @@ import {ClientError as SanityClientError} from '@sanity/client'
 import {type ListenerSequenceState} from './utils/sequentializeListenerEvents'
 
 /*
- * This file should include all errors that can be thrown by the document observer
+ * This file should include all errors that can be thrown by the document listener
  */
 
 export const ClientError = SanityClientError
@@ -14,6 +14,15 @@ export class FetchError extends Error {
     super(message)
     this.cause = extra?.cause
     this.name = 'FetchError'
+  }
+}
+
+export class PermissionDeniedError extends Error {
+  cause?: Error
+  constructor(message: string, extra?: {cause?: Error}) {
+    super(message)
+    this.cause = extra?.cause
+    this.name = 'PermissionDeniedError'
   }
 }
 

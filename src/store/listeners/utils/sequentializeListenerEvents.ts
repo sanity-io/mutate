@@ -44,13 +44,11 @@ const DEFAULT_DEADLINE_MS = 30000
 
 const EMPTY_ARRAY: never[] = []
 
-export interface SequentializeListenerEventsOptions<
-  Doc extends SanityDocumentBase,
-> {
+export interface SequentializeListenerEventsOptions {
   maxBufferSize?: number
   resolveChainDeadline?: number
-  onDiscard?: (discarded: ListenerEvent<Doc>[]) => void
-  onBrokenChain?: (discarded: ListenerEvent<Doc>[]) => void
+  onDiscard?: (discarded: ListenerMutationEvent[]) => void
+  onBrokenChain?: (discarded: ListenerMutationEvent[]) => void
 }
 
 /**
@@ -64,7 +62,7 @@ export interface SequentializeListenerEventsOptions<
  * @internal
  */
 export function sequentializeListenerEvents<Doc extends SanityDocumentBase>(
-  options?: SequentializeListenerEventsOptions<Doc>,
+  options?: SequentializeListenerEventsOptions,
 ) {
   const {
     resolveChainDeadline = DEFAULT_DEADLINE_MS,
@@ -97,7 +95,7 @@ export function sequentializeListenerEvents<Doc extends SanityDocumentBase>(
           if (event.type === 'mutation') {
             // Note: the buffer may have multiple holes in it (this is a worst case scenario, and probably not likely, but still),
             // so we need to consider all possible chains
-            // `toOrderedChains` will return all detected chains and each of the returned chains will be orderered
+            // `toOrderedChains` will return all detected chains and each of the returned chains will be ordered
             // Once we have a list of chains, we can then discard any chain that leads up to the current revision
             // since they are already applied on the document
             const orderedChains = toOrderedChains(
@@ -168,15 +166,11 @@ export function sequentializeListenerEvents<Doc extends SanityDocumentBase>(
         },
       ),
       switchMap(state => {
-        const deadline =
-          (globalThis as any).__sanity_debug_resolveChainDeadline ??
-          resolveChainDeadline
-
         if (state.buffer.length > 0) {
           onBrokenChain?.(state.buffer)
           return concat(
             of(state),
-            timer(deadline).pipe(
+            timer(resolveChainDeadline).pipe(
               mergeMap(() =>
                 throwError(() => {
                   return new DeadlineExceededError(

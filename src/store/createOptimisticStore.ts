@@ -43,7 +43,7 @@ export interface LocalDatasetBackend {
    * After that, it should emit mutation events, error events or sync events
    * @param id
    */
-  observe: (id: string) => Observable<ListenerEvent>
+  listen: (id: string) => Observable<ListenerEvent>
   submit: (mutationGroups: Transaction[]) => Observable<SubmitResult>
 }
 
@@ -70,7 +70,9 @@ const EMPTY_ARRAY: any[] = []
  * Creates a local dataset that allows subscribing to documents by id and submitting mutations to be optimistically applied
  * @param backend
  */
-export function createLocalDataset(backend: LocalDatasetBackend): LocalDataset {
+export function createOptimisticStore(
+  backend: LocalDatasetBackend,
+): LocalDataset {
   const local = createDocumentMap()
   const remote = createDocumentMap()
   const memoize = createReplayMemoizer(1000)
@@ -91,7 +93,7 @@ export function createLocalDataset(backend: LocalDatasetBackend): LocalDataset {
   }
 
   function getRemoteEvents(id: string) {
-    return backend.observe(id).pipe(
+    return backend.listen(id).pipe(
       filter(
         (event): event is Exclude<ListenerEvent, ReconnectEvent> =>
           event.type !== 'reconnect',
@@ -176,7 +178,7 @@ export function createLocalDataset(backend: LocalDatasetBackend): LocalDataset {
     )
   }
 
-  function observeEvents(id: string) {
+  function listenEvents(id: string) {
     return defer(() =>
       memoize(id, merge(getLocalEvents(id), getRemoteEvents(id))),
     )
@@ -237,9 +239,9 @@ export function createLocalDataset(backend: LocalDatasetBackend): LocalDataset {
       })
       return results
     },
-    observeEvents,
-    observe: id =>
-      observeEvents(id).pipe(
+    listenEvents: listenEvents,
+    listen: id =>
+      listenEvents(id).pipe(
         map(event =>
           event.type === 'optimistic' ? event.after : event.after.local,
         ),
