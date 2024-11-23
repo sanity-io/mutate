@@ -1,26 +1,19 @@
-import {
-  createClient,
-  type MutationEvent as ClientMutationEvent,
-  type ReconnectEvent,
-  type SanityClient,
-  type WelcomeEvent,
-} from '@sanity/client'
+import {createClient} from '@sanity/client'
 import {CollapseIcon, ExpandIcon} from '@sanity/icons'
 import {
   createIfNotExists,
   del,
   type Mutation,
   type Path,
-  type SanityDocumentBase,
   SanityEncoder,
 } from '@sanity/mutate'
 import {
-  createLocalDataset,
-  type ListenerEvent,
-  type ListenerSyncEvent,
+  createDocumentEventListener,
+  createDocumentLoader,
+  createOptimisticStore,
+  createSharedListener,
   type MutationGroup,
   type RemoteDocumentEvent,
-  type SanityMutation,
 } from '@sanity/mutate/_unstable_store'
 import {
   draft,
@@ -54,22 +47,8 @@ import {
   TabPanel,
   Text,
 } from '@sanity/ui'
-import {type RawPatch} from 'mendoza'
 import {Fragment, type ReactNode, useCallback, useEffect, useState} from 'react'
-import {
-  concatMap,
-  defer,
-  filter,
-  from,
-  map,
-  merge,
-  type Observable,
-  of,
-  share,
-  shareReplay,
-  tap,
-  timer,
-} from 'rxjs'
+import {concatMap, filter, from, merge, tap} from 'rxjs'
 import styled from 'styled-components'
 
 import {DocumentView} from './DocumentView'
@@ -173,65 +152,6 @@ function renderInput<Props extends InputProps<SanityAny>>(
 const personDraft = draft(person)
 type PersonDraft = Infer<typeof personDraft>
 
-interface SharedListenerOptions {
-  shutdownDelay?: number
-  includeMutations?: boolean
-}
-
-function createSharedListener(
-  client: SanityClient,
-  options: SharedListenerOptions = {},
-) {
-  const {shutdownDelay, includeMutations} = options
-  const allEvents$ = client
-    .listen(
-      '*[!(_id in path("_.**"))]',
-      {},
-      {
-        events: ['welcome', 'mutation', 'reconnect'],
-        includeResult: false,
-        includePreviousRevision: false,
-        visibility: 'transaction',
-        effectFormat: 'mendoza',
-        ...(includeMutations ? {} : {includeMutations: false}),
-      },
-    )
-    .pipe(
-      share({
-        resetOnRefCountZero: shutdownDelay ? () => timer(shutdownDelay) : true,
-      }),
-    )
-
-  // Reconnect events emitted in case the connection is lost
-  const reconnect = allEvents$.pipe(
-    filter((event): event is ReconnectEvent => event.type === 'reconnect'),
-  )
-
-  // Welcome events are emitted when the listener is (re)connected
-  const welcome = allEvents$.pipe(
-    filter((event): event is WelcomeEvent => event.type === 'welcome'),
-  )
-
-  // Mutation events coming from the listener
-  const mutations = allEvents$.pipe(
-    filter((event): event is ClientMutationEvent => event.type === 'mutation'),
-  )
-
-  // Replay the latest connection event that was emitted either when the connection was disconnected ('reconnect'), established or re-established ('welcome')
-  const connectionEvent = merge(welcome, reconnect).pipe(
-    shareReplay({bufferSize: 1, refCount: true}),
-  )
-
-  // Emit the welcome event if the latest connection event was the 'welcome' event.
-  // Downstream subscribers will typically map the welcome event to an initial fetch
-  const replayWelcome = connectionEvent.pipe(
-    filter(latestConnectionEvent => latestConnectionEvent.type === 'welcome'),
-  )
-
-  // Combine into a single stream
-  return merge(replayWelcome, mutations, reconnect)
-}
-
 const sanityClient = createClient({
   projectId: import.meta.env.VITE_SANITY_API_PROJECT_ID,
   dataset: import.meta.env.VITE_SANITY_API_DATASET,
@@ -240,47 +160,19 @@ const sanityClient = createClient({
   token: import.meta.env.VITE_SANITY_API_TOKEN,
 })
 
-const listener = createSharedListener(sanityClient)
+const sharedListener = createSharedListener({
+  client: sanityClient,
+})
 
-const RECONNECT_EVENT: ReconnectEvent = {type: 'reconnect'}
+const loadDocument = createDocumentLoader({client: sanityClient})
 
-function observe(documentId: string) {
-  return defer(() => listener).pipe(
-    filter(
-      (event): event is WelcomeEvent | ClientMutationEvent | ReconnectEvent =>
-        event.type === 'welcome' ||
-        event.type === 'reconnect' ||
-        (event.type === 'mutation' && event.documentId === documentId),
-    ),
-    concatMap(
-      (event): Observable<ListenerEvent> =>
-        event.type === 'reconnect'
-          ? of(RECONNECT_EVENT)
-          : event.type === 'welcome'
-            ? sanityClient.observable.getDocument(documentId).pipe(
-                map(
-                  (doc: undefined | SanityDocumentBase): ListenerSyncEvent => ({
-                    type: 'sync',
-                    document: doc,
-                  }),
-                ),
-              )
-            : of({
-                type: 'mutation' as const,
-                documentId: event.documentId,
-                transactionId: event.transactionId,
-                transition: 'update',
-                effects: event.effects as {apply: RawPatch},
-                previousRev: event.previousRev!,
-                resultRev: event.resultRev!,
-                mutations: event.mutations as SanityMutation[],
-              }),
-    ),
-  )
-}
+const listenDocument = createDocumentEventListener({
+  loadDocument,
+  listenerEvents: sharedListener,
+})
 
-const datastore = createLocalDataset({
-  observe,
+const datastore = createOptimisticStore({
+  listen: listenDocument,
   submit: transactions => {
     return from(transactions).pipe(
       concatMap(transaction =>
@@ -324,7 +216,7 @@ function App() {
   }, [])
   useEffect(() => {
     const sub = datastore
-      .observeEvents(documentId)
+      .listenEvents(documentId)
       .pipe(
         tap(event => {
           setDocumentState(current => {

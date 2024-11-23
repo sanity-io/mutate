@@ -1,4 +1,11 @@
-export * from './createLocalDataset'
+export * from './createOptimisticStore'
+export * from './createReadOnlyStore'
+export * from './listeners/createDocumentEventListener'
+export * from './listeners/createDocumentLoader'
+export * from './listeners/createIdSetListener'
+export * from './listeners/createSharedListener'
+export * from './listeners/createSnapshotListener'
+export type * from './listeners/types'
 export type * from './types'
 
 /** Required support types */
