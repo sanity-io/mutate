@@ -12,7 +12,7 @@
     "@sanity/client": "^6.21.1",
     "@sanity/icons": "^3.3.1",
     "@sanity/mutate": "workspace:",
-    "@sanity/sanitype": "^0.6.1",
+    "@sanity/sanitype": "^0.6.2",
     "@sanity/ui": "^2.8.8",
     "dataloader": "^2.2.2",
     "groq-js": "^1.12.0",
