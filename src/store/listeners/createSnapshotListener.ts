@@ -1,4 +1,4 @@
-import {type Observable} from 'rxjs'
+import {filter, type Observable} from 'rxjs'
 import {scan} from 'rxjs/operators'
 
 import {type SanityDocumentBase} from '../../mutations/types'
@@ -20,40 +20,48 @@ export type DocumentUpdateListener<Doc extends SanityDocumentBase> = (
  * Emits the latest snapshot of the document along with the latest event
  * @param options
  */
-export function createDocumentSnapshotListener(options: {
-  documentEventListener: (id: string) => Observable<ListenerEvent>
+export function createDocumentUpdateListener(options: {
+  listenDocumentEvents: (documentId: string) => Observable<ListenerEvent>
 }) {
-  const {documentEventListener} = options
+  const {listenDocumentEvents} = options
 
   return function listen<Doc extends SanityDocumentBase>(documentId: string) {
-    return documentEventListener(documentId).pipe(
-      scan((prev: DocumentUpdate<Doc> | undefined, event: ListenerEvent) => {
-        if (event.type === 'sync') {
-          return {
-            event,
-            documentId,
-            snapshot: event.document,
-          } as DocumentUpdate<Doc>
-        }
-        if (event.type === 'mutation') {
-          if (prev?.event === undefined) {
-            throw new Error(
-              'Received a mutation event before sync event. Something is wrong',
-            )
+    return listenDocumentEvents(documentId).pipe(
+      scan(
+        (
+          prev: DocumentUpdate<Doc> | undefined,
+          event: ListenerEvent,
+        ): DocumentUpdate<Doc> => {
+          if (event.type === 'sync') {
+            return {
+              event,
+              documentId,
+              snapshot: event.document,
+            } as DocumentUpdate<Doc>
           }
-          if (!event.effects.apply) {
-            throw new Error(
-              'No effects found on listener event. The listener must be set up to use effectFormat=mendoza.',
-            )
+          if (event.type === 'mutation') {
+            if (prev?.event === undefined) {
+              throw new Error(
+                'Received a mutation event before sync event. Something is wrong',
+              )
+            }
+            if (!event.effects.apply) {
+              throw new Error(
+                'No effects found on listener event. The listener must be set up to use effectFormat=mendoza.',
+              )
+            }
+            return {
+              event,
+              documentId,
+              snapshot: applyMutationEventEffects(prev.snapshot, event) as Doc,
+            }
           }
-          return {
-            event,
-            documentId,
-            snapshot: applyMutationEventEffects(prev.snapshot, event) as Doc,
-          }
-        }
-        return {documentId, snapshot: prev?.snapshot, event}
-      }, undefined),
+          return {documentId, snapshot: prev?.snapshot, event}
+        },
+        undefined,
+      ),
+      // ignore seed value
+      filter(update => update !== undefined),
     )
   }
 }

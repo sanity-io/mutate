@@ -13,21 +13,26 @@ import {
   type DocumentUpdateListener,
 } from './listeners/createSnapshotListener'
 
+export type MapTuple<T, U> = {[K in keyof T]: U}
+
 export interface ReadOnlyDocumentStore {
   listenDocument: <Doc extends SanityDocumentBase>(
     id: string,
   ) => Observable<DocumentUpdate<Doc>>
-  listenDocuments: <Doc extends SanityDocumentBase>(
-    id: string[],
-  ) => Observable<DocumentUpdate<Doc>[]>
+  listenDocuments: <
+    Doc extends SanityDocumentBase,
+    const IdTuple extends string[],
+  >(
+    id: IdTuple,
+  ) => Observable<MapTuple<IdTuple, DocumentUpdate<Doc>>>
 }
 
 /**
- * @param listenDocumentUpdateEvents – a function that takes a document id and returns  an observable of document snapshots
+ * @param listenDocumentUpdates – a function that takes a document id and returns  an observable of document snapshots
  * @param options
  */
 export function createReadOnlyStore(
-  listenDocumentUpdateEvents: DocumentUpdateListener<SanityDocumentBase>,
+  listenDocumentUpdates: DocumentUpdateListener<SanityDocumentBase>,
   options: {shutdownDelay?: number} = {},
 ): ReadOnlyDocumentStore {
   const cache = new Map<
@@ -41,7 +46,7 @@ export function createReadOnlyStore(
     if (cache.has(id)) {
       return cache.get(id)! as Observable<DocumentUpdate<Doc>>
     }
-    const cached = listenDocumentUpdateEvents(id).pipe(
+    const cached = listenDocumentUpdates(id).pipe(
       finalize(() => cache.delete(id)),
       share({
         resetOnRefCountZero:
@@ -54,8 +59,12 @@ export function createReadOnlyStore(
   }
   return {
     listenDocument,
-    listenDocuments<Doc extends SanityDocumentBase>(ids: string[]) {
-      return combineLatest(ids.map(id => listenDocument<Doc>(id)))
+    listenDocuments<Doc extends SanityDocumentBase, IdTuple extends string[]>(
+      ids: IdTuple,
+    ) {
+      return combineLatest(
+        ids.map(id => listenDocument<Doc>(id)),
+      ) as Observable<MapTuple<IdTuple, DocumentUpdate<Doc>>>
     },
   }
 }
