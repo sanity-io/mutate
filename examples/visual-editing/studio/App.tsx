@@ -1,27 +1,20 @@
-import {
-  createClient,
-  type MutationEvent as ClientMutationEvent,
-  type ReconnectEvent,
-  type WelcomeEvent,
-} from '@sanity/client'
+import {createClient} from '@sanity/client'
 import {
   createIfNotExists,
   del,
   type Mutation,
-  type SanityDocumentBase,
   SanityEncoder,
 } from '@sanity/mutate'
 import {
-  createSharedListener,
   type documentMutatorMachine,
   type DocumentMutatorMachineParentEvent,
 } from '@sanity/mutate/_unstable_machine'
 import {
-  createContentLakeStore,
-  type ListenerSyncEvent,
+  createDocumentEventListener,
+  createDocumentLoader,
+  createOptimisticStore,
+  createSharedListener,
   type MutationGroup,
-  type RemoteDocumentEvent,
-  type SanityMutation,
 } from '@sanity/mutate/_unstable_store'
 import {
   draft,
@@ -56,7 +49,6 @@ import {
   Text,
 } from '@sanity/ui'
 import {useActorRef, useSelector} from '@xstate/react'
-import {type RawPatch} from 'mendoza'
 import {
   Fragment,
   type ReactNode,
@@ -65,7 +57,7 @@ import {
   useEffect,
   useState,
 } from 'react'
-import {concatMap, defer, filter, from, map, merge, of, tap} from 'rxjs'
+import {concatMap, from, tap} from 'rxjs'
 import styled from 'styled-components'
 import {type ActorRefFrom} from 'xstate'
 
@@ -194,45 +186,17 @@ const sanityClient = createClient({
   token: import.meta.env.VITE_SANITY_API_TOKEN,
 })
 
-const listener = createSharedListener(sanityClient)
+const sharedListener = createSharedListener({client: sanityClient})
 
-const RECONNECT_EVENT: ReconnectEvent = {type: 'reconnect'}
+const loadDocument = createDocumentLoader({client: sanityClient})
 
-function observe(documentId: string) {
-  return defer(() => listener).pipe(
-    filter(
-      (event): event is WelcomeEvent | ClientMutationEvent | ReconnectEvent =>
-        event.type === 'welcome' ||
-        event.type === 'reconnect' ||
-        (event.type === 'mutation' && event.documentId === documentId),
-    ),
-    concatMap(event =>
-      event.type === 'reconnect'
-        ? of(RECONNECT_EVENT)
-        : event.type === 'welcome'
-          ? sanityClient.observable.getDocument(documentId).pipe(
-              map(
-                (doc: undefined | SanityDocumentBase): ListenerSyncEvent => ({
-                  type: 'sync',
-                  transactionId: doc?._id,
-                  document: doc,
-                }),
-              ),
-            )
-          : of({
-              type: 'mutation' as const,
-              transactionId: event.transactionId,
-              effects: event.effects as {apply: RawPatch},
-              previousRev: event.previousRev!,
-              resultRev: event.resultRev!,
-              mutations: event.mutations as SanityMutation[],
-            }),
-    ),
-  )
-}
+const listenDocument = createDocumentEventListener({
+  loadDocument,
+  listenerEvents: sharedListener,
+})
 
-const datastore = createContentLakeStore({
-  observe,
+const datastore = createOptimisticStore({
+  listen: listenDocument,
   submit: transactions => {
     return from(transactions).pipe(
       concatMap(transaction =>
@@ -249,7 +213,7 @@ const datastore = createContentLakeStore({
 function App(props: {inspect: InspectType}) {
   const {inspect} = props
   const datasetMutatorActorRef = useActorRef(datasetMutatorMachine, {
-    input: {client: sanityClient, sharedListener: listener},
+    input: {client: sanityClient, sharedListener},
     inspect,
   })
 
@@ -309,7 +273,7 @@ function App(props: {inspect: InspectType}) {
   useEffect(() => {
     if (!documentId) return
     const sub = datastore
-      .observeEvents(documentId)
+      .listenEvents(documentId)
       .pipe(
         tap(event => {
           setDocumentState(current => {
@@ -615,7 +579,13 @@ function RemoteLogEntries(props: {
                     <Text size={1}>
                       <JsonView
                         oneline
-                        value={e.type === 'sync' ? e.document : e.effects}
+                        value={
+                          e.type === 'sync'
+                            ? e.document
+                            : e.type == 'mutation'
+                              ? e.effects
+                              : e.type
+                        }
                       />
                     </Text>
                   </Card>

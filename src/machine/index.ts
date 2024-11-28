@@ -17,7 +17,6 @@ export type {
   TransactionalMutationGroup,
 } from '../store/types'
 export * from './documentMutatorMachine'
-export * from './listener'
 
 /** Required support types */
 export type * from '../mutations/operations/types'
