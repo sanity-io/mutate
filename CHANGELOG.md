@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.11.0](https://github.com/sanity-io/mutate/compare/mutate-v0.10.2...mutate-v0.11.0) (2024-11-28)
+
+
+### Features
+
+* add readonly document store ([8b4d306](https://github.com/sanity-io/mutate/commit/8b4d306e69c66e47aa461b91dc32f76febf5faf0))
+
+
+### Bug Fixes
+
+* add rxjs based dataloader ([871738d](https://github.com/sanity-io/mutate/commit/871738d959ebab7ec161a4844d48cae81bd2972f))
+* applyMutation did not write back to documentMap entry ([37de8eb](https://github.com/sanity-io/mutate/commit/37de8eb55e052fc61c29f74b3cb779086d60ae9f))
+* improve error handling ([5a5fea9](https://github.com/sanity-io/mutate/commit/5a5fea9d5f3df22ce39a1aad150f96976b4a0b3f))
+* make document listener resilient of mutation event loss ([cb99758](https://github.com/sanity-io/mutate/commit/cb997585d7f34fb5238dc627d063f024236bdb32))
+* remove transactionId on sync event ([e5eb127](https://github.com/sanity-io/mutate/commit/e5eb127bcc5449440f06ae4c1889d1b831b81371))
+* **store:** add documentId to update event, make update.event non-optional in types ([66a21b6](https://github.com/sanity-io/mutate/commit/66a21b6ecf934133a3359a5d040fa5e6481c122d))
+
 ## [0.10.2](https://github.com/sanity-io/mutate/compare/mutate-v0.10.1...mutate-v0.10.2) (2024-11-07)
 
 
