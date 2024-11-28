@@ -1,19 +1,19 @@
-export {
-  applyMutations,
-  type UpdateResult,
-} from '../store/datasets/applyMutations'
-export {commit} from '../store/datasets/commit'
-export {
-  type DataStore,
-  squashDMPStrings,
-} from '../store/optimizations/squashDMPStrings'
-export {squashMutationGroups} from '../store/optimizations/squashMutations'
-export {rebase} from '../store/rebase'
-export {toTransactions} from '../store/toTransactions'
+export {type UpdateResult} from '../store/documentMap/applyMutations'
+export {type DataStore} from '../store/optimizations/squashDMPStrings'
 export type {
-  Dataset,
+  Conflict,
+  DocumentMap,
+  LocalDataset,
   MutationGroup,
+  MutationResult,
   NonTransactionalMutationGroup,
+  OptimisticDocumentEvent,
+  RawOperation,
+  RawPatch,
+  RemoteDocumentEvent,
+  RemoteMutationEvent,
+  RemoteSyncEvent,
+  SubmitResult,
   TransactionalMutationGroup,
 } from '../store/types'
 export * from './documentMutatorMachine'

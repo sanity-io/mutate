@@ -1,5 +1,5 @@
-import type {Transaction} from '../_unstable_store'
-import type {MutationGroup} from './types'
+import {type Transaction} from '../mutations/types'
+import {type MutationGroup} from './types'
 
 export function toTransactions(groups: MutationGroup[]): Transaction[] {
   return groups.map(group => {

@@ -2,7 +2,7 @@
   "compilerOptions": {
     "module": "ESNext",
     "target": "ESNext",
-    "lib": ["es2023"],
+    "lib": ["es2023", "esnext.promise"],
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,

@@ -1,10 +1,11 @@
-import {type RawPatch} from 'mendoza'
+import {type RawOperation, type RawPatch} from 'mendoza'
 import {type Observable} from 'rxjs'
 
 import {type Mutation, type SanityDocumentBase} from '../mutations/types'
 import {type Path} from '../path'
 import {type SanityMutation} from './sanityMutationTypes'
 
+export {type RawOperation, type RawPatch}
 export interface ListenerSyncEvent<
   Doc extends SanityDocumentBase = SanityDocumentBase,
 > {

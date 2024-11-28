@@ -23,6 +23,7 @@ const createFakeClient = (
     | Promise<Record<string, unknown> | undefined> = undefined,
   observer: Observable<ListenEvent<Record<string, unknown>>> = of({
     type: 'welcome',
+    listenerName: 'xyz',
   }),
 ) => {
   const client = {
@@ -64,7 +65,7 @@ describe('observing documents', () => {
     const client = createFakeClient(
       undefined,
       concat(
-        of({type: 'welcome' as const}),
+        of({type: 'welcome' as const, listenerName: 'xyz'}),
         of({
           type: 'mutation' as const,
           eventId: `tc4gfghO54pOTXYCOfNgyx#${id}`,

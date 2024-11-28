@@ -24,8 +24,8 @@ import {
   type SanityDocumentBase,
   type Transaction,
 } from '../store'
-import {applyMutations} from '../store/datasets/applyMutations'
-import {commit} from '../store/datasets/commit'
+import {applyMutations} from '../store/documentMap/applyMutations'
+import {commit} from '../store/documentMap/commit'
 import {squashDMPStrings} from '../store/optimizations/squashDMPStrings'
 import {squashMutationGroups} from '../store/optimizations/squashMutations'
 import {rebase} from '../store/rebase'
@@ -38,7 +38,7 @@ export interface DocumentMutatorMachineInput {
   /** A shared listener can be provided, if not it'll be created using `client.listen()` */
   sharedListener?: ReturnType<typeof createSharedListener>
   /* Preferrably a LRU cache map that is compatible with an ES6 Map, and have documents that allow unique ids to a particular dataset */
-  cache?: Map<string, SanityDocument<DocumentType> | null>
+  cache?: Map<string, SanityDocument | null>
 }
 
 export type DocumentMutatorMachineParentEvent =
@@ -68,11 +68,11 @@ export const documentMutatorMachine = setup({
       /** The document id */
       id: string
       /* Preferrably a LRU cache map that is compatible with an ES6 Map, and have documents that allow unique ids to a particular dataset */
-      cache?: Map<string, SanityDocument<DocumentType> | null>
+      cache?: Map<string, SanityDocument | null>
       /* The remote snapshot of what the document looks like in Content Lake, kept in sync by applying Mendoza patches in real time. undefined means it's unknown if it exists yet, null means its known that it doesn't exist. */
-      remote: SanityDocument<DocumentType> | null | undefined
+      remote: SanityDocument | null | undefined
       /* Local snapshot, that is rebased to the remote snapshot whenever that snapshot changes, and allows optimistic local mutations. undefined means it's unknown if the document exists in content lake yet, if both `remote` and `local` is `null` it means it's known that it doesn't exist. If `remote` is defined, and `local` is `null` it means it's optimistically deleted. If `remote` is `null` and `local` defined then it's optimistically created. */
-      local: SanityDocument<DocumentType> | null | undefined
+      local: SanityDocument | null | undefined
       /* Remote mendoza mutation events, needs a better name to differentiate from optimistic mutations */
       mutationEvents: MutationEvent[]
       /* Track staged mutations that can be submitted */
@@ -97,7 +97,7 @@ export const documentMutatorMachine = setup({
       | {type: 'submit'}
       | {
           type: 'xstate.done.actor.getDocument'
-          output: SanityDocument<DocumentType>
+          output: SanityDocument
         }
       | {
           type: 'xstate.done.actor.submitTransactions'
