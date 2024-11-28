@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.1](https://github.com/sanity-io/mutate/compare/mutate-v0.11.0...mutate-v0.11.1) (2024-11-28)
+
+
+### Bug Fixes
+
+* **deps:** Update non-major ([#33](https://github.com/sanity-io/mutate/issues/33)) ([d73cbe0](https://github.com/sanity-io/mutate/commit/d73cbe05bbbe63868645460ed00c6d029927638b))
+
 ## [0.11.0](https://github.com/sanity-io/mutate/compare/mutate-v0.10.2...mutate-v0.11.0) (2024-11-28)
 
 
