@@ -32,6 +32,8 @@ import {rebase} from '../store/rebase'
 import {toTransactions} from '../store/toTransactions'
 import {createSharedListener, type SharedListenerEvents} from './listener'
 
+export {createSharedListener}
+
 export interface DocumentMutatorMachineInput {
   id: string
   client: SanityClient
