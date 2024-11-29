@@ -160,9 +160,7 @@ const sanityClient = createClient({
   token: import.meta.env.VITE_SANITY_API_TOKEN,
 })
 
-const sharedListener = createSharedListener({
-  client: sanityClient,
-})
+const sharedListener = createSharedListener({client: sanityClient})
 
 const loadDocument = createDocumentLoader({client: sanityClient})
 
