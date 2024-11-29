@@ -190,19 +190,19 @@ importers:
         specifier: ^9.7.5
         version: 9.7.5(@react-three/fiber@8.17.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.169.0))(react@18.3.1)(three@0.169.0)
       '@react-three/drei':
-        specifier: ^9.114.3
+        specifier: ^9.117.3
         version: 9.117.3(@react-three/fiber@8.17.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.169.0))(@types/react@18.3.11)(@types/three@0.169.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.169.0)(use-sync-external-store@1.2.2(react@18.3.1))
       '@react-three/fiber':
         specifier: ^8.17.10
         version: 8.17.10(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.169.0)
       '@sanity/client':
-        specifier: ^6.22.1
+        specifier: ^6.22.5
         version: 6.22.5
       '@sanity/comlink':
         specifier: ^2.0.0
         version: 2.0.0
       '@sanity/icons':
-        specifier: ^3.4.0
+        specifier: ^3.5.0
         version: 3.5.0(react@18.3.1)
       '@sanity/mutate':
         specifier: workspace:*
