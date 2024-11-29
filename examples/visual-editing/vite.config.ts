@@ -9,12 +9,7 @@ export default defineConfig({
   plugins: [
     react({
       babel: {
-        plugins: [
-          [
-            'babel-plugin-react-compiler',
-            {runtimeModule: 'react-compiler-runtime'},
-          ],
-        ],
+        plugins: [['babel-plugin-react-compiler', {target: '18'}]],
       },
     }),
   ],
