@@ -34,7 +34,7 @@ const createFakeClient = (
   return client as unknown as SanityClient
 }
 
-describe('observing documents', () => {
+describe.runIf('withResolvers' in Promise)('observing documents', () => {
   test('observing a document that does not exist on the backend', async () => {
     const client = createFakeClient()
 
