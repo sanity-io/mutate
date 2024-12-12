@@ -7,7 +7,7 @@ import {
 import {type MutationGroup} from '../types'
 import {compactDMPSetPatches} from './squashNodePatches'
 
-interface DataStore {
+export interface DataStore {
   get: (id: string) => SanityDocumentBase | undefined
 }
 export function squashDMPStrings(

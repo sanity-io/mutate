@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "module": "ES2022",
-    "target": "ES2022",
-    "lib": ["es2023"],
+    "module": "ESNext",
+    "target": "ESNext",
+    "lib": ["es2023", "esnext.promise"],
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
