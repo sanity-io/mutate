@@ -38,5 +38,6 @@ export function applyOp<const Op extends Operation, const CurrentValue>(
     throw new Error(`Invalid operation type: "${op.type}"`)
   }
 
+  // eslint-disable-next-line import/namespace
   return (operations[op.type] as CallableFunction)(op, currentValue)
 }
