@@ -98,14 +98,14 @@
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
-    "@sanity/pkg-utils": "^6.11.13",
+    "@sanity/pkg-utils": "^6.12.0",
     "@sanity/prettier-config": "^1.0.3",
     "@types/diff-match-patch": "^1.0.36",
     "@types/lodash": "^4.17.13",
     "@typescript-eslint/eslint-plugin": "catalog:",
     "@typescript-eslint/parser": "catalog:",
-    "@vitest/coverage-v8": "^2.1.6",
-    "@vitest/ui": "^2.1.6",
+    "@vitest/coverage-v8": "^2.1.8",
+    "@vitest/ui": "^2.1.8",
     "eslint": "catalog:",
     "eslint-config-prettier": "catalog:",
     "eslint-plugin-import": "catalog:",
@@ -115,11 +115,11 @@
     "eslint-plugin-simple-import-sort": "catalog:",
     "eslint-plugin-unused-imports": "catalog:",
     "npm-run-all2": "^5.0.2",
-    "prettier": "^3.4.1",
+    "prettier": "^3.4.2",
     "rimraf": "^6.0.1",
     "tsx": "^4.19.2",
     "typescript": "catalog:",
-    "vitest": "^2.1.6"
+    "vitest": "^2.1.8"
   },
   "packageManager": "pnpm@9.14.2",
   "engines": {
