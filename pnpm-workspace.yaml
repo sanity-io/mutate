@@ -3,18 +3,3 @@ packages:
   - '.'
   # all packages in subdirs of components/
   - 'examples/**'
-# Define a catalog of version ranges.
-catalog:
-  "typescript": 5.6.3
-  "@typescript-eslint/eslint-plugin": ^8.13.0
-  "@typescript-eslint/parser": ^8.13.0
-  "eslint": ^8.57.0
-  "eslint-config-prettier": ^9.1.0
-  "eslint-plugin-import": ^2.29.1
-  "eslint-plugin-prettier": ^5.2.1
-  "eslint-plugin-react": ^7.37.2
-  "eslint-plugin-react-hooks": ^5.0.0
-  "eslint-plugin-simple-import-sort": ^12.1.1
-  "eslint-config-sanity": ^7.1.2
-  "eslint-plugin-unused-imports": ^3.2.0
-  "@types/node": ^20.14.11
