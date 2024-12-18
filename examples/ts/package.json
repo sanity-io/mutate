@@ -4,17 +4,6 @@
   "private": true,
   "devDependencies": {
     "@sanity/mutate": "workspace:^",
-    "@typescript-eslint/eslint-plugin": "catalog:",
-    "@typescript-eslint/parser": "catalog:",
-    "eslint": "catalog:",
-    "eslint-config-prettier": "catalog:",
-    "eslint-plugin-import": "catalog:",
-    "eslint-plugin-prettier": "catalog:",
-    "eslint-plugin-react": "catalog:",
-    "eslint-plugin-react-hooks": "catalog:",
-    "eslint-plugin-simple-import-sort": "catalog:",
-    "eslint-plugin-unused-imports": "catalog:",
-    "typescript": "catalog:",
     "ulid": "^2.3.0"
   }
 }
