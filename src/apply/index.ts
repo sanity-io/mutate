@@ -6,7 +6,9 @@ export * from './patch/applyOp'
 export * from './store'
 
 /** Required support types */
-export type * from '../mutations/operations/types'
+
+// eslint-disable-next-line import/export
+export type * from '../mutations/operations/types' // todo: fix duplicate exports
 export type {NodePatch, PatchOptions} from '../mutations/types'
 export type {
   CreateIfNotExistsMutation,
@@ -18,9 +20,11 @@ export type {
   PatchMutation,
   SanityDocumentBase,
 } from '../mutations/types'
-export type * from '../path'
+// eslint-disable-next-line import/export
+export type * from '../path' // todo: fix duplicate exports
 export type {
-  AnyArray,
+  // eslint-disable-next-line import/export
+  AnyArray, // todo: fix duplicate exports
   ArrayElement,
   ArrayLength,
   EmptyArray,

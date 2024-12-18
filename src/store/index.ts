@@ -9,7 +9,8 @@ export type * from './listeners/types'
 export type * from './types'
 
 /** Required support types */
-export type * from '../mutations/operations/types'
+// eslint-disable-next-line import/export
+export type * from '../mutations/operations/types' // todo: fix duplicate exports
 export type {NodePatch, PatchOptions} from '../mutations/types'
 export type {
   CreateIfNotExistsMutation,
@@ -22,6 +23,7 @@ export type {
   SanityDocumentBase,
   Transaction,
 } from '../mutations/types'
-export type * from '../path'
+// eslint-disable-next-line import/export
+export type * from '../path' // todo: fix duplicate exports
 export type {Optional} from '../utils/typeUtils'
 export type * from './sanityMutationTypes'

@@ -10,11 +10,13 @@ export {CompactEncoder, SanityEncoder}
 export {CompactFormatter}
 
 // -- support types --
-export type * from './mutations/operations/types'
+// eslint-disable-next-line import/export
+export type * from './mutations/operations/types' // todo: fix duplicate exports
 export type * from './mutations/types'
 export type * from './path/get/types'
 export type * from './path/parser/types'
-export type * from './path/types'
+// eslint-disable-next-line import/export
+export type * from './path/types' // todo: fix duplicate exports
 export type {Arrify} from './utils/arrify'
 export type {
   AnyArray,
