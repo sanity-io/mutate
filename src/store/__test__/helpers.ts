@@ -1,34 +1,36 @@
 import {
   catchError,
+  EMPTY,
   lastValueFrom,
   type Observable,
-  of,
   tap,
   toArray,
 } from 'rxjs'
 
-export type NextEmission<T> = {kind: 'NEXT'; value: T}
-export type ErrorEmission = {kind: 'ERROR'; error: unknown}
-export type CompleteEmission = {kind: 'COMPLETE'}
-export type Notification<T> = NextEmission<T> | ErrorEmission | CompleteEmission
+export type NextNotification<T> = {kind: 'NEXT'; value: T}
+export type ErrorNotification = {kind: 'ERROR'; error: unknown}
+export type CompleteNotification = {kind: 'COMPLETE'}
+export type Notification<T> =
+  | NextNotification<T>
+  | ErrorNotification
+  | CompleteNotification
+
 export function collectNotifications<T>(observable: Observable<T>) {
-  const emissions: Notification<T>[] = []
+  const notifications: Notification<T>[] = []
   const subscription = observable
     .pipe(
       tap({
-        next: value => emissions.push({kind: 'NEXT', value}),
-        error: error => emissions.push({kind: 'ERROR', error}),
-        complete: () => emissions.push({kind: 'COMPLETE'}),
+        next: value => notifications.push({kind: 'NEXT', value}),
+        error: error => notifications.push({kind: 'ERROR', error}),
+        complete: () => notifications.push({kind: 'COMPLETE'}),
       }),
-      catchError(error => {
-        // console.log(new Date(), 'caught error', error)
-        return of(null)
-      }),
+      // error notifications are handled above
+      catchError(() => EMPTY),
     )
     .subscribe()
 
   return {
-    emissions,
+    notifications,
     unsubscribe: () => subscription?.unsubscribe(),
   }
 }

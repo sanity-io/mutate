@@ -106,7 +106,7 @@ export type Conflict = {
   local: SanityDocumentBase | undefined
 }
 
-export interface LocalDataset {
+export interface OptimisticStore {
   meta: {
     // just some ideas…
     /**

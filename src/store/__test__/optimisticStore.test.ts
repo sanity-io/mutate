@@ -85,13 +85,13 @@ describe('local mutations', () => {
       submit: () => NEVER,
     })
 
-    const {emissions, unsubscribe} = collectNotifications(
+    const {notifications, unsubscribe} = collectNotifications(
       store.listenEvents('foo'),
     )
 
     store.mutate([{type: 'create', document: {_id: 'foo', _type: 'foo'}}])
 
-    expect(emissions).toEqual([
+    expect(notifications).toEqual([
       {
         kind: 'NEXT',
         value: {
@@ -146,13 +146,13 @@ describe('local mutations', () => {
       submit: () => NEVER,
     })
 
-    const {emissions, unsubscribe} = collectNotifications(
+    const {notifications, unsubscribe} = collectNotifications(
       store.listenEvents('foo'),
     )
 
     store.mutate([{type: 'createIfNotExists', document: doc}])
 
-    expect(emissions).toEqual([
+    expect(notifications).toEqual([
       {
         kind: 'NEXT',
         value: {
@@ -176,7 +176,7 @@ describe('local mutations', () => {
 
     await sleep(20)
 
-    expect(emissions).toEqual([
+    expect(notifications).toEqual([
       {
         kind: 'NEXT',
         value: {
@@ -254,7 +254,7 @@ describe('local mutations', () => {
       submit: () => NEVER,
     })
 
-    const {emissions, unsubscribe} = collectNotifications(
+    const {notifications, unsubscribe} = collectNotifications(
       store.listenEvents('foo'),
     )
 
@@ -264,7 +264,7 @@ describe('local mutations', () => {
     // Typically, consumers should use `createIfNotExists` instead of `create` to avoid this
     store.mutate([{type: 'create', document: doc}])
 
-    expect(emissions).toEqual([
+    expect(notifications).toEqual([
       {
         kind: 'NEXT',
         value: {
@@ -288,7 +288,7 @@ describe('local mutations', () => {
 
     await sleep(100)
 
-    expect(emissions).toMatchObject([
+    expect(notifications).toMatchObject([
       {
         kind: 'NEXT',
         value: {
