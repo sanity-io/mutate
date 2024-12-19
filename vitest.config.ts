@@ -6,6 +6,7 @@ export default defineConfig({
       tsconfig: 'tsconfig.dist.json',
     },
     coverage: {
+      include: ['src/**'],
       reporter: ['text-summary', 'json', 'html'],
     },
   },
