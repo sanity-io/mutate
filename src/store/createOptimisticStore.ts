@@ -25,9 +25,9 @@ import {squashMutationGroups} from './optimizations/squashMutations'
 import {rebase} from './rebase'
 import {
   type ListenerEvent,
-  type LocalDataset,
   type MutationGroup,
   type OptimisticDocumentEvent,
+  type OptimisticStore,
   type RemoteDocumentEvent,
   type RemoteMutationEvent,
   type SubmitResult,
@@ -36,7 +36,7 @@ import {
 import {createReplayMemoizer} from './utils/createReplayMemoizer'
 import {filterMutationGroupsById} from './utils/filterMutationGroups'
 
-export interface LocalDatasetBackend {
+export interface OptimisticStoreBackend {
   /**
    * Sets up a subscription to a document
    * The first event should either be a sync event or an error event.
@@ -71,8 +71,8 @@ const EMPTY_ARRAY: any[] = []
  * @param backend
  */
 export function createOptimisticStore(
-  backend: LocalDatasetBackend,
-): LocalDataset {
+  backend: OptimisticStoreBackend,
+): OptimisticStore {
   const local = createDocumentMap()
   const remote = createDocumentMap()
   const memoize = createReplayMemoizer(1000)
