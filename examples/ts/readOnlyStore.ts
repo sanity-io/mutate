@@ -1,10 +1,10 @@
 import {createClient} from '@sanity/client'
 import {
   createDocumentEventListener,
-  createDocumentLoader,
+  createDocumentLoaderFromClient,
   createDocumentUpdateListener,
   createReadOnlyStore,
-  createSharedListener,
+  createSharedListenerFromClient,
 } from '@sanity/mutate/_unstable_store'
 
 const client = createClient({
@@ -12,13 +12,12 @@ const client = createClient({
 })
 
 // Create a document loader (data loader that will batch requests for individual documents)
-const loadDocument = createDocumentLoader({client})
+const loadDocument = createDocumentLoaderFromClient(client)
 
-const sharedListenerEvents = createSharedListener({
-  client,
+const sharedListenerEvents = createSharedListenerFromClient(client, {
   // optional filter. Must match the doucment types you want to subscribe to.
   // defaults to `*`
-  // filter: `_type == 'some-type'`
+  // filter: `_type == 'some-type'`,
 })
 
 const listenDocumentEvents = createDocumentEventListener({

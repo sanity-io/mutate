@@ -1,9 +1,9 @@
-import {type QueryParams, type SanityClient} from '@sanity/client'
+import {type SanityClient} from '@sanity/client'
 import {sortedIndex} from 'lodash'
 import {type Observable, of} from 'rxjs'
 import {filter, map, mergeMap, scan} from 'rxjs/operators'
 
-import {listenWithErrors} from './utils/listenWithErrors'
+import {type ListenerEndpointEvent, type QueryParams} from '../types'
 
 export type DocumentIdSetState = {
   status: 'connecting' | 'reconnecting' | 'connected'
@@ -30,32 +30,51 @@ const INITIAL_STATE: DocumentIdSetState = {
   snapshot: [],
 }
 
-export function createIdSetListener(client: SanityClient) {
+export type FetchDocumentIdsFn = (
+  query: string,
+  params?: QueryParams,
+  options?: {tag?: string},
+) => Observable<string[]>
+
+export type IdSetListenFn = (
+  query: string,
+  params?: QueryParams,
+  options?: {
+    visibility: 'transaction'
+    events: ['welcome', 'mutation', 'reconnect']
+    includeResult: false
+    includeMutations: false
+    tag?: string
+  },
+) => Observable<ListenerEndpointEvent>
+
+export function createIdSetListener(
+  listen: IdSetListenFn,
+  fetch: FetchDocumentIdsFn,
+) {
   return function listenIdSet(
     queryFilter: string,
-    params?: QueryParams,
+    params: QueryParams,
     options: {tag?: string} = {},
   ) {
     const {tag} = options
 
     const query = `*[${queryFilter}]._id`
     function fetchFilter() {
-      return client.observable
-        .fetch(query, params, {
-          tag: tag ? tag + '.fetch' : undefined,
-        })
-        .pipe(
-          map((result): string[] => {
-            if (!Array.isArray(result)) {
-              throw new Error(
-                `Expected query to return array of documents, but got ${typeof result}`,
-              )
-            }
-            return result as string[]
-          }),
-        )
+      return fetch(query, params, {
+        tag: tag ? tag + '.fetch' : undefined,
+      }).pipe(
+        map((result): string[] => {
+          if (!Array.isArray(result)) {
+            throw new Error(
+              `Expected query to return array of documents, but got ${typeof result}`,
+            )
+          }
+          return result as string[]
+        }),
+      )
     }
-    return listenWithErrors(client, query, params, {
+    return listen(query, params, {
       visibility: 'transaction',
       events: ['welcome', 'mutation', 'reconnect'],
       includeResult: false,
@@ -102,6 +121,7 @@ export function createIdSetListener(client: SanityClient) {
     )
   }
 }
+export function createIdSetListenerFromClient(client: SanityClient) {}
 
 /** Converts a stream of id set listener events into a state containing the list of document ids */
 export function toState(options: {insert?: InsertMethod} = {}) {
