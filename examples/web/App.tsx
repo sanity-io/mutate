@@ -9,9 +9,9 @@ import {
 } from '@sanity/mutate'
 import {
   createDocumentEventListener,
-  createDocumentLoader,
+  createDocumentLoaderFromClient,
   createOptimisticStore,
-  createSharedListener,
+  createSharedListenerFromClient,
   type MutationGroup,
   type RemoteDocumentEvent,
 } from '@sanity/mutate/_unstable_store'
@@ -160,11 +160,9 @@ const sanityClient = createClient({
   token: import.meta.env.VITE_SANITY_API_TOKEN,
 })
 
-const sharedListener = createSharedListener({
-  client: sanityClient,
-})
+const sharedListener = createSharedListenerFromClient(sanityClient)
 
-const loadDocument = createDocumentLoader({client: sanityClient})
+const loadDocument = createDocumentLoaderFromClient(sanityClient)
 
 const listenDocument = createDocumentEventListener({
   loadDocument,

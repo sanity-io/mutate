@@ -27,6 +27,27 @@ export interface ListenerReconnectEvent {
   type: 'reconnect'
 }
 
+export type ListenerChannelErrorEvent = {
+  type: 'channelError'
+  message: string
+}
+
+export type ListenerWelcomeEvent = {
+  type: 'welcome'
+  listenerName: string
+}
+
+export type ListenerDisconnectEvent = {
+  type: 'disconnect'
+  reason: string
+}
+export type ListenerEndpointEvent =
+  | ListenerWelcomeEvent
+  | ListenerMutationEvent
+  | ListenerReconnectEvent
+  | ListenerChannelErrorEvent
+  | ListenerDisconnectEvent
+
 export type ListenerEvent<Doc extends SanityDocumentBase = SanityDocumentBase> =
   ListenerSyncEvent<Doc> | ListenerMutationEvent | ListenerReconnectEvent
 
@@ -39,6 +60,10 @@ export interface OptimisticDocumentEvent {
   stagedChanges: Mutation[]
 }
 
+export type QueryParams = Record<
+  string,
+  string | number | boolean | (string | number | boolean)[]
+>
 export interface RemoteSyncEvent {
   type: 'sync'
   id: string
