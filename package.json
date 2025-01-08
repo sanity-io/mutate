@@ -83,7 +83,7 @@
     "test:ui": "vitest --ui",
     "coverage": "vitest run --coverage",
     "example:web": "pnpm --filter example-web run dev",
-    "check": "run-s typecheck pkg:build test",
+    "check": "run-s typecheck typecheck:examples pkg:build test",
     "dev": "run-p pkg:watch",
     "prepublishOnly": "npm run build"
   },
