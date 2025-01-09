@@ -1,11 +1,12 @@
 import * as CompactEncoder from './encoders/compact'
+import * as FormCompatEncoder from './encoders/form-compat'
 import * as SanityEncoder from './encoders/sanity'
 import * as CompactFormatter from './formatters/compact'
 
 export * from './mutations/autoKeys'
 export * from './mutations/creators'
 export * from './mutations/operations/creators'
-export {CompactEncoder, SanityEncoder}
+export {CompactEncoder, FormCompatEncoder, SanityEncoder}
 
 export {CompactFormatter}
 
