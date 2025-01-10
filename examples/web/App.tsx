@@ -50,6 +50,7 @@ import {
 import {Fragment, type ReactNode, useCallback, useEffect, useState} from 'react'
 import {concatMap, filter, from, merge, tap} from 'rxjs'
 import styled from 'styled-components'
+import {useThrottledCallback} from 'use-debounce'
 
 import {DocumentView} from './DocumentView'
 import {personForm} from './forms/person'
@@ -195,6 +196,7 @@ function App() {
 
   const [staged, setStaged] = useState<MutationGroup[]>([])
   const [autoOptimize, setAutoOptimize] = useState<boolean>(true)
+  const [autoSave, setAutosave] = useState<boolean>(true)
 
   const [remoteLogEntries, setRemoteLogEntries] = useState<
     RemoteDocumentEvent[]
@@ -230,10 +232,22 @@ function App() {
     return () => sub.unsubscribe()
   }, [documentId])
 
+  const commit = useThrottledCallback(
+    () => {
+      // eslint-disable-next-line no-console
+      datastore.submit().catch(err => console.error(err))
+    },
+    500,
+    {trailing: true},
+  )
+
   const handleMutate = useCallback(
     (mutations: Mutation[]) => {
       datastore.mutate(mutations)
       if (autoOptimize) datastore.optimize()
+      if (autoSave) {
+        commit()
+      }
     },
     [autoOptimize],
   )
@@ -411,6 +425,21 @@ function App() {
                         }}
                       />
                       <Text size={1}>Auto optimize</Text>
+                    </Flex>
+                    <Flex
+                      as="label"
+                      flex={1}
+                      gap={2}
+                      align="center"
+                      justify="center"
+                    >
+                      <Checkbox
+                        checked={autoSave}
+                        onChange={e => {
+                          setAutosave(e.currentTarget.checked)
+                        }}
+                      />
+                      <Text size={1}>Autosave</Text>
                     </Flex>
                     <Button
                       onClick={() => {
