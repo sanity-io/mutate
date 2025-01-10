@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.12.0](https://github.com/sanity-io/mutate/compare/mutate-v0.11.1...mutate-v0.12.0) (2025-01-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* **listeners:**
+- `createDocumentLoader` is renamed to `createDocumentLoaderFromClient`
+- `createSharedListener` is renamed to `createDocumentLoaderFromClient`
+
+### Features
+
+* add converter for form patches to mutate patches ([#44](https://github.com/sanity-io/mutate/issues/44)) ([5f48b6a](https://github.com/sanity-io/mutate/commit/5f48b6aad7a4ee90d32753a2c2fdda649f0a8ff7))
+
+
+### Code Refactoring
+
+* **listeners:** support custom fetch and listen functions ([#43](https://github.com/sanity-io/mutate/issues/43)) ([521e850](https://github.com/sanity-io/mutate/commit/521e850d362158603a73279a1e73454e37bff346))
+
 ## [0.11.1](https://github.com/sanity-io/mutate/compare/mutate-v0.11.0...mutate-v0.11.1) (2024-11-28)
 
 
