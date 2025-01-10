@@ -34,6 +34,7 @@ import {
   type TransactionalMutationGroup,
 } from './types'
 import {createReplayMemoizer} from './utils/createReplayMemoizer'
+import {createTransactionId} from './utils/createTransactionId'
 import {filterMutationGroupsById} from './utils/filterMutationGroups'
 
 export interface OptimisticStoreBackend {
@@ -77,15 +78,24 @@ export function createOptimisticStore(
   const remote = createDocumentMap()
   const memoize = createReplayMemoizer(1000)
   let stagedChanges: MutationGroup[] = []
+  let pendingTransactions: string[] = []
 
   const remoteEvents$ = new Subject<RemoteDocumentEvent>()
   const localMutations$ = new Subject<OptimisticDocumentEvent>()
 
   const stage$ = new Subject<void>()
 
-  function stage(nextPending: MutationGroup[]) {
+  function setStaged(nextPending: MutationGroup[]) {
     stagedChanges = nextPending
     stage$.next()
+  }
+
+  // todo: expose this as subscribable
+  // technically, changes are _saved_ as long as there's no staged mutations and the submit request didn't fail
+  // but when we have an empty `pendingTransactions` means that all the mutations we have submitted has been echoed back to us over the listener
+  // so it can provide an extra safety check
+  function setPendingTransactions(nextPending: string[]) {
+    pendingTransactions = pendingTransactions.concat(nextPending)
   }
 
   function getLocalEvents(id: string) {
@@ -119,6 +129,12 @@ export function createOptimisticStore(
         } else if (event.type === 'mutation') {
           // we have already seen this mutation
           if (event.transactionId === oldRemote?._rev) {
+            return EMPTY
+          }
+          const idx = pendingTransactions.indexOf(event.resultRev)
+          if (idx > -1) {
+            // we received our own transaction
+            pendingTransactions.splice(idx, 1)
             return EMPTY
           }
 
@@ -166,7 +182,7 @@ export function createOptimisticStore(
       tap(event => {
         local.set(event.id, event.after.local)
         remote.set(event.id, event.after.remote)
-        stage(event.rebasedStage)
+        setStaged(event.rebasedStage)
       }),
       tap({
         next: event => remoteEvents$.next(event),
@@ -247,21 +263,17 @@ export function createOptimisticStore(
         ),
       ),
     optimize: () => {
-      stage(squashMutationGroups(stagedChanges))
+      setStaged(squashMutationGroups(stagedChanges))
     },
     submit: () => {
       const pending = stagedChanges
-      stage([])
-      return lastValueFrom(
-        backend
-          .submit(
-            toTransactions(
-              // Squashing DMP strings is the last thing we do before submitting
-              squashDMPStrings(remote, squashMutationGroups(pending)),
-            ),
-          )
-          .pipe(toArray()),
+      setStaged([])
+      const transactions = toTransactions(
+        // Squashing DMP strings is the last thing we do before submitting
+        squashDMPStrings(remote, squashMutationGroups(pending)),
       )
+      setPendingTransactions(transactions.map(t => t.id!))
+      return lastValueFrom(backend.submit(transactions).pipe(toArray()))
     },
   }
 }
@@ -271,6 +283,6 @@ function toTransactions(groups: MutationGroup[]): Transaction[] {
     if (group.transaction && group.id !== undefined) {
       return {id: group.id!, mutations: group.mutations}
     }
-    return {mutations: group.mutations}
+    return {id: createTransactionId(), mutations: group.mutations}
   })
 }
