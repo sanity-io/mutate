@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.1](https://github.com/sanity-io/mutate/compare/mutate-v0.12.0...mutate-v0.12.1) (2025-01-10)
+
+
+### Bug Fixes
+
+* **store:** ignore own mutations as they arrive from the listener ([#46](https://github.com/sanity-io/mutate/issues/46)) ([b5ac022](https://github.com/sanity-io/mutate/commit/b5ac02277ff35886b2f62adabd0c63ac05eb249c))
+
 ## [0.12.0](https://github.com/sanity-io/mutate/compare/mutate-v0.11.1...mutate-v0.12.0) (2025-01-09)
 
 
