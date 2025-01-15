@@ -24,6 +24,7 @@ import {
 } from '../mutations/types'
 import {applyAll} from './documentMap/applyDocumentMutation'
 import {applyMutationEventEffects} from './documentMap/applyMendoza'
+import {createDocumentMap} from './documentMap/createDocumentMap'
 import {
   type DocumentMutationUpdate,
   type DocumentUpdate,
@@ -68,6 +69,8 @@ export type LocalState = {
 export function createOptimisticStore2(
   backend: OptimisticStoreBackend,
 ): OptimisticStore2 {
+  const remote = createDocumentMap()
+
   const submitRequests$ = new Subject<void>()
   const localMutations$ = new Subject<MutationGroup>()
 
@@ -113,7 +116,7 @@ export function createOptimisticStore2(
     )
   }
 
-  const submissions = localMutations$.pipe(
+  const submitRequests = localMutations$.pipe(
     bufferWhen(() => submitRequests$),
     mergeMap(mutationGroups => {
       return concat(
@@ -128,12 +131,14 @@ export function createOptimisticStore2(
 
   return {
     listen(id: string): Observable<SanityDocumentBase | undefined> {
-      const remoteUpdates = listenDocumentUpdates(id).pipe(share())
-      const baseDocument$ = remoteUpdates.pipe(
-        filter(u => u?.event.type === 'sync'),
+      const remoteUpdates = listenDocumentUpdates(id).pipe(
+        share(),
+        tap(update => {
+          remote.set(update.documentId, update.snapshot)
+        }),
       )
 
-      const remoteVersions = remoteUpdates.pipe(
+      const remoteMutations = remoteUpdates.pipe(
         filter(
           (update): update is DocumentMutationUpdate<SanityDocumentBase> =>
             update.event.type === 'mutation',
@@ -145,25 +150,27 @@ export function createOptimisticStore2(
         })),
       )
 
+      const remoteSync = remoteUpdates.pipe(
+        filter(update => update.event.type === 'sync'),
+        map(update => ({type: 'sync' as const, snapshot: update.snapshot})),
+      )
+
       return merge(
+        remoteSync,
         // subscribing for the side effect
-        submissions.pipe(
-          concatMap(s => {
-            return from(s.transaction).pipe(
+        submitRequests.pipe(
+          concatMap(submitRequest =>
+            from(submitRequest.transaction).pipe(
               concatMap(transaction => backend.submit(transaction)),
               mergeMap(() => EMPTY),
-            )
-          }),
+            ),
+          ),
         ),
-        submissions,
+        submitRequests,
         localMutations$.pipe(
           map(m => ({type: 'localMutation' as const, mutations: m})),
         ),
-        baseDocument$.pipe(
-          filter(update => update.event.type === 'sync'),
-          map(update => ({type: 'sync' as const, snapshot: update.snapshot})),
-        ),
-        remoteVersions,
+        remoteMutations,
       ).pipe(
         scan(
           (state: LocalState, ev) => {
@@ -194,6 +201,9 @@ export function createOptimisticStore2(
                 local: [],
               }
             }
+            // @ts-expect-error - should cover all cases
+            // eslint-disable-next-line no-console
+            console.warn('Unhandled "%s" event', ev.type)
             return state
           },
           {inflight: [], local: [], base: undefined},

@@ -35,6 +35,7 @@ import {
 } from './types'
 import {createReplayMemoizer} from './utils/createReplayMemoizer'
 import {filterMutationGroupsById} from './utils/filterMutationGroups'
+import {toTransactions} from './utils/toTransactions'
 
 export interface OptimisticStoreBackend {
   /**
