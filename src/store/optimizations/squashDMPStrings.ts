@@ -11,12 +11,12 @@ interface DataStore {
   get: (id: string) => SanityDocumentBase | undefined
 }
 export function squashDMPStrings(
-  remote: DataStore,
+  base: DataStore,
   mutationGroups: MutationGroup[],
 ): MutationGroup[] {
   return mutationGroups.map(mutationGroup => ({
     ...mutationGroup,
-    mutations: dmpIfyMutations(remote, mutationGroup.mutations),
+    mutations: dmpIfyMutations(base, mutationGroup.mutations),
   }))
 }
 

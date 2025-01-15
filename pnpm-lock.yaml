@@ -135,6 +135,9 @@ importers:
       react-jason:
         specifier: ^1.1.2
         version: 1.1.2(react@18.3.1)
+      react-multiplayer-input:
+        specifier: file://./react-multiplayer-input-0.0.0.tgz
+        version: file:examples/web/react-multiplayer-input-0.0.0.tgz
       rxjs:
         specifier: ^7.8.1
         version: 7.8.1
@@ -1115,6 +1118,10 @@ packages:
     resolution: {integrity: sha512-k5aW5C8RdqVGnvuX0KZ+AAIlhYueb6sx3edhKkIMmr2UfD8vSTSW3oAXVt+/WlBstlMIqvkc5RCLLWZQcF3gaA==}
     engines: {node: '>=14.18'}
 
+  '@sanity/client@6.24.3':
+    resolution: {integrity: sha512-WfF6Gq2rCxv7n9IcWYRvtGpCYq4398MT303HJhwP/jf3jeU81OxWZ+ApGat37BOJ37tDZmhHxG3Pb1boDxA0EQ==}
+    engines: {node: '>=14.18'}
+
   '@sanity/color@3.0.6':
     resolution: {integrity: sha512-2TjYEvOftD0v7ukx3Csdh9QIu44P2z7NDJtlC3qITJRYV36J7R6Vfd3trVhFnN77/7CZrGjqngrtohv8VqO5nw==}
     engines: {node: '>=18.0.0'}
@@ -1122,6 +1129,11 @@ packages:
   '@sanity/diff-match-patch@3.1.1':
     resolution: {integrity: sha512-dSZqGeYjHKGIkqAzGqLcG92LZyJGX+nYbs/FWawhBbTBDWi21kvQ0hsL3DJThuFVWtZMWTQijN3z6Cnd44Pf2g==}
     engines: {node: '>=14.18'}
+
+  '@sanity/diff-match-patch@file:examples/web/sanity-diff-match-patch-3.1.2.tgz':
+    resolution: {integrity: sha512-6uCDLieL3z9t38VxMA4OvJxcjcntfOvs9snu7D2hHVt4lu1Npza029cXfaqeqmzHVENazYCDvDifn0L1Z7Ymnw==, tarball: file:examples/web/sanity-diff-match-patch-3.1.2.tgz}
+    version: 3.1.2
+    engines: {node: '>=18.18'}
 
   '@sanity/eventsource@5.0.2':
     resolution: {integrity: sha512-/B9PMkUvAlUrpRq0y+NzXgRv5lYCLxZNsBJD2WXVnqZYOfByL9oQBV7KiTaARuObp5hcQYuPfOAVjgXe3hrixA==}
@@ -2651,6 +2663,11 @@ packages:
     peerDependencies:
       react: '>=16'
 
+  react-multiplayer-input@file:examples/web/react-multiplayer-input-0.0.0.tgz:
+    resolution: {integrity: sha512-61+VHr1HfLvnaqRvtrvbjfCljv/9AlUJjowTzSwiZQcFf2PbplVacMv8CLRmiVSHO/n8uWyP2jo0JHOw+JvtkQ==, tarball: file:examples/web/react-multiplayer-input-0.0.0.tgz}
+    version: 0.0.0
+    engines: {node: '>=18'}
+
   react-refractor@2.2.0:
     resolution: {integrity: sha512-UvWkBVqH/2b9nkkkt4UNFtU3aY1orQfd4plPjx5rxbefy6vGajNHU9n+tv8CbykFyVirr3vEBfN2JTxyK0d36g==}
     peerDependencies:
@@ -4052,9 +4069,19 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
+  '@sanity/client@6.24.3':
+    dependencies:
+      '@sanity/eventsource': 5.0.2
+      get-it: 8.6.5
+      rxjs: 7.8.1
+    transitivePeerDependencies:
+      - debug
+
   '@sanity/color@3.0.6': {}
 
   '@sanity/diff-match-patch@3.1.1': {}
+
+  '@sanity/diff-match-patch@file:examples/web/sanity-diff-match-patch-3.1.2.tgz': {}
 
   '@sanity/eventsource@5.0.2':
     dependencies:
@@ -5788,6 +5815,13 @@ snapshots:
   react-jason@1.1.2(react@18.3.1):
     dependencies:
       react: 18.3.1
+
+  react-multiplayer-input@file:examples/web/react-multiplayer-input-0.0.0.tgz:
+    dependencies:
+      '@sanity/client': 6.24.3
+      '@sanity/diff-match-patch': file:examples/web/sanity-diff-match-patch-3.1.2.tgz
+    transitivePeerDependencies:
+      - debug
 
   react-refractor@2.2.0(react@18.3.1):
     dependencies:

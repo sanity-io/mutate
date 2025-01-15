@@ -1,6 +1,7 @@
 import {defineForm} from '@sanity/sanitype'
 
 import {address, person} from '../schema/person'
+import {textsDemo} from '../schema/textsDemo'
 
 const addressForm = defineForm(address, {
   title: 'Address',
@@ -18,6 +19,14 @@ const addressForm = defineForm(address, {
   },
 })
 
+export const textsDemoForm = defineForm(textsDemo, {
+  fields: {
+    title: {title: 'Title'},
+    textOne: {title: 'Text 1', multiline: true},
+    textTwo: {title: 'Text 2', multiline: true},
+    textThree: {title: 'Text 3', multiline: true},
+  },
+})
 /**
  * Define a form for the person type. TypeScript will yell at you if you don't declare a field for all properties defined
  * for the schema type

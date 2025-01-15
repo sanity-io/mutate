@@ -16,10 +16,8 @@ export function startTyping(
   input: HTMLInputElement | HTMLTextAreaElement,
   text: string,
   delay: (char: string) => number,
+  onEnd: () => void,
 ) {
-  input.select() // you can also use input.focus()
-  input.value = ''
-
   let current = 0
 
   let timerId = setTimeout(write, 0)
@@ -35,6 +33,8 @@ export function startTyping(
     current++
     if (current < text.length) {
       timerId = setTimeout(write, delay(char!))
+    } else {
+      onEnd()
     }
   }
 

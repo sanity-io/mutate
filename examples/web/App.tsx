@@ -61,7 +61,7 @@ import {useThrottledCallback} from 'use-debounce'
 
 import {createOptimisticStore2} from '../../src/store/createOptimisticStore2'
 import {DocumentView} from './DocumentView'
-import {personForm} from './forms/person'
+import {textsDemoForm} from './forms/person'
 import {
   BooleanInput,
   DocumentInput,
@@ -78,6 +78,7 @@ import {JsonView} from './lib/json-view/JsonView'
 import {FormatMutation} from './lib/mutate-formatter/react'
 import {startTyping} from './lib/textTyper'
 import {person} from './schema/person'
+import {textsDemo} from './schema/textsDemo'
 
 function Unresolved<Schema extends SanityAny>(props: InputProps<Schema>) {
   return <Text>Unresolved input for type {props.schema.typeName}</Text>
@@ -159,8 +160,8 @@ function renderInput<Props extends InputProps<SanityAny>>(
   return <Unresolved {...props} />
 }
 
-const personDraft = draft(person)
-type PersonDraft = Infer<typeof personDraft>
+const textsDemoDraft = draft(textsDemo)
+type DraftDocument = Infer<typeof textsDemoDraft>
 
 const sanityClient = createClient({
   projectId: import.meta.env.VITE_SANITY_API_PROJECT_ID,
@@ -196,8 +197,8 @@ const DOCUMENT_IDS = ['some-document', 'some-other-document']
 function App() {
   const [documentId, setDocumentId] = useState<string>(DOCUMENT_IDS[0]!)
   const [documentState, setDocumentState] = useState<{
-    local?: PersonDraft
-    remote?: PersonDraft
+    local?: DraftDocument
+    remote?: DraftDocument
   }>({})
 
   const [staged, setStaged] = useState<MutationGroup[]>([])
@@ -211,18 +212,19 @@ function App() {
   useEffect(() => {
     const sub = datastore
       .listen(documentId)
-      .pipe(tap(document => setDocumentState({local: document as PersonDraft})))
+      .pipe(
+        tap(document => setDocumentState({local: document as DraftDocument})),
+      )
       .subscribe()
     return () => sub.unsubscribe()
   }, [documentId])
 
   const commit = useThrottledCallback(
     () => {
-      // eslint-disable-next-line no-console
-      datastore.submit().catch(err => console.error(err))
+      datastore.submit()
     },
-    500,
-    {trailing: true},
+    5000,
+    {leading: false, trailing: true},
   )
 
   const handleMutate = useCallback(
@@ -250,18 +252,16 @@ function App() {
     path: [],
   })
 
-  const [typing, setTyping] = useState<{id: string; path: Path}>({
-    id: documentId,
-    path: [],
-  })
+  const [typing, setTyping] = useState<{id: string; path: Path} | null>(null)
 
   const typingRef = useRef<HTMLInputElement>()
   useEffect(() => {
-    if (typingRef.current) {
+    if (typing && typingRef.current) {
       return startTyping(
         typingRef.current,
         TEXT,
-        () => Math.random() * 20 + Math.random() * 100,
+        () => Math.random() * 20 + Math.random() * 1000,
+        () => setTyping(null),
       )
     }
     return undefined
@@ -335,11 +335,11 @@ function App() {
                           value={
                             documentState.local || {
                               _id: documentId,
-                              _type: person.shape._type.value,
+                              _type: textsDemo.shape._type.value,
                             }
                           }
-                          schema={personDraft}
-                          form={personForm}
+                          schema={textsDemoDraft}
+                          form={textsDemoForm}
                           onMutation={handleMutation}
                           renderInput={inputProps => {
                             const hasAttention =
@@ -366,7 +366,7 @@ function App() {
                               />
                             )
                             const isTyping = isEqual(
-                              typing.path,
+                              typing?.path,
                               inputProps.path,
                             )
 
@@ -391,21 +391,25 @@ function App() {
                                           icon={isTyping ? PauseIcon : PlayIcon}
                                           mode="bleed"
                                           onClick={() => {
-                                            setTyping(path => {
-                                              return {
-                                                id: documentId,
-                                                path: isEqual(
-                                                  path.path,
-                                                  inputProps.path,
-                                                )
-                                                  ? []
-                                                  : inputProps.path,
-                                              }
-                                            })
+                                            setTyping(t =>
+                                              t
+                                                ? null
+                                                : {
+                                                    id: documentId,
+                                                    path: isEqual(
+                                                      t?.path,
+                                                      inputProps.path,
+                                                    )
+                                                      ? []
+                                                      : inputProps.path,
+                                                  },
+                                            )
                                           }}
                                         />
                                       ) : null}
-                                      {attentionButton ? attentionButton : null}
+                                      {false && attentionButton
+                                        ? attentionButton
+                                        : null}
                                     </Flex>
                                   </Box>
                                 </Flex>
@@ -426,16 +430,18 @@ function App() {
                 ))}
               </Stack>
             </Card>
-            <Box flex={2}>
-              <DocumentView
-                local={documentState.local}
-                remote={documentState.remote}
-              />
-            </Box>
+            {false && (
+              <Box flex={2}>
+                <DocumentView
+                  local={documentState.local}
+                  remote={documentState.remote}
+                />
+              </Box>
+            )}
           </Flex>
           <Flex size={2} gap={2}>
             <Card flex={1} shadow={2} radius={2} height="fill" overflow="auto">
-              <Stack space={4} padding={4} height="fill">
+              <Stack space={4} height="fill">
                 <Flex align="center" justify="center">
                   <Box flex={1}>
                     <Heading size={1} textOverflow="ellipsis">

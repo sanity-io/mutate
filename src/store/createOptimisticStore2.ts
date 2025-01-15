@@ -13,7 +13,6 @@ import {
   share,
   startWith,
   Subject,
-  tap,
 } from 'rxjs'
 import {scan} from 'rxjs/operators'
 
@@ -29,6 +28,9 @@ import {
   type DocumentMutationUpdate,
   type DocumentUpdate,
 } from './listeners/createDocumentUpdateListener'
+import {squashDMPStrings} from './optimizations/squashDMPStrings'
+import {squashMutationGroups} from './optimizations/squashMutations'
+import {rebase2} from './rebase2'
 import {
   type ListenerEvent,
   type MutationGroup,
@@ -38,7 +40,6 @@ import {
 } from './types'
 import {createTransactionId} from './utils/createTransactionId'
 import {filterDocumentTransactions} from './utils/filterDocumentTransactions'
-import {mergeMutationGroups} from './utils/mergeMutationGroups'
 import {toTransactions} from './utils/toTransactions'
 
 export interface OptimisticStoreBackend {
@@ -63,13 +64,29 @@ export type LocalState = {
 }
 
 /**
+ * Models a document as it is changed by our own local patches and remote patches coming in from
+ * the server. Consolidates incoming patches with our own submitted patches and maintains two
+ * versions of the document.
+ *
+ *  ## Terminology:
+ *
+ *  ### Mutation buffers
+ * - *Local*: - an array of mutations only applied locally, waiting to be submitted to the server
+ * - *In-flight*: - an array of mutation on its way to the server, waiting to be received over the listener
+ *
+ *  ### Snapshots:
+ * – *Base*: - a snapshot of the document consistent with the mutations we have received from the server.
+ * - *Edge*: - The base snapshot with in-flight mutations applied to it - presumably what will soon become the next base
+ * - *Local*: - the optimistic document that the user sees that will always immediately reflect whatever they are doing to it
+ *
+ *
  * Creates a local dataset that allows subscribing to documents by id and submitting mutations to be optimistically applied
  * @param backend
  */
 export function createOptimisticStore2(
   backend: OptimisticStoreBackend,
 ): OptimisticStore2 {
-  const remote = createDocumentMap()
+  const edge = createDocumentMap()
 
   const submitRequests$ = new Subject<void>()
   const localMutations$ = new Subject<MutationGroup>()
@@ -116,13 +133,17 @@ export function createOptimisticStore2(
     )
   }
 
+  // This needs to be connected with rebase!!!!!
   const submitRequests = localMutations$.pipe(
     bufferWhen(() => submitRequests$),
     mergeMap(mutationGroups => {
+      const transactions = toTransactions(
+        squashDMPStrings(edge, squashMutationGroups(mutationGroups)),
+      )
       return concat(
         of({
           type: 'submit' as const,
-          transaction: toTransactions(mergeMutationGroups(mutationGroups)),
+          transaction: transactions,
         }),
       )
     }),
@@ -131,12 +152,7 @@ export function createOptimisticStore2(
 
   return {
     listen(id: string): Observable<SanityDocumentBase | undefined> {
-      const remoteUpdates = listenDocumentUpdates(id).pipe(
-        share(),
-        tap(update => {
-          remote.set(update.documentId, update.snapshot)
-        }),
-      )
+      const remoteUpdates = listenDocumentUpdates(id).pipe(share())
 
       const remoteMutations = remoteUpdates.pipe(
         filter(
@@ -185,13 +201,33 @@ export function createOptimisticStore2(
                 local: local.concat(ev.mutations),
               }
             }
+
             if (ev.type === 'arrive') {
+              const isPending = inflight[0]?.id === ev.transactionId
+              const nextInflight = isPending ? inflight.slice(1) : inflight
+
+              const newEdge = applyAll(
+                ev.base,
+                filterDocumentTransactions(nextInflight, id),
+              )
+
+              const oldEdge = edge.get(id)
+              const [newLocalMutations] = rebase2(id, oldEdge, newEdge, local)
+
+              // now calculate dmps for each of them against current edge
+              console.log('REBASE', JSON.stringify(newLocalMutations))
+              // We received a mutation from the listener that came before any of the ones in-flight
+              // Now, assuming our in-flight patch comes in next, our document will likely be a product of:
+              // new base + inflight applied on top + local changes
+              // In order to capture user intention on diffMatchPatch We now want to rewrite our local patches by
+              // 1. compacting them, so that multiple set patches on the same string becomes distilled to the last one
+              // 2. generate diffmatchpatch between the old edge and current local. these should reflect what the user wanted to do
+              // 3. apply these diffmatchpatch patches on top of the new base + inflight
+              // 4. calculate set patches from the results and use as new `local`
               return {
                 base: ev.base,
-                inflight: inflight.filter(
-                  transaction => transaction.id !== ev.transactionId,
-                ),
-                local,
+                inflight: nextInflight,
+                local: newLocalMutations,
               }
             }
             if (ev.type === 'submit') {
@@ -209,17 +245,21 @@ export function createOptimisticStore2(
           {inflight: [], local: [], base: undefined},
         ),
         startWith({inflight: [], local: [], base: undefined}),
-        // eslint-disable-next-line no-console
-        tap(s => console.log(s)),
+
+        //tap(s => console.log(s)),
         map(state => {
+          const nextEdge = applyAll(
+            state.base,
+            filterDocumentTransactions(state.inflight, id),
+          )
+          edge.set(id, nextEdge)
           // whenever state changes
           // apply inflight + local on base
-          return applyAll(
-            state.base,
-            filterDocumentTransactions(state.inflight, id).concat(
-              filterDocumentTransactions(state.local, id),
-            ),
+          const nextLocalDocument = applyAll(
+            nextEdge,
+            filterDocumentTransactions(state.local, id),
           )
+          return nextLocalDocument
         }),
       )
     },
@@ -265,12 +305,6 @@ export function reconcile(
     }),
   )
 }
-
-export function _arriveRemote(
-  state: LocalState,
-  base: SanityDocumentBase | undefined,
-  transactionId: string,
-) {}
 
 export function createTransaction(groups: MutationGroup[]): Transaction[] {
   return groups.map(group => {

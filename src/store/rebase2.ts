@@ -32,7 +32,7 @@ function flattenMutations(mutations: Mutation[]) {
   })
 }
 
-export function rebase(
+export function rebase2(
   documentId: string,
   oldBase: SanityDocumentBase | undefined,
   newBase: SanityDocumentBase | undefined,
