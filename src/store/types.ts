@@ -185,3 +185,25 @@ export interface OptimisticStore {
    */
   submit(): Promise<SubmitResult[]>
 }
+
+export interface OptimisticStore2 {
+  /**
+   * Applies the given mutations. Mutations are not guaranteed to be submitted in the same transaction
+   */
+  mutate(mutation: Mutation[]): Promise<void>
+
+  /**
+   * Checkout a document for editing. This is required to be able to see optimistic changes
+   */
+  listen(id: string): Observable<SanityDocumentBase | undefined>
+
+  /**
+   * Optimize list of pending mutations
+   */
+  optimize(): void
+
+  /**
+   * Submit pending mutations
+   */
+  submit(): Promise<SubmitResult[]>
+}

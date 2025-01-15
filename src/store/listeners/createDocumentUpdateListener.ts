@@ -3,13 +3,34 @@ import {scan} from 'rxjs/operators'
 
 import {type SanityDocumentBase} from '../../mutations/types'
 import {applyMutationEventEffects} from '../documentMap/applyMendoza'
-import {type ListenerEvent} from '../types'
+import {
+  type ListenerEvent,
+  type ListenerMutationEvent,
+  type ListenerReconnectEvent,
+  type ListenerSyncEvent,
+} from '../types'
 
-export interface DocumentUpdate<Doc extends SanityDocumentBase> {
+export interface DocumentSyncUpdate<Doc extends SanityDocumentBase> {
   documentId: string
   snapshot: Doc | undefined
-  event: ListenerEvent<Doc>
+  event: ListenerSyncEvent<Doc>
 }
+export interface DocumentMutationUpdate<Doc extends SanityDocumentBase> {
+  documentId: string
+  snapshot: Doc | undefined
+  event: ListenerMutationEvent
+}
+
+export interface DocumentReconnectUpdate<Doc extends SanityDocumentBase> {
+  documentId: string
+  snapshot: Doc | undefined
+  event: ListenerReconnectEvent
+}
+
+export type DocumentUpdate<Doc extends SanityDocumentBase> =
+  | DocumentSyncUpdate<Doc>
+  | DocumentMutationUpdate<Doc>
+  | DocumentReconnectUpdate<any>
 
 export type DocumentUpdateListener<Doc extends SanityDocumentBase> = (
   id: string,

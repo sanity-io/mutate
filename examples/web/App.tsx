@@ -1,5 +1,5 @@
 import {createClient} from '@sanity/client'
-import {CollapseIcon, ExpandIcon} from '@sanity/icons'
+import {CollapseIcon, ExpandIcon, PauseIcon, PlayIcon} from '@sanity/icons'
 import {
   createIfNotExists,
   del,
@@ -10,7 +10,6 @@ import {
 import {
   createDocumentEventListener,
   createDocumentLoaderFromClient,
-  createOptimisticStore,
   createSharedListenerFromClient,
   type MutationGroup,
   type RemoteDocumentEvent,
@@ -47,11 +46,20 @@ import {
   TabPanel,
   Text,
 } from '@sanity/ui'
-import {Fragment, type ReactNode, useCallback, useEffect, useState} from 'react'
-import {concatMap, filter, from, merge, tap} from 'rxjs'
+import {isEqual} from 'lodash'
+import {
+  Fragment,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
+import {from, tap} from 'rxjs'
 import styled from 'styled-components'
 import {useThrottledCallback} from 'use-debounce'
 
+import {createOptimisticStore2} from '../../src/store/createOptimisticStore2'
 import {DocumentView} from './DocumentView'
 import {personForm} from './forms/person'
 import {
@@ -68,6 +76,7 @@ import {FormNode} from './lib/form/FormNode'
 import {PrimitiveUnionInput} from './lib/form/inputs/PrimitiveUnionInput'
 import {JsonView} from './lib/json-view/JsonView'
 import {FormatMutation} from './lib/mutate-formatter/react'
+import {startTyping} from './lib/textTyper'
 import {person} from './schema/person'
 
 function Unresolved<Schema extends SanityAny>(props: InputProps<Schema>) {
@@ -170,21 +179,18 @@ const listenDocument = createDocumentEventListener({
   listenerEvents: sharedListener,
 })
 
-const datastore = createOptimisticStore({
+const datastore = createOptimisticStore2({
   listen: listenDocument,
-  submit: transactions => {
-    return from(transactions).pipe(
-      concatMap(transaction =>
-        sanityClient.dataRequest(
-          'mutate',
-          SanityEncoder.encodeTransaction(transaction),
-          {visibility: 'async', returnDocuments: false},
-        ),
+  submit: transaction =>
+    from(
+      sanityClient.dataRequest(
+        'mutate',
+        SanityEncoder.encodeTransaction(transaction),
+        {visibility: 'async', returnDocuments: false},
       ),
-    )
-  },
+    ),
 })
-
+const TEXT = `The Earth is a very small stage in a vast cosmic arena. Think of the rivers of blood spilled by all those generals and emperors so that, in glory and triumph, they could become the momentary masters of a fraction of a dot. Think of the endless cruelties visited by the inhabitants of one corner of this pixel on the scarcely distinguishable inhabitants of some other corner, how frequent their misunderstandings, how eager they are to kill one another, how fervent their hatreds.`
 const DOCUMENT_IDS = ['some-document', 'some-other-document']
 
 function App() {
@@ -203,31 +209,9 @@ function App() {
   >([])
 
   useEffect(() => {
-    const staged$ = datastore.meta.stage.pipe(tap(next => setStaged(next)))
-    const remote$ = datastore.meta.events.pipe(
-      filter(
-        (ev): ev is RemoteDocumentEvent =>
-          ev.type === 'sync' || ev.type === 'mutation',
-      ),
-      tap(event => setRemoteLogEntries(e => [...e, event].slice(0, 100))),
-    )
-    const sub = merge(staged$, remote$).subscribe()
-    return () => sub.unsubscribe()
-  }, [])
-  useEffect(() => {
     const sub = datastore
-      .listenEvents(documentId)
-      .pipe(
-        tap(event => {
-          setDocumentState(current => {
-            return (
-              event.type === 'optimistic'
-                ? {...current, local: event.after}
-                : event.after
-            ) as {remote: PersonDraft; local: PersonDraft}
-          })
-        }),
-      )
+      .listen(documentId)
+      .pipe(tap(document => setDocumentState({local: document as PersonDraft})))
       .subscribe()
     return () => sub.unsubscribe()
   }, [documentId])
@@ -265,6 +249,23 @@ function App() {
     id: documentId,
     path: [],
   })
+
+  const [typing, setTyping] = useState<{id: string; path: Path}>({
+    id: documentId,
+    path: [],
+  })
+
+  const typingRef = useRef<HTMLInputElement>()
+  useEffect(() => {
+    if (typingRef.current) {
+      return startTyping(
+        typingRef.current,
+        TEXT,
+        () => Math.random() * 20 + Math.random() * 100,
+      )
+    }
+    return undefined
+  }, [typing])
 
   const handleDelete = useCallback(() => {
     handleMutate([del(documentId)])
@@ -364,17 +365,48 @@ function App() {
                                 icon={hasAttention ? CollapseIcon : ExpandIcon}
                               />
                             )
+                            const isTyping = isEqual(
+                              typing.path,
+                              inputProps.path,
+                            )
+
                             return (
                               <Stack space={1}>
                                 <Flex>
-                                  <Box flex={1}>{renderInput(inputProps)}</Box>
+                                  <Box flex={1}>
+                                    {renderInput(
+                                      isTyping
+                                        ? {
+                                            ...inputProps,
+                                            ref: typingRef,
+                                          }
+                                        : inputProps,
+                                    )}
+                                  </Box>
 
                                   <Box>
-                                    {attentionButton ? (
-                                      <Flex justify="flex-end">
-                                        {attentionButton}
-                                      </Flex>
-                                    ) : null}
+                                    <Flex justify="flex-end">
+                                      {isStringInputProps(inputProps) ? (
+                                        <Button
+                                          icon={isTyping ? PauseIcon : PlayIcon}
+                                          mode="bleed"
+                                          onClick={() => {
+                                            setTyping(path => {
+                                              return {
+                                                id: documentId,
+                                                path: isEqual(
+                                                  path.path,
+                                                  inputProps.path,
+                                                )
+                                                  ? []
+                                                  : inputProps.path,
+                                              }
+                                            })
+                                          }}
+                                        />
+                                      ) : null}
+                                      {attentionButton ? attentionButton : null}
+                                    </Flex>
                                   </Box>
                                 </Flex>
                               </Stack>

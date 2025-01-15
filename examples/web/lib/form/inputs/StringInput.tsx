@@ -1,11 +1,19 @@
 import {at, set, unset} from '@sanity/mutate'
 import {type SanityString} from '@sanity/sanitype'
 import {TextArea, TextInput} from '@sanity/ui'
-import {type FormEventHandler, useCallback} from 'react'
+import {
+  type FormEventHandler,
+  type ForwardedRef,
+  forwardRef,
+  useCallback,
+} from 'react'
 
 import {type InputProps} from '../types'
 
-export function StringInput(props: InputProps<SanityString>) {
+export const StringInput = forwardRef(function StringInput(
+  props: InputProps<SanityString>,
+  forwardedRef: ForwardedRef<HTMLInputElement | HTMLTextAreaElement>,
+) {
   const {value, onPatch} = props
   const handleChange: FormEventHandler<HTMLInputElement | HTMLTextAreaElement> =
     useCallback(
@@ -25,8 +33,17 @@ export function StringInput(props: InputProps<SanityString>) {
     )
 
   return props.form?.multiline ? (
-    <TextArea value={value || ''} rows={5} onChange={handleChange} />
+    <TextArea
+      ref={(forwardedRef as ForwardedRef<HTMLTextAreaElement>) || undefined}
+      value={value || ''}
+      rows={5}
+      onChange={handleChange}
+    />
   ) : (
-    <TextInput value={value || ''} onChange={handleChange} />
+    <TextInput
+      ref={forwardedRef as ForwardedRef<HTMLInputElement>}
+      value={value || ''}
+      onChange={handleChange}
+    />
   )
-}
+})
