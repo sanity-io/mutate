@@ -190,7 +190,14 @@ export interface OptimisticStore2 {
   /**
    * Applies the given mutations. Mutations are not guaranteed to be submitted in the same transaction
    */
-  mutate(mutation: Mutation[]): Promise<void>
+  mutate(mutation: Mutation[]): void
+
+  /**
+   * Makes sure the given mutations are posted in a single transaction
+   */
+  transaction(
+    transaction: {id?: string; mutations: Mutation[]} | Mutation[],
+  ): void
 
   /**
    * Checkout a document for editing. This is required to be able to see optimistic changes
@@ -205,5 +212,5 @@ export interface OptimisticStore2 {
   /**
    * Submit pending mutations
    */
-  submit(): Promise<SubmitResult[]>
+  submit(): void
 }

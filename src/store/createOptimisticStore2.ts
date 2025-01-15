@@ -4,6 +4,7 @@ import {
   concatMap,
   EMPTY,
   filter,
+  from,
   map,
   merge,
   mergeMap,
@@ -32,9 +33,12 @@ import {
   type MutationGroup,
   type OptimisticStore2,
   type SubmitResult,
+  type TransactionalMutationGroup,
 } from './types'
 import {createTransactionId} from './utils/createTransactionId'
 import {filterDocumentTransactions} from './utils/filterDocumentTransactions'
+import {mergeMutationGroups} from './utils/mergeMutationGroups'
+import {toTransactions} from './utils/toTransactions'
 
 export interface OptimisticStoreBackend {
   /**
@@ -64,8 +68,8 @@ export type LocalState = {
 export function createOptimisticStore2(
   backend: OptimisticStoreBackend,
 ): OptimisticStore2 {
-  const submit$ = new Subject<void>()
-  const localMutations$ = new Subject<Mutation[]>()
+  const submitRequests$ = new Subject<void>()
+  const localMutations$ = new Subject<MutationGroup>()
 
   function listenDocumentUpdates<Doc extends SanityDocumentBase>(
     documentId: string,
@@ -110,14 +114,14 @@ export function createOptimisticStore2(
   }
 
   const submissions = localMutations$.pipe(
-    bufferWhen(() => submit$),
-    mergeMap(mutations => {
-      return createTransaction([
-        {transaction: false, mutations: mutations.flat()},
-      ])
-    }),
-    mergeMap(transaction => {
-      return concat(of({type: 'submit' as const, transaction}))
+    bufferWhen(() => submitRequests$),
+    mergeMap(mutationGroups => {
+      return concat(
+        of({
+          type: 'submit' as const,
+          transaction: toTransactions(mergeMutationGroups(mutationGroups)),
+        }),
+      )
     }),
     share(),
   )
@@ -125,7 +129,9 @@ export function createOptimisticStore2(
   return {
     listen(id: string): Observable<SanityDocumentBase | undefined> {
       const remoteUpdates = listenDocumentUpdates(id).pipe(share())
-      const base = remoteUpdates.pipe(filter(u => u?.event.type === 'sync'))
+      const baseDocument$ = remoteUpdates.pipe(
+        filter(u => u?.event.type === 'sync'),
+      )
 
       const remoteVersions = remoteUpdates.pipe(
         filter(
@@ -142,15 +148,18 @@ export function createOptimisticStore2(
       return merge(
         // subscribing for the side effect
         submissions.pipe(
-          concatMap(s =>
-            backend.submit(s.transaction).pipe(mergeMap(() => EMPTY)),
-          ),
+          concatMap(s => {
+            return from(s.transaction).pipe(
+              concatMap(transaction => backend.submit(transaction)),
+              mergeMap(() => EMPTY),
+            )
+          }),
         ),
         submissions,
         localMutations$.pipe(
           map(m => ({type: 'localMutation' as const, mutations: m})),
         ),
-        base.pipe(
+        baseDocument$.pipe(
           filter(update => update.event.type === 'sync'),
           map(update => ({type: 'sync' as const, snapshot: update.snapshot})),
         ),
@@ -158,17 +167,32 @@ export function createOptimisticStore2(
       ).pipe(
         scan(
           (state: LocalState, ev) => {
+            const {base, inflight, local} = state
             if (ev.type === 'sync') {
               return {...state, base: ev.snapshot}
             }
             if (ev.type === 'localMutation') {
-              return _mutateLocal(state, ev.mutations)
+              return {
+                base,
+                inflight,
+                local: local.concat(ev.mutations),
+              }
             }
             if (ev.type === 'arrive') {
-              return _arriveRemote(state, ev.base, ev.transactionId)
+              return {
+                base: ev.base,
+                inflight: inflight.filter(
+                  transaction => transaction.id !== ev.transactionId,
+                ),
+                local,
+              }
             }
             if (ev.type === 'submit') {
-              return _submit(state, ev.transaction)
+              return {
+                base,
+                inflight: inflight.concat(ev.transaction),
+                local: [],
+              }
             }
             return state
           },
@@ -178,6 +202,8 @@ export function createOptimisticStore2(
         // eslint-disable-next-line no-console
         tap(s => console.log(s)),
         map(state => {
+          // whenever state changes
+          // apply inflight + local on base
           return applyAll(
             state.base,
             filterDocumentTransactions(state.inflight, id).concat(
@@ -188,26 +214,25 @@ export function createOptimisticStore2(
       )
     },
     mutate(mutations: Mutation[]) {
-      localMutations$.next(mutations)
-      // Todo: resolve this when mutation request is submitted sucessfully
-      return Promise.resolve()
+      localMutations$.next({transaction: false, mutations})
+    },
+    transaction(
+      mutationsOrTransaction: {id?: string; mutations: Mutation[]} | Mutation[],
+    ) {
+      const transaction: TransactionalMutationGroup = Array.isArray(
+        mutationsOrTransaction,
+      )
+        ? {mutations: mutationsOrTransaction, transaction: true}
+        : {...mutationsOrTransaction, transaction: true}
+
+      localMutations$.next(transaction)
     },
     optimize() {},
     submit() {
-      submit$.next()
-      // todo
+      submitRequests$.next()
       return Promise.resolve([])
     },
   }
-}
-
-function toTransactions(groups: MutationGroup[]): Transaction[] {
-  return groups.map(group => {
-    if (group.transaction && group.id !== undefined) {
-      return {id: group.id!, mutations: group.mutations}
-    }
-    return {mutations: group.mutations}
-  })
 }
 
 /**
@@ -231,39 +256,11 @@ export function reconcile(
   )
 }
 
-export function _submit(state: LocalState, transaction: Transaction) {
-  const {inflight, base} = state
-  return {
-    base,
-    inflight: inflight.concat(transaction),
-    local: [],
-  }
-}
-
 export function _arriveRemote(
   state: LocalState,
   base: SanityDocumentBase | undefined,
   transactionId: string,
-) {
-  const {inflight, local} = state
-  if (inflight.length === 0) {
-    return {...state, base}
-  }
-  return {
-    base,
-    inflight: inflight.filter(transaction => transaction.id !== transactionId),
-    local,
-  }
-}
-
-export function _mutateLocal(state: LocalState, mutations: Mutation[]) {
-  const {inflight, local, base} = state
-  return {
-    base,
-    inflight,
-    local: local.concat({transaction: false, mutations}),
-  }
-}
+) {}
 
 export function createTransaction(groups: MutationGroup[]): Transaction[] {
   return groups.map(group => {

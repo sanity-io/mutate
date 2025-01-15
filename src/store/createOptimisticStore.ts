@@ -34,7 +34,6 @@ import {
   type TransactionalMutationGroup,
 } from './types'
 import {createReplayMemoizer} from './utils/createReplayMemoizer'
-import {createTransactionId} from './utils/createTransactionId'
 import {filterMutationGroupsById} from './utils/filterMutationGroups'
 
 export interface OptimisticStoreBackend {
@@ -276,13 +275,4 @@ export function createOptimisticStore(
       return lastValueFrom(backend.submit(transactions).pipe(toArray()))
     },
   }
-}
-
-function toTransactions(groups: MutationGroup[]): Transaction[] {
-  return groups.map(group => {
-    if (group.transaction && group.id !== undefined) {
-      return {id: group.id!, mutations: group.mutations}
-    }
-    return {id: createTransactionId(), mutations: group.mutations}
-  })
 }
