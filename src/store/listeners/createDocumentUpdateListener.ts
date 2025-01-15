@@ -16,7 +16,7 @@ export type DocumentUpdateListener<Doc extends SanityDocumentBase> = (
 ) => Observable<DocumentUpdate<Doc>>
 
 /**
- * Creates a function that can be used to listen for document snapshots
+ * Creates a function that can be used to listen for document updates
  * Emits the latest snapshot of the document along with the latest event
  * @param options
  */
