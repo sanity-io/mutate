@@ -223,7 +223,7 @@ function App() {
     () => {
       datastore.submit()
     },
-    5000,
+    1000,
     {leading: false, trailing: true},
   )
 
@@ -260,7 +260,7 @@ function App() {
       return startTyping(
         typingRef.current,
         TEXT,
-        () => Math.random() * 20 + Math.random() * 1000,
+        () => Math.random() * 20 + Math.random() * 100,
         () => setTyping(null),
       )
     }

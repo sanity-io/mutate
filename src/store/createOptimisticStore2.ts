@@ -1,5 +1,4 @@
 import {
-  bufferWhen,
   concat,
   concatMap,
   EMPTY,
@@ -13,6 +12,7 @@ import {
   share,
   startWith,
   Subject,
+  withLatestFrom,
 } from 'rxjs'
 import {scan} from 'rxjs/operators'
 
@@ -91,6 +91,8 @@ export function createOptimisticStore2(
   const submitRequests$ = new Subject<void>()
   const localMutations$ = new Subject<MutationGroup>()
 
+  const rewriteMutations$ = new Subject<MutationGroup[]>()
+
   function listenDocumentUpdates<Doc extends SanityDocumentBase>(
     documentId: string,
   ) {
@@ -133,10 +135,27 @@ export function createOptimisticStore2(
     )
   }
 
-  // This needs to be connected with rebase!!!!!
-  const submitRequests = localMutations$.pipe(
-    bufferWhen(() => submitRequests$),
-    mergeMap(mutationGroups => {
+  const ready = merge(
+    localMutations$.pipe(
+      map(local => ({type: 'add' as const, mutations: local})),
+    ),
+    rewriteMutations$.pipe(
+      map(mutations => ({type: 'replace' as const, mutations})),
+    ),
+  ).pipe(
+    scan((current: MutationGroup[], action) => {
+      if (action.type === 'replace') {
+        return action.mutations
+      }
+      if (action.type === 'add') {
+        return current.concat(action.mutations)
+      }
+      return current
+    }, []),
+  )
+  const submitRequests = submitRequests$.pipe(
+    withLatestFrom(ready),
+    mergeMap(([, mutationGroups]) => {
       const transactions = toTransactions(
         squashDMPStrings(edge, squashMutationGroups(mutationGroups)),
       )
@@ -214,8 +233,10 @@ export function createOptimisticStore2(
               const oldEdge = edge.get(id)
               const [newLocalMutations] = rebase2(id, oldEdge, newEdge, local)
 
+              rewriteMutations$.next(newLocalMutations)
+
               // now calculate dmps for each of them against current edge
-              console.log('REBASE', JSON.stringify(newLocalMutations))
+              console.log('REBASE', local, JSON.stringify(newLocalMutations))
               // We received a mutation from the listener that came before any of the ones in-flight
               // Now, assuming our in-flight patch comes in next, our document will likely be a product of:
               // new base + inflight applied on top + local changes
