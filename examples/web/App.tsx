@@ -191,7 +191,7 @@ const datastore = createOptimisticStore2({
       ),
     ),
 })
-const TEXT = `The Earth is a very small stage in a vast cosmic arena. Think of the rivers of blood spilled by all those generals and emperors so that, in glory and triumph, they could become the momentary masters of a fraction of a dot. Think of the endless cruelties visited by the inhabitants of one corner of this pixel on the scarcely distinguishable inhabitants of some other corner, how frequent their misunderstandings, how eager they are to kill one another, how fervent their hatreds.`
+const TEXT = `We inhabit a universe where atoms are made in the centers of stars; where each second a thousand suns are born; where life is sparked by sunlight and lightning in the airs and waters of youthful planets; where the raw material for biological evolution is sometimes made by the explosion of a star halfway across the Milky Way; where a thing as beautiful as a galaxy is formed a hundred billion times - a Cosmos of quasars and quarks, snowflakes and fireflies, where there may be black holes and other universe and extraterrestrial civilizations whose radio messages are at this moment reaching the Earth. How pallid by comparison are the pretensions of superstition and pseudoscience; how important it is for us to pursue and understand science, that characteristically human endeavor.`
 const DOCUMENT_IDS = ['some-document', 'some-other-document']
 
 function App() {
