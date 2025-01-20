@@ -30,7 +30,7 @@ import {
 } from './listeners/createDocumentUpdateListener'
 import {squashDMPStrings} from './optimizations/squashDMPStrings'
 import {squashMutationGroups} from './optimizations/squashMutations'
-import {rebase2} from './rebase2'
+import {rebase} from './rebase'
 import {
   type ListenerEvent,
   type MutationGroup,
@@ -231,12 +231,11 @@ export function createOptimisticStore2(
               )
 
               const oldEdge = edge.get(id)
-              const [newLocalMutations] = rebase2(id, oldEdge, newEdge, local)
+              const [newLocalMutations] = rebase(id, oldEdge, newEdge, local)
 
               rewriteMutations$.next(newLocalMutations)
 
               // now calculate dmps for each of them against current edge
-              console.log('REBASE', local, JSON.stringify(newLocalMutations))
               // We received a mutation from the listener that came before any of the ones in-flight
               // Now, assuming our in-flight patch comes in next, our document will likely be a product of:
               // new base + inflight applied on top + local changes
