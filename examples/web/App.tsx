@@ -230,7 +230,6 @@ function App() {
   const handleMutate = useCallback(
     (mutations: Mutation[]) => {
       datastore.mutate(mutations)
-      if (autoOptimize) datastore.optimize()
       if (autoSave) {
         commit()
       }
@@ -479,13 +478,7 @@ function App() {
                       />
                       <Text size={1}>Autosave</Text>
                     </Flex>
-                    <Button
-                      onClick={() => {
-                        datastore.optimize()
-                      }}
-                      mode="ghost"
-                      text="Optimize pending"
-                    />
+
                     <Button
                       onClick={() => {
                         datastore.submit()

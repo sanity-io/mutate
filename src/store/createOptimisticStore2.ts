@@ -7,6 +7,7 @@ import {
   map,
   merge,
   mergeMap,
+  NEVER,
   type Observable,
   of,
   share,
@@ -34,11 +35,12 @@ import {rebase} from './rebase'
 import {
   type ListenerEvent,
   type MutationGroup,
+  type OptimisticDocumentEvent,
   type OptimisticStore2,
+  type RemoteDocumentEvent,
   type SubmitResult,
   type TransactionalMutationGroup,
 } from './types'
-import {createTransactionId} from './utils/createTransactionId'
 import {filterDocumentTransactions} from './utils/filterDocumentTransactions'
 import {toTransactions} from './utils/toTransactions'
 
@@ -86,17 +88,78 @@ export type LocalState = {
 export function createOptimisticStore2(
   backend: OptimisticStoreBackend,
 ): OptimisticStore2 {
+  const localMutations$ = new Subject<MutationGroup>()
+  const submitLocal$ = new Subject<void>()
+  const store = createOptimisticStoreInternal({
+    localMutations: localMutations$,
+    submitLocal: submitLocal$,
+    listen: backend.listen,
+    submitTransactions: backend.submit,
+  })
+  return {
+    listenEvents(
+      id: string,
+    ): Observable<RemoteDocumentEvent | OptimisticDocumentEvent> {
+      return NEVER
+    },
+    submit: () => {
+      submitLocal$.next()
+    },
+    listen: store.listen,
+    mutate(mutations: Mutation[]) {
+      localMutations$.next({transaction: false, mutations})
+    },
+    transaction(
+      mutationsOrTransaction: {id?: string; mutations: Mutation[]} | Mutation[],
+    ) {
+      const transaction: TransactionalMutationGroup = Array.isArray(
+        mutationsOrTransaction,
+      )
+        ? {mutations: mutationsOrTransaction, transaction: true}
+        : {...mutationsOrTransaction, transaction: true}
+
+      localMutations$.next(transaction)
+    },
+  }
+}
+
+type OptimisticStoreInternalConfig = {
+  /**
+   * Stream of local mutations that should be applied optimistically and be scheduled for later submission
+   */
+  localMutations: Observable<MutationGroup>
+
+  /**
+   * Stream of requests to submit local changes
+   */
+  submitLocal: Observable<void>
+
+  /**
+   * A function that when called with an id must return a stream of listener events
+   * @param id
+   */
+  listen: (id: string) => Observable<ListenerEvent>
+
+  /**
+   * A function that, when called, must submit the given mutation groups to the backend
+   * @param mutationGroups
+   */
+  submitTransactions: (mutationGroups: Transaction) => Observable<SubmitResult>
+}
+
+export function createOptimisticStoreInternal(
+  config: OptimisticStoreInternalConfig,
+) {
   const edge = createDocumentMap()
 
-  const submitRequests$ = new Subject<void>()
-  const localMutations$ = new Subject<MutationGroup>()
+  const {submitLocal, localMutations, listen, submitTransactions} = config
 
   const rewriteMutations$ = new Subject<MutationGroup[]>()
 
   function listenDocumentUpdates<Doc extends SanityDocumentBase>(
     documentId: string,
   ) {
-    return backend.listen(documentId).pipe(
+    return listen(documentId).pipe(
       scan(
         (
           prev: DocumentUpdate<Doc> | undefined,
@@ -136,7 +199,7 @@ export function createOptimisticStore2(
   }
 
   const ready = merge(
-    localMutations$.pipe(
+    localMutations.pipe(
       map(local => ({type: 'add' as const, mutations: local})),
     ),
     rewriteMutations$.pipe(
@@ -153,7 +216,7 @@ export function createOptimisticStore2(
       return current
     }, []),
   )
-  const submitRequests = submitRequests$.pipe(
+  const submitRequests = submitLocal.pipe(
     withLatestFrom(ready),
     mergeMap(([, mutationGroups]) => {
       const transactions = toTransactions(
@@ -196,13 +259,13 @@ export function createOptimisticStore2(
         submitRequests.pipe(
           concatMap(submitRequest =>
             from(submitRequest.transaction).pipe(
-              concatMap(transaction => backend.submit(transaction)),
+              concatMap(transaction => submitTransactions(transaction)),
               mergeMap(() => EMPTY),
             ),
           ),
         ),
         submitRequests,
-        localMutations$.pipe(
+        localMutations.pipe(
           map(m => ({type: 'localMutation' as const, mutations: m})),
         ),
         remoteMutations,
@@ -283,54 +346,5 @@ export function createOptimisticStore2(
         }),
       )
     },
-    mutate(mutations: Mutation[]) {
-      localMutations$.next({transaction: false, mutations})
-    },
-    transaction(
-      mutationsOrTransaction: {id?: string; mutations: Mutation[]} | Mutation[],
-    ) {
-      const transaction: TransactionalMutationGroup = Array.isArray(
-        mutationsOrTransaction,
-      )
-        ? {mutations: mutationsOrTransaction, transaction: true}
-        : {...mutationsOrTransaction, transaction: true}
-
-      localMutations$.next(transaction)
-    },
-    optimize() {},
-    submit() {
-      submitRequests$.next()
-      return Promise.resolve([])
-    },
   }
-}
-
-/**
- * Takes three streams, baseDocument$, inFlightTransactions$ and localMutations$ and returns a stream of the current document
- * @param id document id
- * @param localState$ - The local mutations, not yet submitted
- */
-export function reconcile(
-  id: string,
-  localState$: Observable<LocalState>,
-): Observable<SanityDocumentBase> {
-  return localState$.pipe(
-    map(({base, inflight, local}) => {
-      return applyAll(
-        base,
-        filterDocumentTransactions(inflight, id).concat(
-          filterDocumentTransactions(local, id),
-        ),
-      )
-    }),
-  )
-}
-
-export function createTransaction(groups: MutationGroup[]): Transaction[] {
-  return groups.map(group => {
-    if (group.transaction && group.id !== undefined) {
-      return {id: group.id!, mutations: group.mutations}
-    }
-    return {id: createTransactionId(), mutations: group.mutations}
-  })
 }

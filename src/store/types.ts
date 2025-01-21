@@ -119,6 +119,12 @@ export interface TransactionalMutationGroup {
   mutations: Mutation[]
 }
 
+/**
+ * A mutation group represents an incoming, locally added group of mutations
+ * They can either be transactional or non-transactional
+ * - Transactional means that they must be submitted as a separate transaction (with an optional id) and no other mutations can be mixed with it
+ * – Non-transactional means that they can be combined with other mutations
+ */
 export type MutationGroup =
   | NonTransactionalMutationGroup
   | TransactionalMutationGroup
@@ -200,14 +206,16 @@ export interface OptimisticStore2 {
   ): void
 
   /**
+   * Listen for events for a given document id
+   */
+  listenEvents(
+    id: string,
+  ): Observable<RemoteDocumentEvent | OptimisticDocumentEvent>
+
+  /**
    * Checkout a document for editing. This is required to be able to see optimistic changes
    */
   listen(id: string): Observable<SanityDocumentBase | undefined>
-
-  /**
-   * Optimize list of pending mutations
-   */
-  optimize(): void
 
   /**
    * Submit pending mutations
