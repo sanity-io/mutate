@@ -18,13 +18,12 @@ export function startTyping(
   onEnd: () => void,
 ) {
   let charIdx = 0
-  let insertIdx = input.selectionStart ?? 0
 
   let timerId = setTimeout(write, 0)
 
   function write() {
     const char = text[charIdx]
-    typeCharacter(input, char || '', insertIdx++)
+    typeCharacter(input, char || '', input.selectionStart ?? 0)
     charIdx++
     if (charIdx < text.length) {
       timerId = setTimeout(write, delay(char!))
