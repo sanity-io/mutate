@@ -256,6 +256,7 @@ function App() {
   const typingRef = useRef<HTMLInputElement>()
   useEffect(() => {
     if (typing && typingRef.current) {
+      typingRef.current.focus()
       return startTyping(
         typingRef.current,
         TEXT,
@@ -364,10 +365,9 @@ function App() {
                                 icon={hasAttention ? CollapseIcon : ExpandIcon}
                               />
                             )
-                            const isTyping = isEqual(
-                              typing?.path,
-                              inputProps.path,
-                            )
+                            const isTyping =
+                              documentId === id &&
+                              isEqual(typing?.path, inputProps.path)
 
                             return (
                               <Stack space={1}>

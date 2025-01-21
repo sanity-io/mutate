@@ -13,7 +13,7 @@
     "@sanity/icons": "^3.3.1",
     "@sanity/mutate": "workspace:",
     "@sanity/sanitype": "^0.6.2",
-    "react-multiplayer-input": "file://./react-multiplayer-input-0.0.0.tgz",
+    "react-multiplayer-input": "file://./react-multiplayer-input-0.0.2.tgz",
     "@sanity/ui": "^2.8.8",
     "dataloader": "^2.2.2",
     "groq-js": "^1.12.0",

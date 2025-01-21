@@ -38,16 +38,14 @@ export const StringInput = forwardRef(function StringInput(
 
   return props.form?.multiline ? (
     <MultiplayerTextArea
-      elementRef={
-        (forwardedRef as ForwardedRef<HTMLTextAreaElement>) || undefined
-      }
+      ref={forwardedRef as ForwardedRef<HTMLTextAreaElement>}
       value={value || ''}
       rows={8}
       onChange={handleChange}
     />
   ) : (
     <MultiplayerTextInput
-      elementRef={forwardedRef as ForwardedRef<HTMLInputElement>}
+      ref={forwardedRef as ForwardedRef<HTMLInputElement>}
       value={value || ''}
       onChange={handleChange}
     />

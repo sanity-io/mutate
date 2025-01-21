@@ -136,8 +136,8 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2(react@18.3.1)
       react-multiplayer-input:
-        specifier: file://./react-multiplayer-input-0.0.0.tgz
-        version: file:examples/web/react-multiplayer-input-0.0.0.tgz
+        specifier: file://./react-multiplayer-input-0.0.2.tgz
+        version: file:examples/web/react-multiplayer-input-0.0.2.tgz
       rxjs:
         specifier: ^7.8.1
         version: 7.8.1
@@ -1130,9 +1130,8 @@ packages:
     resolution: {integrity: sha512-dSZqGeYjHKGIkqAzGqLcG92LZyJGX+nYbs/FWawhBbTBDWi21kvQ0hsL3DJThuFVWtZMWTQijN3z6Cnd44Pf2g==}
     engines: {node: '>=14.18'}
 
-  '@sanity/diff-match-patch@file:examples/web/sanity-diff-match-patch-3.1.2.tgz':
-    resolution: {integrity: sha512-6uCDLieL3z9t38VxMA4OvJxcjcntfOvs9snu7D2hHVt4lu1Npza029cXfaqeqmzHVENazYCDvDifn0L1Z7Ymnw==, tarball: file:examples/web/sanity-diff-match-patch-3.1.2.tgz}
-    version: 3.1.2
+  '@sanity/diff-match-patch@3.2.0-beta.0':
+    resolution: {integrity: sha512-DqxmheeX8mVNBwEmNZDIKuZ6ZU0v6gKM+t+1qA9CL2b7twgk7Mgb6cMXL2hqjnlYDIP5CZAGlQv7jma2qfmk7g==}
     engines: {node: '>=18.18'}
 
   '@sanity/eventsource@5.0.2':
@@ -2663,9 +2662,9 @@ packages:
     peerDependencies:
       react: '>=16'
 
-  react-multiplayer-input@file:examples/web/react-multiplayer-input-0.0.0.tgz:
-    resolution: {integrity: sha512-61+VHr1HfLvnaqRvtrvbjfCljv/9AlUJjowTzSwiZQcFf2PbplVacMv8CLRmiVSHO/n8uWyP2jo0JHOw+JvtkQ==, tarball: file:examples/web/react-multiplayer-input-0.0.0.tgz}
-    version: 0.0.0
+  react-multiplayer-input@file:examples/web/react-multiplayer-input-0.0.2.tgz:
+    resolution: {integrity: sha512-rEaL1HU918Wt6S6V8lbGUf50zLn9KgNsidQ5w00WS12qJgBTA7EavdOwQaUanmj6A2TapHOsU825ZsXT4IhmRg==, tarball: file:examples/web/react-multiplayer-input-0.0.2.tgz}
+    version: 0.0.2
     engines: {node: '>=18'}
 
   react-refractor@2.2.0:
@@ -4081,7 +4080,7 @@ snapshots:
 
   '@sanity/diff-match-patch@3.1.1': {}
 
-  '@sanity/diff-match-patch@file:examples/web/sanity-diff-match-patch-3.1.2.tgz': {}
+  '@sanity/diff-match-patch@3.2.0-beta.0': {}
 
   '@sanity/eventsource@5.0.2':
     dependencies:
@@ -5816,10 +5815,10 @@ snapshots:
     dependencies:
       react: 18.3.1
 
-  react-multiplayer-input@file:examples/web/react-multiplayer-input-0.0.0.tgz:
+  react-multiplayer-input@file:examples/web/react-multiplayer-input-0.0.2.tgz:
     dependencies:
       '@sanity/client': 6.24.3
-      '@sanity/diff-match-patch': file:examples/web/sanity-diff-match-patch-3.1.2.tgz
+      '@sanity/diff-match-patch': 3.2.0-beta.0
     transitivePeerDependencies:
       - debug
 
