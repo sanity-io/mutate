@@ -17,6 +17,7 @@ import {
 } from 'rxjs'
 import {scan} from 'rxjs/operators'
 
+import {SanityEncoder} from '../index'
 import {
   type Mutation,
   type SanityDocumentBase,
@@ -42,6 +43,7 @@ import {
   type TransactionalMutationGroup,
 } from './types'
 import {filterDocumentTransactions} from './utils/filterDocumentTransactions'
+import {hasProperty} from './utils/isEffectEvent'
 import {toTransactions} from './utils/toTransactions'
 
 export interface OptimisticStoreBackend {
@@ -178,16 +180,29 @@ export function createOptimisticStoreInternal(
                 'Received a mutation event before sync event. Something is wrong',
               )
             }
-            if (!event.effects.apply) {
-              throw new Error(
-                'No effects found on listener event. The listener must be set up to use effectFormat=mendoza.',
-              )
+            if (hasProperty(event, 'effects')) {
+              return {
+                event,
+                documentId,
+                snapshot: applyMutationEventEffects(
+                  prev.snapshot,
+                  event,
+                ) as Doc,
+              }
             }
-            return {
-              event,
-              documentId,
-              snapshot: applyMutationEventEffects(prev.snapshot, event) as Doc,
+            if (hasProperty(event, 'mutations')) {
+              return {
+                event,
+                documentId,
+                snapshot: applyAll(
+                  prev.snapshot,
+                  SanityEncoder.decodeAll(event.mutations),
+                ) as Doc,
+              }
             }
+            throw new Error(
+              'No effects found on listener event. The listener must be set up to use effectFormat=mendoza.',
+            )
           }
           return {documentId, snapshot: prev?.snapshot, event}
         },

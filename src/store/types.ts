@@ -16,9 +16,9 @@ export interface ListenerMutationEvent {
   type: 'mutation'
   documentId: string
   transactionId: string
-  resultRev: string
-  previousRev: string
-  effects: {apply: RawPatch}
+  resultRev?: string
+  previousRev?: string
+  effects?: {apply: RawPatch}
   mutations: SanityMutation[]
   transition: 'update' | 'appear' | 'disappear'
 }

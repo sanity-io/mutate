@@ -2,9 +2,12 @@ import {NEVER, of, take} from 'rxjs'
 import {expect, test} from 'vitest'
 
 import {createOptimisticStore2} from '../createOptimisticStore2'
+import {createMockBackend} from '../mock/createMockBackend'
 import {allValuesFrom} from './helpers'
 
 test('Concurrent mutations and patching', async () => {
+  const mockBackend = createMockBackend()
+
   const store = createOptimisticStore2({
     listen: id => of({type: 'sync', id, document: undefined}),
     submit: () => NEVER,

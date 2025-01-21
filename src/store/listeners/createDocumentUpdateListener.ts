@@ -1,7 +1,9 @@
 import {filter, type Observable} from 'rxjs'
 import {scan} from 'rxjs/operators'
 
+import {SanityEncoder} from '../../index'
 import {type SanityDocumentBase} from '../../mutations/types'
+import {applyAll} from '../documentMap/applyDocumentMutation'
 import {applyMutationEventEffects} from '../documentMap/applyMendoza'
 import {
   type ListenerEvent,
@@ -9,6 +11,7 @@ import {
   type ListenerReconnectEvent,
   type ListenerSyncEvent,
 } from '../types'
+import {hasProperty} from '../utils/isEffectEvent'
 
 export interface DocumentSyncUpdate<Doc extends SanityDocumentBase> {
   documentId: string
@@ -66,16 +69,29 @@ export function createDocumentUpdateListener(options: {
                 'Received a mutation event before sync event. Something is wrong',
               )
             }
-            if (!event.effects.apply) {
-              throw new Error(
-                'No effects found on listener event. The listener must be set up to use effectFormat=mendoza.',
-              )
+            if (hasProperty(event, 'effects')) {
+              return {
+                event,
+                documentId,
+                snapshot: applyMutationEventEffects(
+                  prev.snapshot,
+                  event,
+                ) as Doc,
+              }
             }
-            return {
-              event,
-              documentId,
-              snapshot: applyMutationEventEffects(prev.snapshot, event) as Doc,
+            if (hasProperty(event, 'mutations')) {
+              return {
+                event,
+                documentId,
+                snapshot: applyAll(
+                  prev.snapshot,
+                  SanityEncoder.decodeAll(event.mutations),
+                ) as Doc,
+              }
             }
+            throw new Error(
+              'No effects found on listener event. The listener must be set up to use effectFormat=mendoza.',
+            )
           }
           return {documentId, snapshot: prev?.snapshot, event}
         },

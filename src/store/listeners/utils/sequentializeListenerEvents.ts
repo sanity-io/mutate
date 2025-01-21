@@ -93,6 +93,11 @@ export function sequentializeListenerEvents<Doc extends SanityDocumentBase>(
           }
 
           if (event.type === 'mutation') {
+            if (!event.resultRev && !event.previousRev) {
+              throw new Error(
+                'Invalid mutation event: Events must have either resultRev or previousRev',
+              )
+            }
             // Note: the buffer may have multiple holes in it (this is a worst case scenario, and probably not likely, but still),
             // so we need to consider all possible chains
             // `toOrderedChains` will return all detected chains and each of the returned chains will be ordered
