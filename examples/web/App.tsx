@@ -1,19 +1,7 @@
-import {createClient, type SanityClient} from '@sanity/client'
+import {createClient} from '@sanity/client'
 import {CollapseIcon, ExpandIcon, PauseIcon, PlayIcon} from '@sanity/icons'
+import {createIfNotExists, del, type Mutation, type Path} from '@sanity/mutate'
 import {
-  createIfNotExists,
-  del,
-  type Mutation,
-  type Path,
-  SanityEncoder,
-  type Transaction,
-} from '@sanity/mutate'
-import {
-  createDocumentEventListener,
-  createDocumentLoader,
-  createDocumentLoaderFromClient,
-  createSharedListener,
-  createSharedListenerFromClient,
   type MutationGroup,
   type RemoteDocumentEvent,
 } from '@sanity/mutate/_unstable_store'
@@ -58,12 +46,13 @@ import {
   useRef,
   useState,
 } from 'react'
-import {from, tap} from 'rxjs'
+import {tap} from 'rxjs'
 import styled from 'styled-components'
 import {useThrottledCallback} from 'use-debounce'
 
-import {createOptimisticStore2} from '../../src/store/createOptimisticStore2'
-import {createMockBackend} from '../../src/store/mock/createMockBackend'
+import {createOptimisticStoreClientBackend} from '../../src/store/optimistic/backend/createOptimisticStoreClientBackend'
+import {createOptimisticStoreMockBackend} from '../../src/store/optimistic/backend/createOptimisticStoreMockBackend'
+import {createOptimisticStore2} from '../../src/store/optimistic/createOptimisticStore2'
 import {DocumentView} from './DocumentView'
 import {textsDemoForm} from './forms/person'
 import {
@@ -167,21 +156,6 @@ function renderInput<Props extends InputProps<SanityAny>>(
 const textsDemoDraft = draft(textsDemo)
 type DraftDocument = Infer<typeof textsDemoDraft>
 
-function setupMock() {
-  const mockBackend = createMockBackend()
-
-  const sharedListener = createSharedListener((query: string, options) =>
-    mockBackend.listen(query),
-  )
-  const loadDocument = createDocumentLoader(ids =>
-    mockBackend.getDocuments(ids),
-  )
-  const listenDocument = createDocumentEventListener({
-    loadDocument,
-    listenerEvents: sharedListener,
-  })
-  return {listen: listenDocument, submit: mockBackend.submit}
-}
 const sanityClient = createClient({
   projectId: import.meta.env.VITE_SANITY_API_PROJECT_ID,
   dataset: import.meta.env.VITE_SANITY_API_DATASET,
@@ -190,27 +164,14 @@ const sanityClient = createClient({
   token: import.meta.env.VITE_SANITY_API_TOKEN,
 })
 
-function setupFromClient(sanityClient: SanityClient) {
-  const sharedListener = createSharedListenerFromClient(sanityClient)
-  const loadDocument = createDocumentLoaderFromClient(sanityClient)
-  const listenDocument = createDocumentEventListener({
-    loadDocument,
-    listenerEvents: sharedListener,
-  })
-  return {
-    listen: listenDocument,
-    submit: (transaction: Transaction) =>
-      from(
-        sanityClient.dataRequest(
-          'mutate',
-          SanityEncoder.encodeTransaction(transaction),
-          {visibility: 'async', returnDocuments: false},
-        ),
-      ),
-  }
-}
+const USE_CLIENT_BACKEND = true
 
-const datastore = createOptimisticStore2(setupFromClient(sanityClient))
+const datastore = createOptimisticStore2(
+  USE_CLIENT_BACKEND
+    ? createOptimisticStoreClientBackend(sanityClient)
+    : createOptimisticStoreMockBackend(),
+)
+//events.subscribe(console.log)
 
 const TEXT = `We inhabit a universe where atoms are made in the centers of stars; where each second a thousand suns are born; where life is sparked by sunlight and lightning in the airs and waters of youthful planets; where the raw material for biological evolution is sometimes made by the explosion of a star halfway across the Milky Way; where a thing as beautiful as a galaxy is formed a hundred billion times - a Cosmos of quasars and quarks, snowflakes and fireflies, where there may be black holes and other universe and extraterrestrial civilizations whose radio messages are at this moment reaching the Earth. How pallid by comparison are the pretensions of superstition and pseudoscience; how important it is for us to pursue and understand science, that characteristically human endeavor.`
 const DOCUMENT_IDS = ['some-document', 'some-other-document']
@@ -411,17 +372,12 @@ function App() {
                                           icon={isTyping ? PauseIcon : PlayIcon}
                                           mode="bleed"
                                           onClick={() => {
-                                            setTyping(t =>
-                                              t
+                                            setTyping(current =>
+                                              current
                                                 ? null
                                                 : {
                                                     id: documentId,
-                                                    path: isEqual(
-                                                      t?.path,
-                                                      inputProps.path,
-                                                    )
-                                                      ? []
-                                                      : inputProps.path,
+                                                    path: inputProps.path,
                                                   },
                                             )
                                           }}

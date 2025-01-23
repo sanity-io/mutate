@@ -89,9 +89,9 @@ export interface RemoteMutationEvent {
     local: SanityDocumentBase | undefined
     remote: SanityDocumentBase | undefined
   }
-  effects: {apply: RawPatch}
-  previousRev: string
-  resultRev: string
+  effects?: {apply: RawPatch}
+  previousRev?: string
+  resultRev?: string
   mutations: Mutation[]
   rebasedStage: MutationGroup[]
 }

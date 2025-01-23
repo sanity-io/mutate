@@ -19,11 +19,12 @@ function createWelcomeEvent(): ListenerWelcomeEvent {
     listenerName: 'mock' + Math.random().toString(32).substring(2),
   }
 }
+
 export function createMockBackend() {
   const store = createDocumentMap()
   const listenerEvents = new Subject<ListenerEndpointEvent>()
   return {
-    listen: (groqFilter: string) => {
+    listen: (query: string) => {
       return concat(
         of(createWelcomeEvent()),
         listenerEvents.pipe(filter(m => m.type === 'mutation')),

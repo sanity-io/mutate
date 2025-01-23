@@ -17,22 +17,19 @@ import {
 } from 'rxjs'
 import {scan} from 'rxjs/operators'
 
-import {SanityEncoder} from '../index'
+import {SanityEncoder} from '../../index'
 import {
   type Mutation,
   type SanityDocumentBase,
   type Transaction,
-} from '../mutations/types'
-import {applyAll} from './documentMap/applyDocumentMutation'
-import {applyMutationEventEffects} from './documentMap/applyMendoza'
-import {createDocumentMap} from './documentMap/createDocumentMap'
+} from '../../mutations/types'
+import {applyAll} from '../documentMap/applyDocumentMutation'
+import {applyMutationEventEffects} from '../documentMap/applyMendoza'
+import {createDocumentMap} from '../documentMap/createDocumentMap'
 import {
   type DocumentMutationUpdate,
   type DocumentUpdate,
-} from './listeners/createDocumentUpdateListener'
-import {squashDMPStrings} from './optimizations/squashDMPStrings'
-import {squashMutationGroups} from './optimizations/squashMutations'
-import {rebase} from './rebase'
+} from '../listeners/createDocumentUpdateListener'
 import {
   type ListenerEvent,
   type MutationGroup,
@@ -41,12 +38,15 @@ import {
   type RemoteDocumentEvent,
   type SubmitResult,
   type TransactionalMutationGroup,
-} from './types'
-import {filterDocumentTransactions} from './utils/filterDocumentTransactions'
-import {hasProperty} from './utils/isEffectEvent'
-import {toTransactions} from './utils/toTransactions'
+} from '../types'
+import {filterDocumentTransactions} from '../utils/filterDocumentTransactions'
+import {hasProperty} from '../utils/isEffectEvent'
+import {toTransactions} from '../utils/toTransactions'
+import {squashDMPStrings} from './optimizations/squashDMPStrings'
+import {squashMutationGroups} from './optimizations/squashMutations'
+import {rebase} from './rebase'
 
-export interface OptimisticStoreBackend {
+export interface OptimisticStoreBackend2 {
   /**
    * Sets up a subscription to a document
    * The first event should either be a sync event or an error event.
@@ -88,7 +88,7 @@ export type LocalState = {
  * @param backend
  */
 export function createOptimisticStore2(
-  backend: OptimisticStoreBackend,
+  backend: OptimisticStoreBackend2,
 ): OptimisticStore2 {
   const localMutations$ = new Subject<MutationGroup>()
   const submitLocal$ = new Subject<void>()

@@ -2,7 +2,7 @@ import {describe, expect, test} from 'vitest'
 
 import {at} from '../../mutations/creators'
 import {set, setIfMissing, unset} from '../../mutations/operations/creators'
-import {squashNodePatches} from '../optimizations/squashNodePatches'
+import {squashNodePatches} from '../optimistic/optimizations/squashNodePatches'
 
 describe('squashNodePatches()', () => {
   test('squashNodePatches() drops set mutations replaced by new ones', () => {

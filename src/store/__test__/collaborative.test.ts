@@ -1,8 +1,8 @@
 import {NEVER, of, take} from 'rxjs'
 import {expect, test} from 'vitest'
 
-import {createOptimisticStore2} from '../createOptimisticStore2'
 import {createMockBackend} from '../mock/createMockBackend'
+import {createOptimisticStore2} from '../optimistic/createOptimisticStore2'
 import {allValuesFrom} from './helpers'
 
 test('Concurrent mutations and patching', async () => {

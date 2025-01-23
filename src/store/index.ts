@@ -1,4 +1,3 @@
-export * from './createOptimisticStore'
 export * from './createReadOnlyStore'
 export * from './listeners/createDocumentEventListener'
 export * from './listeners/createDocumentLoader'
@@ -6,6 +5,7 @@ export * from './listeners/createDocumentUpdateListener'
 export * from './listeners/createIdSetListener'
 export * from './listeners/createSharedListener'
 export type * from './listeners/types'
+export * from './optimistic/createOptimisticStore'
 export type * from './types'
 
 /** Required support types */

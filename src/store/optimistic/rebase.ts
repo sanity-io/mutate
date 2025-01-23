@@ -1,15 +1,15 @@
-import {applyPatches} from '../apply'
+import {applyPatches} from '../../apply'
 import {
   type Mutation,
   type NodePatch,
   type PatchMutation,
   type SanityDocumentBase,
-} from '../mutations/types'
-import {getAtPath} from '../path'
-import {applyAll} from './documentMap/applyDocumentMutation'
+} from '../../mutations/types'
+import {getAtPath} from '../../path'
+import {applyAll} from '../documentMap/applyDocumentMutation'
+import {type MutationGroup} from '../types'
+import {getMutationDocumentId} from '../utils/getMutationDocumentId'
 import {compactDMPSetPatches} from './optimizations/squashNodePatches'
-import {type MutationGroup} from './types'
-import {getMutationDocumentId} from './utils/getMutationDocumentId'
 
 type RebaseTransaction = {
   mutations: Mutation[]

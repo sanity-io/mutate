@@ -1,7 +1,7 @@
 import {concat, delay, NEVER, of, take} from 'rxjs'
 import {describe, expect, test} from 'vitest'
 
-import {createOptimisticStore} from '../createOptimisticStore'
+import {createOptimisticStore} from '../optimistic/createOptimisticStore'
 import {allValuesFrom, collectNotifications, sleep} from './helpers'
 
 describe('observing documents', () => {

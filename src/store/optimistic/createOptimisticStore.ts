@@ -14,15 +14,14 @@ import {
   toArray,
 } from 'rxjs'
 
-import {decodeAll, type SanityMutation} from '../encoders/sanity'
-import {type Transaction} from '../mutations/types'
-import {applyMutationEventEffects} from './documentMap/applyMendoza'
-import {applyMutations} from './documentMap/applyMutations'
-import {commit} from './documentMap/commit'
-import {createDocumentMap} from './documentMap/createDocumentMap'
-import {squashDMPStrings} from './optimizations/squashDMPStrings'
-import {squashMutationGroups} from './optimizations/squashMutations'
-import {rebase} from './rebase'
+import {decodeAll, type SanityMutation} from '../../encoders/sanity'
+import {SanityEncoder} from '../../index'
+import {type Transaction} from '../../mutations/types'
+import {applyAll} from '../documentMap/applyDocumentMutation'
+import {applyMutationEventEffects} from '../documentMap/applyMendoza'
+import {applyMutations} from '../documentMap/applyMutations'
+import {commit} from '../documentMap/commit'
+import {createDocumentMap} from '../documentMap/createDocumentMap'
 import {
   type ListenerEvent,
   type MutationGroup,
@@ -32,10 +31,14 @@ import {
   type RemoteMutationEvent,
   type SubmitResult,
   type TransactionalMutationGroup,
-} from './types'
-import {createReplayMemoizer} from './utils/createReplayMemoizer'
-import {filterMutationGroupsById} from './utils/filterMutationGroups'
-import {toTransactions} from './utils/toTransactions'
+} from '../types'
+import {createReplayMemoizer} from '../utils/createReplayMemoizer'
+import {filterMutationGroupsById} from '../utils/filterMutationGroups'
+import {hasProperty} from '../utils/isEffectEvent'
+import {toTransactions} from '../utils/toTransactions'
+import {squashDMPStrings} from './optimizations/squashDMPStrings'
+import {squashMutationGroups} from './optimizations/squashMutations'
+import {rebase} from './rebase'
 
 export interface OptimisticStoreBackend {
   /**
@@ -131,14 +134,27 @@ export function createOptimisticStore(
           if (event.transactionId === oldRemote?._rev) {
             return EMPTY
           }
-          const idx = pendingTransactions.indexOf(event.resultRev)
+          const idx = pendingTransactions.indexOf(
+            event.resultRev || 'undefined',
+          )
           if (idx > -1) {
             // we received our own transaction
             pendingTransactions.splice(idx, 1)
             return EMPTY
           }
-
-          const newRemote = applyMutationEventEffects(oldRemote, event)
+          let newRemote
+          if (hasProperty(event, 'effects')) {
+            newRemote = applyMutationEventEffects(oldRemote, event)
+          } else if (hasProperty(event, 'mutations')) {
+            newRemote = applyAll(
+              oldRemote,
+              SanityEncoder.decodeAll(event.mutations),
+            )
+          } else {
+            throw new Error(
+              'Neither effects or mutations found on listener event',
+            )
+          }
 
           const [rebasedStage, newLocal] = rebase(
             id,
