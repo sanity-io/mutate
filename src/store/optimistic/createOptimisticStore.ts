@@ -1,8 +1,10 @@
 import {type ReconnectEvent} from '@sanity/client'
 import {
+  concatMap,
   defer,
   EMPTY,
   filter,
+  from,
   lastValueFrom,
   map,
   merge,
@@ -14,15 +16,14 @@ import {
   toArray,
 } from 'rxjs'
 
-import {decodeAll, type SanityMutation} from '../encoders/sanity'
-import {type Transaction} from '../mutations/types'
-import {applyMutationEventEffects} from './documentMap/applyMendoza'
-import {applyMutations} from './documentMap/applyMutations'
-import {commit} from './documentMap/commit'
-import {createDocumentMap} from './documentMap/createDocumentMap'
-import {squashDMPStrings} from './optimizations/squashDMPStrings'
-import {squashMutationGroups} from './optimizations/squashMutations'
-import {rebase} from './rebase'
+import {decodeAll, type SanityMutation} from '../../encoders/sanity'
+import {SanityEncoder} from '../../index'
+import {type Transaction} from '../../mutations/types'
+import {applyAll} from '../documentMap/applyDocumentMutation'
+import {applyMutationEventEffects} from '../documentMap/applyMendoza'
+import {applyMutations} from '../documentMap/applyMutations'
+import {commit} from '../documentMap/commit'
+import {createDocumentMap} from '../documentMap/createDocumentMap'
 import {
   type ListenerEvent,
   type MutationGroup,
@@ -32,10 +33,14 @@ import {
   type RemoteMutationEvent,
   type SubmitResult,
   type TransactionalMutationGroup,
-} from './types'
-import {createReplayMemoizer} from './utils/createReplayMemoizer'
-import {createTransactionId} from './utils/createTransactionId'
-import {filterMutationGroupsById} from './utils/filterMutationGroups'
+} from '../types'
+import {createReplayMemoizer} from '../utils/createReplayMemoizer'
+import {createTransactionId} from '../utils/createTransactionId'
+import {filterMutationGroupsById} from '../utils/filterMutationGroups'
+import {hasProperty} from '../utils/isEffectEvent'
+import {squashDMPStrings} from './optimizations/squashDMPStrings'
+import {squashMutationGroups} from './optimizations/squashMutations'
+import {rebase} from './rebase'
 
 export interface OptimisticStoreBackend {
   /**
@@ -45,7 +50,7 @@ export interface OptimisticStoreBackend {
    * @param id
    */
   listen: (id: string) => Observable<ListenerEvent>
-  submit: (mutationGroups: Transaction[]) => Observable<SubmitResult>
+  submit: (mutationGroups: Transaction) => Observable<SubmitResult>
 }
 
 let didEmitMutationsAccessWarning = false
@@ -84,7 +89,7 @@ export function createOptimisticStore(
 
   const stage$ = new Subject<void>()
 
-  function stage(nextPending: MutationGroup[]) {
+  function setStaged(nextPending: MutationGroup[]) {
     stagedChanges = nextPending
     stage$.next()
   }
@@ -122,9 +127,19 @@ export function createOptimisticStore(
           if (event.transactionId === oldRemote?._rev) {
             return EMPTY
           }
-
-          const newRemote = applyMutationEventEffects(oldRemote, event)
-
+          let newRemote
+          if (hasProperty(event, 'effects')) {
+            newRemote = applyMutationEventEffects(oldRemote, event)
+          } else if (hasProperty(event, 'mutations')) {
+            newRemote = applyAll(
+              oldRemote,
+              SanityEncoder.decodeAll(event.mutations),
+            )
+          } else {
+            throw new Error(
+              'Neither effects or mutations found on listener event',
+            )
+          }
           const [rebasedStage, newLocal] = rebase(
             id,
             oldRemote,
@@ -167,7 +182,7 @@ export function createOptimisticStore(
       tap(event => {
         local.set(event.id, event.after.local)
         remote.set(event.id, event.after.remote)
-        stage(event.rebasedStage)
+        setStaged(event.rebasedStage)
       }),
       tap({
         next: event => remoteEvents$.next(event),
@@ -248,20 +263,21 @@ export function createOptimisticStore(
         ),
       ),
     optimize: () => {
-      stage(squashMutationGroups(stagedChanges))
+      setStaged(squashMutationGroups(stagedChanges))
     },
     submit: () => {
       const pending = stagedChanges
-      stage([])
+      setStaged([])
       return lastValueFrom(
-        backend
-          .submit(
-            toTransactions(
-              // Squashing DMP strings is the last thing we do before submitting
-              squashDMPStrings(remote, squashMutationGroups(pending)),
-            ),
-          )
-          .pipe(toArray()),
+        from(
+          toTransactions(
+            // Squashing DMP strings is the last thing we do before submitting
+            squashDMPStrings(remote, squashMutationGroups(pending)),
+          ),
+        ).pipe(
+          concatMap(mut => backend.submit(mut)),
+          toArray(),
+        ),
       )
     },
   }

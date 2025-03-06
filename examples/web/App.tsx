@@ -1,17 +1,11 @@
 import {createClient} from '@sanity/client'
 import {CollapseIcon, ExpandIcon} from '@sanity/icons'
+import {createIfNotExists, del, type Mutation, type Path} from '@sanity/mutate'
 import {
-  createIfNotExists,
-  del,
-  type Mutation,
-  type Path,
-  SanityEncoder,
-} from '@sanity/mutate'
-import {
-  createDocumentEventListener,
-  createDocumentLoaderFromClient,
+  createMockBackendAPI,
   createOptimisticStore,
-  createSharedListenerFromClient,
+  createOptimisticStoreClientBackend,
+  createOptimisticStoreMockBackend,
   type MutationGroup,
   type RemoteDocumentEvent,
 } from '@sanity/mutate/_unstable_store'
@@ -48,7 +42,7 @@ import {
   Text,
 } from '@sanity/ui'
 import {Fragment, type ReactNode, useCallback, useEffect, useState} from 'react'
-import {concatMap, filter, from, merge, tap} from 'rxjs'
+import {filter, merge, tap} from 'rxjs'
 import styled from 'styled-components'
 import {useThrottledCallback} from 'use-debounce'
 
@@ -161,29 +155,14 @@ const sanityClient = createClient({
   token: import.meta.env.VITE_SANITY_API_TOKEN,
 })
 
-const sharedListener = createSharedListenerFromClient(sanityClient)
+const USE_MOCK_BACKEND = true
 
-const loadDocument = createDocumentLoaderFromClient(sanityClient)
-
-const listenDocument = createDocumentEventListener({
-  loadDocument,
-  listenerEvents: sharedListener,
-})
-
-const datastore = createOptimisticStore({
-  listen: listenDocument,
-  submit: transactions => {
-    return from(transactions).pipe(
-      concatMap(transaction =>
-        sanityClient.dataRequest(
-          'mutate',
-          SanityEncoder.encodeTransaction(transaction),
-          {visibility: 'async', returnDocuments: false},
-        ),
-      ),
-    )
-  },
-})
+const datastore = createOptimisticStore(
+  USE_MOCK_BACKEND
+    ? createOptimisticStoreMockBackend(createMockBackendAPI())
+    : createOptimisticStoreClientBackend(sanityClient),
+)
+//events.subscribe(console.log)
 
 const DOCUMENT_IDS = ['some-document', 'some-other-document']
 
@@ -403,7 +382,7 @@ function App() {
           </Flex>
           <Flex size={2} gap={2}>
             <Card flex={1} shadow={2} radius={2} height="fill" overflow="auto">
-              <Stack space={4} padding={4} height="fill">
+              <Stack space={4} height="fill">
                 <Flex align="center" justify="center">
                   <Box flex={1}>
                     <Heading size={1} textOverflow="ellipsis">
@@ -441,13 +420,6 @@ function App() {
                       />
                       <Text size={1}>Autosave</Text>
                     </Flex>
-                    <Button
-                      onClick={() => {
-                        datastore.optimize()
-                      }}
-                      mode="ghost"
-                      text="Optimize pending"
-                    />
                     <Button
                       onClick={() => {
                         datastore.submit()

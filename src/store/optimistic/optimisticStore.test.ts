@@ -1,8 +1,8 @@
 import {concat, delay, NEVER, of, take} from 'rxjs'
 import {describe, expect, test} from 'vitest'
 
-import {createOptimisticStore} from '../createOptimisticStore'
-import {allValuesFrom, collectNotifications, sleep} from './helpers'
+import {allValuesFrom, collectNotifications, sleep} from '../__test__/helpers'
+import {createOptimisticStore} from './createOptimisticStore'
 
 describe('observing documents', () => {
   test('observing a document that does not exist on the backend', async () => {
