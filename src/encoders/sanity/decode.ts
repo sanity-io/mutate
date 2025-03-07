@@ -227,6 +227,7 @@ function decodeNodePatches<T>(patch: SanityPatch): NodePatch<any, any>[] {
     ...getIncPatches(patch),
     ...getDecPatches(patch),
     ...getInsertPatches(patch),
+    ...getDiffMatchPatchPatches(patch),
   ]
 
   throw new Error(`Unknown patch: ${JSON.stringify(patch)}`)
