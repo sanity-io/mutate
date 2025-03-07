@@ -1,5 +1,6 @@
 import {partition} from 'lodash'
-import {concat, filter, type Observable, of, Subject} from 'rxjs'
+import {concat, filter, merge, NEVER, type Observable, of, Subject} from 'rxjs'
+import {map} from 'rxjs/operators'
 
 import {SanityEncoder} from '../../index'
 import {type Transaction} from '../../mutations/types'
@@ -29,29 +30,36 @@ export interface MockBackendAPI {
   submit(transaction: Transaction): Observable<SubmitResult>
 }
 export function createMockBackendAPI(): MockBackendAPI {
-  const store = createDocumentMap()
+  const documentMap = createDocumentMap()
   const listenerEvents = new Subject<ListenerEndpointEvent>()
   return {
     listen: (query: string) => {
       return concat(
         of(createWelcomeEvent()),
-        listenerEvents.pipe(filter(m => m.type === 'mutation')),
+        merge(NEVER, listenerEvents).pipe(
+          filter(m => m.type === 'mutation'),
+          map(ev => structuredClone(ev)),
+        ),
       )
     },
     getDocuments(ids: string[]): Observable<DocEndpointResponse> {
-      const docs = ids.map(id => ({id, document: store.get(id)}))
+      const docs = ids.map(id => ({id, document: documentMap.get(id)}))
       const [existing, omitted] = partition(docs, entry => entry.document)
-      return of({
-        documents: existing.map(entry => entry.document!),
-        omitted: omitted.map(entry => ({id: entry.id, reason: 'existence'})),
-      } satisfies DocEndpointResponse)
+      return of(
+        structuredClone({
+          documents: existing.map(entry => entry.document!),
+          omitted: omitted.map(entry => ({id: entry.id, reason: 'existence'})),
+        } satisfies DocEndpointResponse),
+      )
     },
-    submit: (transaction: Transaction) => {
+    submit: (_transaction: Transaction) => {
+      const transaction = structuredClone(_transaction)
       const result = applyMutations(
         transaction.mutations,
-        store,
+        documentMap,
         transaction.id as never,
       )
+
       result.forEach(res => {
         listenerEvents.next({
           type: 'mutation',
