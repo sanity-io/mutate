@@ -13,7 +13,7 @@ function omitRev(document: SanityDocumentBase | undefined) {
 export function applyMendozaPatch(
   document: SanityDocumentBase | undefined,
   patch: RawPatch,
-  patchBaseRev: string,
+  patchBaseRev?: string,
 ): SanityDocumentBase | undefined {
   if (patchBaseRev !== document?._rev) {
     throw new Error(
@@ -26,7 +26,7 @@ export function applyMendozaPatch(
 
 export function applyMutationEventEffects(
   document: SanityDocumentBase | undefined,
-  event: {effects: {apply: RawPatch}; previousRev: string; resultRev: string},
+  event: {effects: {apply: RawPatch}; previousRev?: string; resultRev?: string},
 ) {
   if (!event.effects) {
     throw new Error(

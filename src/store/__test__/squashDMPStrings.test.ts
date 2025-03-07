@@ -7,7 +7,7 @@ import {
   setIfMissing,
   unset,
 } from '../../mutations/operations/creators'
-import {squashDMPStrings} from '../optimizations/squashDMPStrings'
+import {squashDMPStrings} from '../optimistic/optimizations/squashDMPStrings'
 
 test('squashDMPStrings() a simple case', () => {
   const remote = {_id: 'test', _type: 'test', foo: 'bar\nbaz'}

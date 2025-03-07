@@ -5,7 +5,7 @@ import {set} from '../../mutations/operations/creators'
 import {
   squashMutationGroups,
   squashMutations,
-} from '../optimizations/squashMutations'
+} from '../optimistic/optimizations/squashMutations'
 import {chunkWhile} from '../utils/mergeMutationGroups'
 
 test('squashMutations() merges subsequent patch mutations for the same document', () => {

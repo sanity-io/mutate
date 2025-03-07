@@ -1,4 +1,4 @@
-export function discardChainTo<T extends {resultRev: string}>(
+export function discardChainTo<T extends {resultRev?: string}>(
   chain: T[],
   revision: string | undefined,
 ) {
@@ -15,12 +15,12 @@ function split<T>(array: T[], index: number): [T[], T[]] {
 }
 
 export function toOrderedChains<
-  T extends {previousRev: string; resultRev: string},
+  T extends {previousRev?: string; resultRev?: string},
 >(events: T[]) {
   const parents: Record<string, T | undefined> = {}
 
   events.forEach(event => {
-    parents[event.resultRev] = events.find(
+    parents[event.resultRev || 'undefined'] = events.find(
       other => other.resultRev === event.previousRev,
     )
   })
@@ -38,7 +38,7 @@ export function toOrderedChains<
     const sortedList: T[] = []
     while (current) {
       sortedList.push(current)
-      // eslint-disable-next-line no-loop-func
+
       current = events.find(event => event.previousRev === current?.resultRev)
     }
     return sortedList

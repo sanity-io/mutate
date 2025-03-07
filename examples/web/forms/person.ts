@@ -17,7 +17,6 @@ const addressForm = defineForm(address, {
     },
   },
 })
-
 /**
  * Define a form for the person type. TypeScript will yell at you if you don't declare a field for all properties defined
  * for the schema type

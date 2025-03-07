@@ -11,7 +11,7 @@ import {type SanityDocumentBase} from '../mutations/types'
 import {
   type DocumentUpdate,
   type DocumentUpdateListener,
-} from './listeners/createSnapshotListener'
+} from './listeners/createDocumentUpdateListener'
 
 export type MapTuple<T, U> = {[K in keyof T]: U}
 
