@@ -44,7 +44,7 @@ import {
 import {Fragment, type ReactNode, useCallback, useEffect, useState} from 'react'
 import {filter, merge, tap} from 'rxjs'
 import styled from 'styled-components'
-import {useThrottledCallback} from 'use-debounce'
+import {useDebouncedCallback} from 'use-debounce'
 
 import {DocumentView} from './DocumentView'
 import {personForm} from './forms/person'
@@ -211,7 +211,7 @@ function App() {
     return () => sub.unsubscribe()
   }, [documentId])
 
-  const commit = useThrottledCallback(
+  const commit = useDebouncedCallback(
     () => {
       // eslint-disable-next-line no-console
       datastore.submit().catch(err => console.error(err))
@@ -469,7 +469,9 @@ function App() {
                             <JsonView
                               oneline
                               value={
-                                e.type === 'sync' ? e.after.remote : e.effects
+                                e.type === 'sync'
+                                  ? e.after.remote
+                                  : e.effects || e.mutations
                               }
                             />
                           </Text>
