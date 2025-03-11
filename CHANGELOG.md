@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.2](https://github.com/sanity-io/mutate/compare/mutate-v0.12.1...mutate-v0.12.2) (2025-03-11)
+
+
+### Bug Fixes
+
+* **store:** don't ignore own transactions ([#50](https://github.com/sanity-io/mutate/issues/50)) ([ecccfc2](https://github.com/sanity-io/mutate/commit/ecccfc20b139c1a826d2f1fb9110027044c3fa32))
+
 ## [0.12.1](https://github.com/sanity-io/mutate/compare/mutate-v0.12.0...mutate-v0.12.1) (2025-01-10)
 
 
