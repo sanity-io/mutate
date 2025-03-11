@@ -16,9 +16,9 @@ export interface ListenerMutationEvent {
   type: 'mutation'
   documentId: string
   transactionId: string
-  resultRev: string
-  previousRev: string
-  effects: {apply: RawPatch}
+  resultRev?: string
+  previousRev?: string
+  effects?: {apply: RawPatch}
   mutations: SanityMutation[]
   transition: 'update' | 'appear' | 'disappear'
 }
@@ -89,9 +89,9 @@ export interface RemoteMutationEvent {
     local: SanityDocumentBase | undefined
     remote: SanityDocumentBase | undefined
   }
-  effects: {apply: RawPatch}
-  previousRev: string
-  resultRev: string
+  effects?: {apply: RawPatch}
+  previousRev?: string
+  resultRev?: string
   mutations: Mutation[]
   rebasedStage: MutationGroup[]
 }
@@ -119,6 +119,12 @@ export interface TransactionalMutationGroup {
   mutations: Mutation[]
 }
 
+/**
+ * A mutation group represents an incoming, locally added group of mutations
+ * They can either be transactional or non-transactional
+ * - Transactional means that they must be submitted as a separate transaction (with an optional id) and no other mutations can be mixed with it
+ * – Non-transactional means that they can be combined with other mutations
+ */
 export type MutationGroup =
   | NonTransactionalMutationGroup
   | TransactionalMutationGroup

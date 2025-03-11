@@ -1,15 +1,15 @@
-import {applyPatches} from '../apply'
+import {applyPatches} from '../../apply'
 import {
   type Mutation,
   type NodePatch,
   type PatchMutation,
   type SanityDocumentBase,
-} from '../mutations/types'
-import {getAtPath} from '../path'
-import {applyAll} from './documentMap/applyDocumentMutation'
+} from '../../mutations/types'
+import {getAtPath} from '../../path'
+import {applyAll} from '../documentMap/applyDocumentMutation'
+import {type MutationGroup} from '../types'
+import {getMutationDocumentId} from '../utils/getMutationDocumentId'
 import {compactDMPSetPatches} from './optimizations/squashNodePatches'
-import {type MutationGroup} from './types'
-import {getMutationDocumentId} from './utils/getMutationDocumentId'
 
 type RebaseTransaction = {
   mutations: Mutation[]
@@ -36,15 +36,15 @@ export function rebase(
   documentId: string,
   oldBase: SanityDocumentBase | undefined,
   newBase: SanityDocumentBase | undefined,
-  stagedMutations: MutationGroup[],
-): [newStage: MutationGroup[], rebased: SanityDocumentBase | undefined] {
+  localMutations: MutationGroup[],
+): [newLocal: MutationGroup[], rebased: SanityDocumentBase | undefined] {
   // const flattened = flattenMutations(newStage.flatMap(t => t.mutations))
 
   // 1. get the dmpified mutations from the newStage based on the old base
   // 2. apply those to the new base
   // 3. convert those back into set patches based on the new base and return as a new newStage
   let edge = oldBase
-  const dmpified = stagedMutations.map(transaction => {
+  const dmpified = localMutations.map(transaction => {
     const mutations = transaction.mutations.flatMap(mut => {
       if (getMutationDocumentId(mut) !== documentId) {
         return []
@@ -109,7 +109,7 @@ export function rebase(
     })
   })
 
-  const newStage = stagedMutations.map((transaction): MutationGroup => {
+  const newStage = localMutations.map((transaction): MutationGroup => {
     // update all set patches to set to the current value
     return {
       ...transaction,

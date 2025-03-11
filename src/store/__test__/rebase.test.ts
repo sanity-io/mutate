@@ -2,7 +2,7 @@ import {expect, test} from 'vitest'
 
 import {at, patch} from '../../mutations/creators'
 import {set} from '../../mutations/operations/creators'
-import {rebase} from '../rebase'
+import {rebase} from '../optimistic/rebase'
 import {type MutationGroup, type NonTransactionalMutationGroup} from '../types'
 
 test('rebase() a simple case', () => {

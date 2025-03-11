@@ -1,8 +1,8 @@
 import {concat, delay, NEVER, of, take} from 'rxjs'
 import {describe, expect, test} from 'vitest'
 
-import {createOptimisticStore} from '../createOptimisticStore'
-import {allValuesFrom, collectNotifications, sleep} from './helpers'
+import {allValuesFrom, collectNotifications, sleep} from '../__test__/helpers'
+import {createOptimisticStore} from './createOptimisticStore'
 
 describe('observing documents', () => {
   test('observing a document that does not exist on the backend', async () => {
@@ -119,7 +119,15 @@ describe('local mutations', () => {
           id: 'foo',
           after: {_id: 'foo', _type: 'foo'},
           before: undefined,
-          mutations: [],
+          mutations: [
+            {
+              document: {
+                _id: 'foo',
+                _type: 'foo',
+              },
+              type: 'create',
+            },
+          ],
           stagedChanges: [
             {
               document: {
@@ -160,7 +168,15 @@ describe('local mutations', () => {
           id: 'foo',
           after: {_id: 'foo', _type: 'foo'},
           before: undefined,
-          mutations: [],
+          mutations: [
+            {
+              document: {
+                _id: 'foo',
+                _type: 'foo',
+              },
+              type: 'createIfNotExists',
+            },
+          ],
           stagedChanges: [
             {
               document: {
@@ -184,7 +200,15 @@ describe('local mutations', () => {
           id: 'foo',
           after: {_id: 'foo', _type: 'foo'},
           before: undefined,
-          mutations: [],
+          mutations: [
+            {
+              document: {
+                _id: 'foo',
+                _type: 'foo',
+              },
+              type: 'createIfNotExists',
+            },
+          ],
           stagedChanges: [
             {
               document: {
@@ -272,7 +296,15 @@ describe('local mutations', () => {
           after: {_id: 'foo', _type: 'foo'},
           before: undefined,
           id: 'foo',
-          mutations: [],
+          mutations: [
+            {
+              type: 'create',
+              document: {
+                _id: 'foo',
+                _type: 'foo',
+              },
+            },
+          ],
           stagedChanges: [
             {
               document: {
@@ -295,7 +327,11 @@ describe('local mutations', () => {
           after: {_id: 'foo', _type: 'foo'},
           before: undefined,
           id: 'foo',
-          mutations: [],
+          mutations: [
+            {
+              type: 'create',
+            },
+          ],
           type: 'optimistic',
         },
       },

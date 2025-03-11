@@ -1,10 +1,10 @@
 import {makePatches, stringifyPatches} from '@sanity/diff-match-patch'
 
-import {applyNodePatch} from '../../apply'
-import {type Operation} from '../../mutations/operations/types'
-import {type NodePatch, type SanityDocumentBase} from '../../mutations/types'
-import {getAtPath, type Path, startsWith, stringify} from '../../path'
-import {takeUntilRight} from '../utils/arrayUtils'
+import {applyNodePatch} from '../../../apply'
+import {type Operation} from '../../../mutations/operations/types'
+import {type NodePatch, type SanityDocumentBase} from '../../../mutations/types'
+import {getAtPath, type Path, startsWith, stringify} from '../../../path'
+import {takeUntilRight} from '../../utils/arrayUtils'
 
 function isEqualPath(p1: Path, p2: Path) {
   return stringify(p1) === stringify(p2)

@@ -17,13 +17,17 @@ export interface UpdateResult<T extends SanityDocumentBase> {
 export function applyMutations<T extends SanityDocumentBase>(
   mutations: Mutation[],
   documentMap: DocumentMap<T>,
+  /**
+   * note: should never be set client side – only for test purposes
+   */
+  transactionId?: never,
 ): UpdateResult<T>[] {
   const updatedDocs: Record<
     string,
     {
       before: T | undefined
       after: T | undefined
-      muts: Mutation[]
+      mutations: Mutation[]
     }
   > = Object.create(null)
 
@@ -38,26 +42,28 @@ export function applyMutations<T extends SanityDocumentBase>(
     if (res.status === 'error') {
       throw new Error(res.message)
     }
-    if (res.status === 'noop') {
-      continue
-    }
-    if (
-      res.status === 'updated' ||
-      res.status === 'created' ||
-      res.status === 'deleted'
-    ) {
-      if (!(documentId in updatedDocs)) {
-        updatedDocs[documentId] = {before, after: undefined, muts: []}
-      }
-      documentMap.set(documentId, res.after)
 
-      updatedDocs[documentId]!.after = res.after
+    let entry = updatedDocs[documentId]
+    if (!entry) {
+      entry = {before, after: before, mutations: []}
+      updatedDocs[documentId] = entry
     }
+
+    // Note: transactionId should never be set client side. Only for test purposes
+    // if a transaction id is passed, set it as a new _rev
+    const after = transactionId
+      ? {...(res.status === 'noop' ? before : res.after), _rev: transactionId}
+      : res.status === 'noop'
+        ? before
+        : res.after
+
+    documentMap.set(documentId, after)
+    entry.after = after
+    entry.mutations.push(mutation)
   }
 
   return Object.entries(updatedDocs).map(
-    // eslint-disable-next-line no-shadow
-    ([id, {before, after, muts}]) => {
+    ([id, {before, after, mutations: muts}]) => {
       return {
         id,
         status: after ? (before ? 'updated' : 'created') : 'deleted',
