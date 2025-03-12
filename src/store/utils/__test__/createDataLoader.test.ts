@@ -197,4 +197,29 @@ describe('DataLoader', () => {
     sub4.unsubscribe()
     expect(unsubscribeCount).toBe(2)
   })
+  it("throws if number of returned items doesn't match the number of batched requests", async () => {
+    const onLoad = vi.fn().mockImplementation((keys: string[]) =>
+      timer(0, 2).pipe(
+        take(2),
+        map(i => [...keys, ...keys].map(key => `call #${i}: ${key}`)),
+      ),
+    )
+    const load = createDataLoader({
+      onLoad,
+      durationSelector: () => timer(10),
+    })
+    const result = lastValueFrom(
+      merge(
+        timer(1).pipe(mergeMap(() => load('foo'))),
+        timer(1).pipe(mergeMap(() => load('bar'))),
+        timer(1).pipe(mergeMap(() => load('baz'))),
+      ).pipe(toArray()),
+    )
+
+    vi.advanceTimersByTime(40)
+
+    await expect(result).rejects.toMatchInlineSnapshot(
+      `[Error: The length of the returned batch must be equal to the number of batched requests. Requested a batch of length 3, but received a batch of 6.]`,
+    )
+  })
 })
