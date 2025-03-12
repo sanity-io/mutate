@@ -2,7 +2,7 @@ import {partition} from 'lodash'
 import {concat, filter, merge, NEVER, type Observable, of, Subject} from 'rxjs'
 import {map} from 'rxjs/operators'
 
-import {SanityEncoder} from '../../index'
+import {encodeAll} from '../../encoders/sanity'
 import {type Transaction} from '../../mutations/types'
 import {applyMutations} from '../documentMap/applyMutations'
 import {createDocumentMap} from '../documentMap/createDocumentMap'
@@ -64,7 +64,7 @@ export function createMockBackendAPI(): MockBackendAPI {
         listenerEvents.next({
           type: 'mutation',
           documentId: res.id,
-          mutations: SanityEncoder.encodeAll(res.mutations),
+          mutations: encodeAll(res.mutations),
           transactionId: transaction.id || createTransactionId(),
           previousRev: res.before?._rev,
           resultRev: res.after?._rev,

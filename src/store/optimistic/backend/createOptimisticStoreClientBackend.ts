@@ -1,7 +1,7 @@
 import {type SanityClient} from '@sanity/client'
 import {from} from 'rxjs'
 
-import {SanityEncoder} from '../../../index'
+import {encodeTransaction} from '../../../encoders/sanity'
 import {type Transaction} from '../../../mutations/types'
 import {createDocumentEventListener} from '../../listeners/createDocumentEventListener'
 import {createDocumentLoaderFromClient} from '../../listeners/createDocumentLoader'
@@ -19,11 +19,10 @@ export function createOptimisticStoreClientBackend(
     listen: listenDocument,
     submit: (transaction: Transaction) =>
       from(
-        client.dataRequest(
-          'mutate',
-          SanityEncoder.encodeTransaction(transaction),
-          {visibility: 'async', returnDocuments: false},
-        ),
+        client.dataRequest('mutate', encodeTransaction(transaction), {
+          visibility: 'async',
+          returnDocuments: false,
+        }),
       ),
   }
 }

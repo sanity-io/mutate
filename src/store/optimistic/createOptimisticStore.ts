@@ -17,7 +17,6 @@ import {
 } from 'rxjs'
 
 import {decodeAll, type SanityMutation} from '../../encoders/sanity'
-import {SanityEncoder} from '../../index'
 import {type Transaction} from '../../mutations/types'
 import {applyAll} from '../documentMap/applyDocumentMutation'
 import {applyMutationEventEffects} from '../documentMap/applyMendoza'
@@ -131,10 +130,7 @@ export function createOptimisticStore(
           if (hasProperty(event, 'effects')) {
             newRemote = applyMutationEventEffects(oldRemote, event)
           } else if (hasProperty(event, 'mutations')) {
-            newRemote = applyAll(
-              oldRemote,
-              SanityEncoder.decodeAll(event.mutations),
-            )
+            newRemote = applyAll(oldRemote, decodeAll(event.mutations))
           } else {
             throw new Error(
               'Neither effects or mutations found on listener event',
