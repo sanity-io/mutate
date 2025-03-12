@@ -47,13 +47,20 @@ export function createDataLoader<T, KeyT extends AnyKey>(options: {
             filter(() => requests.every(request => request.cancelled)),
           ),
         ),
-        mergeMap(batchResult =>
-          requests.map((request, i) => ({
-            type: 'value' as const,
-            request,
-            response: batchResult[i],
-          })),
-        ),
+        mergeMap(batchResult => {
+          if (batchResult.length !== requests.length) {
+            throw new Error(
+              `The length of the returned batch must be equal to the number of batched requests. Requested a batch of length ${requests.length}, but received a batch of ${batchResult.length}.`,
+            )
+          }
+          return requests.map((request, i) => {
+            return {
+              type: 'value' as const,
+              request,
+              response: batchResult[i]!,
+            }
+          })
+        }),
       )
       // we need to signal to subscribers that the request batch has ended
       const responseEnds = requests.map(request => ({
