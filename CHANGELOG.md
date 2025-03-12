@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.3](https://github.com/sanity-io/mutate/compare/mutate-v0.12.2...mutate-v0.12.3) (2025-03-12)
+
+
+### Bug Fixes
+
+* fix various import issues ([#53](https://github.com/sanity-io/mutate/issues/53)) ([baaf943](https://github.com/sanity-io/mutate/commit/baaf943efb91ec0764ea1873d3d2f9938b5959ec))
+
 ## [0.12.2](https://github.com/sanity-io/mutate/compare/mutate-v0.12.1...mutate-v0.12.2) (2025-03-11)
 
 
