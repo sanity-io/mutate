@@ -1,7 +1,7 @@
 import {filter, type Observable} from 'rxjs'
 import {scan} from 'rxjs/operators'
 
-import {SanityEncoder} from '../../index'
+import {decodeAll} from '../../encoders/sanity'
 import {type SanityDocumentBase} from '../../mutations/types'
 import {applyAll} from '../documentMap/applyDocumentMutation'
 import {applyMutationEventEffects} from '../documentMap/applyMendoza'
@@ -85,7 +85,7 @@ export function createDocumentUpdateListener(options: {
                 documentId,
                 snapshot: applyAll(
                   prev.snapshot,
-                  SanityEncoder.decodeAll(event.mutations),
+                  decodeAll(event.mutations),
                 ) as Doc,
               }
             }
