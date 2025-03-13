@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.4](https://github.com/sanity-io/mutate/compare/mutate-v0.12.3...mutate-v0.12.4) (2025-03-13)
+
+
+### Bug Fixes
+
+* **dataloader:** guard against batch length mismatch ([#56](https://github.com/sanity-io/mutate/issues/56)) ([f0be9be](https://github.com/sanity-io/mutate/commit/f0be9be1e4c6e1329284417c543fd82a643875dc))
+
 ## [0.12.3](https://github.com/sanity-io/mutate/compare/mutate-v0.12.2...mutate-v0.12.3) (2025-03-12)
 
 
