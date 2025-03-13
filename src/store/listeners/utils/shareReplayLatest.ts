@@ -69,7 +69,7 @@ function _shareReplayLatest<T>(
     )
     const emitLatest = new Observable<T>(subscriber => {
       if (emitted) {
-        subscriber.next(latest)
+        subscriber.next(latest as T) // this type cast is safe because of the `emitted`-guard
       }
       subscriber.complete()
     })
