@@ -89,7 +89,7 @@
   },
   "browserslist": "extends @sanity/browserslist-config",
   "dependencies": {
-    "@sanity/client": "^6.28.3",
+    "@sanity/client": "^7.9.0",
     "@sanity/diff-match-patch": "^3.2.0",
     "@sanity/uuid": "^3.0.2",
     "hotscript": "^1.0.13",
