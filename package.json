@@ -89,7 +89,7 @@
   },
   "browserslist": "extends @sanity/browserslist-config",
   "dependencies": {
-    "@sanity/client": "^6.28.3",
+    "@sanity/client": "^7.9.0",
     "@sanity/diff-match-patch": "^3.2.0",
     "@sanity/uuid": "^3.0.2",
     "hotscript": "^1.0.13",
@@ -100,7 +100,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",
-    "@sanity/pkg-utils": "^6.13.4",
+    "@sanity/pkg-utils": "^8.0.4",
     "@sanity/prettier-config": "^1.0.3",
     "@types/diff-match-patch": "^1.0.36",
     "@types/lodash": "^4.17.16",
