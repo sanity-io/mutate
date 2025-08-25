@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.5](https://github.com/sanity-io/mutate/compare/mutate-v0.12.4...mutate-v0.12.5) (2025-08-25)
+
+
+### Bug Fixes
+
+* **deps:** upgrade sanity client and pkg-utils dependencies ([#62](https://github.com/sanity-io/mutate/issues/62)) ([09619cf](https://github.com/sanity-io/mutate/commit/09619cf206581df152de8891f031dc6f8c3a47e2))
+
 ## [0.12.4](https://github.com/sanity-io/mutate/compare/mutate-v0.12.3...mutate-v0.12.4) (2025-03-13)
 
 
