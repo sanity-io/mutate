@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.6](https://github.com/sanity-io/mutate/compare/mutate-v0.12.5...mutate-v0.12.6) (2025-08-27)
+
+
+### Bug Fixes
+
+* **build:** switch to rolldown for dts generation ([#64](https://github.com/sanity-io/mutate/issues/64)) ([b2c39c7](https://github.com/sanity-io/mutate/commit/b2c39c7f8f81662e78d211fe2099324206bbed69))
+
 ## [0.12.5](https://github.com/sanity-io/mutate/compare/mutate-v0.12.4...mutate-v0.12.5) (2025-08-25)
 
 
