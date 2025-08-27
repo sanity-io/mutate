@@ -1,6 +1,7 @@
 import {defineConfig} from '@sanity/pkg-utils'
 
 export default defineConfig({
+  dts: 'rolldown',
   extract: {
     rules: {
       'ae-missing-release-tag': 'off',
