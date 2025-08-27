@@ -4,12 +4,13 @@ import {
   type Transaction,
 } from '../../mutations/types'
 import {stringify as stringifyPath} from '../../path/parser/stringify'
+import {type SanityMutation, type SanityPatchMutation} from './decode'
 
-export function encode(mutation: Mutation) {
+export function encode(mutation: Mutation): SanityMutation[] | SanityMutation {
   return encodeMutation(mutation)
 }
 
-export function encodeAll(mutations: Mutation[]) {
+export function encodeAll(mutations: Mutation[]): SanityMutation[] {
   return mutations.flatMap(encode)
 }
 
@@ -20,29 +21,33 @@ export function encodeTransaction(transaction: Transaction) {
   }
 }
 
-export function encodeMutation(mutation: Mutation) {
-  if (
-    mutation.type === 'create' ||
-    mutation.type === 'createIfNotExists' ||
-    mutation.type === 'createOrReplace'
-  ) {
-    return {[mutation.type]: mutation.document}
-  }
-  if (mutation.type === 'delete') {
-    return {
-      delete: {id: mutation.id},
+export function encodeMutation(
+  mutation: Mutation,
+): SanityMutation[] | SanityMutation {
+  switch (mutation.type) {
+    case 'create':
+      return {[mutation.type]: mutation.document}
+    case 'createIfNotExists':
+      return {[mutation.type]: mutation.document}
+    case 'createOrReplace':
+      return {[mutation.type]: mutation.document}
+    case 'delete':
+      return {
+        delete: {id: mutation.id},
+      }
+    case 'patch': {
+      const ifRevisionID = mutation.options?.ifRevision
+      return mutation.patches.map(patch => {
+        return {
+          patch: {
+            id: mutation.id,
+            ...(ifRevisionID && {ifRevisionID}),
+            ...patchToSanity(patch),
+          },
+        } as SanityPatchMutation
+      })
     }
   }
-  const ifRevisionID = mutation.options?.ifRevision
-  return mutation.patches.map(patch => {
-    return {
-      patch: {
-        id: mutation.id,
-        ...(ifRevisionID && {ifRevisionID}),
-        ...patchToSanity(patch),
-      },
-    }
-  })
 }
 
 function patchToSanity(patch: NodePatch) {
