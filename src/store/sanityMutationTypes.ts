@@ -9,8 +9,6 @@ export type {
   SanityIncPatch,
   SanityInsertPatch,
   SanityMutation,
-  SanityPatch,
-  SanityPatchMutation,
   SanitySetIfMissingPatch,
   SanitySetPatch,
   SanityUnsetPatch,
