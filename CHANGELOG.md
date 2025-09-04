@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.0](https://github.com/sanity-io/mutate/compare/mutate-v0.12.6...mutate-v0.13.0) (2025-09-04)
+
+
+### Features
+
+* improve sanity client interop ([#66](https://github.com/sanity-io/mutate/issues/66)) ([d93a11e](https://github.com/sanity-io/mutate/commit/d93a11e15125bf6fd466d54f1acf58ac8f441309))
+
 ## [0.12.6](https://github.com/sanity-io/mutate/compare/mutate-v0.12.5...mutate-v0.12.6) (2025-08-27)
 
 
