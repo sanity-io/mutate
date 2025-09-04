@@ -1,10 +1,12 @@
+import {type PatchMutationOperation} from '@sanity/client'
+
 import {
   type Mutation,
   type NodePatch,
   type Transaction,
 } from '../../mutations/types'
 import {stringify as stringifyPath} from '../../path/parser/stringify'
-import {type SanityMutation, type SanityPatchMutation} from './decode'
+import {type SanityMutation} from './types'
 
 export function encode(mutation: Mutation): SanityMutation[] | SanityMutation {
   return encodeMutation(mutation)
@@ -44,7 +46,7 @@ export function encodeMutation(
             ...(ifRevisionID && {ifRevisionID}),
             ...patchToSanity(patch),
           },
-        } as SanityPatchMutation
+        } as {id: string; patch: PatchMutationOperation}
       })
     }
   }

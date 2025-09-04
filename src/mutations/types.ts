@@ -16,6 +16,10 @@ export interface SanityDocumentBase {
   _rev?: string
 }
 
+export interface IdentifiedSanityDocument extends SanityDocumentBase {
+  _id: string
+}
+
 export type CreateMutation<Doc extends Optional<SanityDocumentBase, '_id'>> = {
   type: 'create'
   document: Doc

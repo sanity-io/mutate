@@ -1,106 +1,40 @@
+import {type PatchOperations} from '@sanity/client'
+
 import {type SetIfMissingOp, type SetOp} from '../../mutations/operations/types'
 import {
+  type IdentifiedSanityDocument,
   type Mutation,
   type NodePatch,
   type SanityDocumentBase,
 } from '../../mutations/types'
 import {parse as parsePath} from '../../path/parser/parse'
+import {
+  type Insert,
+  type SanityCreateIfNotExistsMutation,
+  type SanityCreateMutation,
+  type SanityCreateOrReplaceMutation,
+  type SanityDecPatch,
+  type SanityDeleteMutation,
+  type SanityDiffMatchPatch,
+  type SanityIncPatch,
+  type SanityInsertPatch,
+  type SanityMutation,
+  type SanityPatch,
+  type SanitySetIfMissingPatch,
+  type SanitySetPatch,
+  type SanityUnsetPatch,
+} from './types'
 
 export type {Mutation, SanityDocumentBase}
 
-export type SanityDiffMatchPatch = {
-  id: string
-  diffMatchPatch: {[path: string]: string}
-}
-
-export type SanitySetPatch = {
-  id: string
-  set: {[path: string]: any}
-}
-
-export type Insert = {
-  before?: string
-  after?: string
-  replace?: string
-  items: any[]
-}
-
-export type SanityInsertPatch = {
-  id: string
-  insert: Insert
-}
-
-export type SanityUnsetPatch = {
-  id: string
-  unset: string[]
-}
-
-export type SanityIncPatch = {
-  id: string
-  inc: {[path: string]: number}
-}
-
-export type SanityDecPatch = {
-  id: string
-  dec: {[path: string]: number}
-}
-
-export type SanitySetIfMissingPatch = {
-  id: string
-  setIfMissing: {[path: string]: any}
-}
-
-export type SanityPatch =
-  | SanitySetPatch
-  | SanityUnsetPatch
-  | SanityInsertPatch
-  | SanitySetIfMissingPatch
-  | SanityDiffMatchPatch
-  | SanityIncPatch
-  | SanityDecPatch
-
-export type SanityCreateIfNotExistsMutation<Doc extends SanityDocumentBase> = {
-  createIfNotExists: Doc
-}
-
-export type SanityCreateOrReplaceMutation<Doc extends SanityDocumentBase> = {
-  createOrReplace: Doc
-}
-
-export type SanityCreateMutation<Doc extends SanityDocumentBase> = {
-  create: Doc
-}
-
-export type SanityDeleteMutation = {
-  delete: {id: string}
-}
-
-export type SanityPatchMutation = {
-  patch:
-    | SanitySetPatch
-    | SanitySetIfMissingPatch
-    | SanityDiffMatchPatch
-    | SanityInsertPatch
-    | SanityUnsetPatch
-}
-
-export type SanityMutation<
-  Doc extends SanityDocumentBase = SanityDocumentBase,
-> =
-  | SanityCreateMutation<Doc>
-  | SanityCreateIfNotExistsMutation<Doc>
-  | SanityCreateOrReplaceMutation<Doc>
-  | SanityDeleteMutation
-  | SanityPatchMutation
-
-function isCreateIfNotExistsMutation<Doc extends SanityDocumentBase>(
-  sanityMutation: SanityMutation<Doc>,
-): sanityMutation is SanityCreateIfNotExistsMutation<Doc> {
+function isCreateIfNotExistsMutation(
+  sanityMutation: SanityMutation,
+): sanityMutation is SanityCreateIfNotExistsMutation {
   return 'createIfNotExists' in sanityMutation
 }
 
-function isCreateOrReplaceMutation<Doc extends SanityDocumentBase>(
-  sanityMutation: SanityMutation<Doc>,
+function isCreateOrReplaceMutation<Doc extends IdentifiedSanityDocument>(
+  sanityMutation: SanityMutation,
 ): sanityMutation is SanityCreateOrReplaceMutation<Doc> {
   return 'createOrReplace' in sanityMutation
 }
@@ -117,13 +51,15 @@ function isDeleteMutation(
   return 'delete' in sanityMutation
 }
 
-function isPatchMutation(
-  sanityMutation: SanityMutation<any>,
-): sanityMutation is SanityPatchMutation {
+function isPatchMutation(sanityMutation: SanityMutation): sanityMutation is {
+  patch: SanityPatch
+} {
   return 'patch' in sanityMutation
 }
 
-function isSetPatch(sanityPatch: SanityPatch): sanityPatch is SanitySetPatch {
+function isSetPatch(
+  sanityPatch: PatchOperations,
+): sanityPatch is SanitySetPatch {
   return 'set' in sanityPatch
 }
 
@@ -229,11 +165,9 @@ function decodeNodePatches<T>(patch: SanityPatch): NodePatch<any, any>[] {
     ...getInsertPatches(patch),
     ...getDiffMatchPatchPatches(patch),
   ]
-
-  throw new Error(`Unknown patch: ${JSON.stringify(patch)}`)
 }
 
-function getSetPatches(patch: SanityPatch): NodePatch<any[], SetOp<any>>[] {
+function getSetPatches(patch: PatchOperations): NodePatch<any[], SetOp<any>>[] {
   return isSetPatch(patch)
     ? Object.keys(patch.set).map(path => ({
         path: parsePath(path),
@@ -298,7 +232,7 @@ function getInsertPatches(patch: SanityPatch) {
     throw new Error('Insert patch missing position')
   }
 
-  const path = parsePath(patch.insert[position]!)
+  const path: string[] = parsePath((patch.insert as any)[position]!)
   const referenceItem = path.pop()
 
   const op =
