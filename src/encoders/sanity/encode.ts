@@ -125,6 +125,10 @@ function patchToSanity(patch: NodePatch) {
       unset: [stringifyPath(path.concat(op.referenceItem))],
     }
   }
+  if (op.type === 'insertIfMissing') {
+    // note: insertIfMissing currently not supported by sanity, so will always insert at reference position
+    throw new Error('Patch type insertIfMissing is not supported by Sanity')
+  }
   //@ts-expect-error all cases should be covered
   throw new Error(`Unknown operation type ${op.type}`)
 }

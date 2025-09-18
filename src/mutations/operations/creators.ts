@@ -1,4 +1,4 @@
-import {arrify} from '../../utils/arrify'
+import {type Arrify, arrify} from '../../utils/arrify'
 import {
   type AnyArray,
   type ArrayElement,
@@ -10,6 +10,7 @@ import {
   type DiffMatchPatchOp,
   type IncOp,
   type Index,
+  type InsertIfMissingOp,
   type InsertOp,
   type KeyedPathElement,
   type RelativePosition,
@@ -163,6 +164,26 @@ export function upsert<
   return {
     type: 'upsert',
     items: arrify(items) as Items,
+    referenceItem,
+    position,
+  }
+}
+
+/*
+use this when the reference Items may or may not exist
+ */
+export function insertIfMissing<
+  const Items extends {_key: string}[] | {_key: string},
+  const Pos extends RelativePosition,
+  const ReferenceItem extends Index | KeyedPathElement,
+>(
+  items: Items,
+  position: Pos,
+  referenceItem: ReferenceItem,
+): InsertIfMissingOp<Arrify<Items>, Pos, ReferenceItem> {
+  return {
+    type: 'insertIfMissing',
+    items: arrify(items) as Arrify<Items>,
     referenceItem,
     position,
   }

@@ -71,7 +71,11 @@ function formatPatchMutation(patch: NodePatch<any>): string {
   if (op.type === 'unassign') {
     return [path, `${op.type}(${JSON.stringify(op.keys)})`].join(': ')
   }
-  if (op.type === 'insert' || op.type === 'upsert') {
+  if (
+    op.type === 'insert' ||
+    op.type === 'upsert' ||
+    op.type === 'insertIfMissing'
+  ) {
     return [
       path,
       `${op.type}(${op.position}, ${encodeItemRef(
