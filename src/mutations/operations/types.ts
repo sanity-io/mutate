@@ -59,8 +59,9 @@ export type ReplaceOp<
   referenceItem: ReferenceItem
   items: Items
 }
+
 export type UpsertOp<
-  Items extends AnyArray,
+  Items extends AnyArray<{_key: string}>,
   Pos extends RelativePosition,
   ReferenceItem extends Index | KeyedPathElement,
 > = {
