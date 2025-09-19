@@ -188,3 +188,23 @@ export function insertIfMissing<
     position,
   }
 }
+
+/*
+use this when the reference Items may or may not exist
+ */
+export function insertIfMissing<
+  const Item extends {_key: string},
+  const Pos extends RelativePosition,
+  const ReferenceItem extends Index | KeyedPathElement,
+>(
+  items: Item | Item[],
+  position: Pos,
+  referenceItem: ReferenceItem,
+): InsertIfMissingOp<Arrify<Item>, Pos, ReferenceItem> {
+  return {
+    type: 'insertIfMissing',
+    items: arrify(items) as Arrify<Item>,
+    referenceItem,
+    position,
+  }
+}
