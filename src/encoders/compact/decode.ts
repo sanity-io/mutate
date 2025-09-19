@@ -1,3 +1,6 @@
+import {isObject} from 'lodash'
+
+import {type UpsertOp} from '../../mutations/operations/types'
 import {
   type Mutation,
   type PatchMutation,
@@ -12,7 +15,6 @@ import {
   type CreateMutation,
   type CreateOrReplaceMutation,
   type DeleteMutation,
-  type ItemRef,
 } from './types'
 
 export {Mutation, SanityDocumentBase}
@@ -144,6 +146,7 @@ function decodePatchMutation(mutation: CompactPatchMutation): PatchMutation {
   }
   if (type === 'upsert') {
     const [, , , , [position, referenceItem, items]] = mutation
+    const decodedReferenceItem = decodeItemRef(referenceItem)
     return {
       type: 'patch',
       id,
@@ -153,9 +156,9 @@ function decodePatchMutation(mutation: CompactPatchMutation): PatchMutation {
           op: {
             type: 'upsert',
             items,
-            referenceItem: decodeItemRef(referenceItem),
+            referenceItem: decodedReferenceItem,
             position,
-          },
+          } as UpsertOp<typeof items, typeof position, any>,
         },
       ],
       ...createOpts(revisionId),
@@ -164,10 +167,23 @@ function decodePatchMutation(mutation: CompactPatchMutation): PatchMutation {
   throw new Error(`Invalid mutation type: ${type}`)
 }
 
-function decodeItemRef(ref: ItemRef): Index | KeyedPathElement {
-  return typeof ref === 'string' ? {_key: ref} : ref
+function decodeItemRef(ref: unknown): Index | KeyedPathElement {
+  if (typeof ref === 'string') {
+    return {_key: ref}
+  }
+  if (typeof ref === 'number') {
+    return ref
+  }
+  if (!hasKey(ref)) {
+    throw new Error('Cannot decode upsert patch: referenceItem is missing key')
+  }
+  return ref
 }
 
 function createOpts(revisionId: undefined | string) {
   return revisionId ? {options: {ifRevision: revisionId}} : null
+}
+
+function hasKey<T>(item: T): item is T & {_key: string} {
+  return isObject(item) && '_key' in item
 }

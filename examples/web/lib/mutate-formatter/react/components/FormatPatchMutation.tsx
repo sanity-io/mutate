@@ -94,7 +94,11 @@ function FormatOp(props: {op: Operation}) {
       </Inline>
     )
   }
-  if (op.type === 'insert' || op.type === 'upsert') {
+  if (
+    op.type === 'insert' ||
+    op.type === 'upsert' ||
+    op.type === 'insertIfMissing'
+  ) {
     return (
       <>
         <Text size={1} weight="semibold">

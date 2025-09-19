@@ -87,6 +87,15 @@ function encodePatchMutation(
       [op.position, encodeItemRef(op.referenceItem), op.items],
     ]
   }
+  if (op.type === 'insertIfMissing') {
+    return [
+      'patch',
+      'insertIfMissing',
+      id,
+      path,
+      [op.position, encodeItemRef(op.referenceItem), op.items],
+    ]
+  }
   if (op.type === 'assign') {
     return ['patch', 'assign', id, path, [op.value]]
   }

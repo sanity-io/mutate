@@ -1,4 +1,5 @@
 import {
+  type InsertIfMissingOp,
   type InsertOp,
   type KeyedPathElement,
   type RelativePosition,
@@ -29,7 +30,7 @@ export function insert<
 }
 
 export function upsert<
-  O extends UpsertOp<unknown[], RelativePosition, number | KeyedPathElement>,
+  O extends UpsertOp<{_key: string}[], RelativePosition, KeyedPathElement>,
   CurrentValue extends unknown[],
 >(op: O, currentValue: CurrentValue) {
   if (!Array.isArray(currentValue)) {
@@ -39,7 +40,7 @@ export function upsert<
   if (op.items.length === 0) {
     return currentValue
   }
-  const replaceItemsMap: number[] = []
+  const replaceItemsMap: Record<number, number> = {}
   const insertItems: unknown[] = []
   op.items.forEach((itemToBeUpserted: any, i) => {
     const existingIndex = currentValue.findIndex(
@@ -52,14 +53,16 @@ export function upsert<
     }
   })
 
-  if (replaceItemsMap.length === 0 && insertItems.length == 0) {
+  const itemsToReplace = Object.keys(replaceItemsMap)
+  if (itemsToReplace.length === 0 && insertItems.length == 0) {
     return currentValue
   }
 
   const next = [...currentValue]
   // Replace existing items
-  for (const i of replaceItemsMap) {
-    next[i] = op.items[replaceItemsMap[i]!]!
+  for (const i of itemsToReplace) {
+    const index = Number(i)
+    next[index] = op.items[replaceItemsMap[index]!]!
   }
 
   // Insert the items that doesn't exist
@@ -71,6 +74,41 @@ export function upsert<
       position: op.position,
     },
     next,
+  )
+}
+export function insertIfMissing<
+  O extends InsertIfMissingOp<
+    {_key: string}[],
+    RelativePosition,
+    KeyedPathElement
+  >,
+  CurrentValue extends unknown[],
+>(op: O, currentValue: CurrentValue) {
+  if (!Array.isArray(currentValue)) {
+    throw new TypeError('Cannot apply "insertIfMissing()" on non-array value')
+  }
+
+  if (op.items.length === 0) {
+    return currentValue
+  }
+  const itemsToInsert = op.items.filter(
+    item =>
+      !currentValue.find(existing => item._key === (existing as any)?._key),
+  )
+
+  if (itemsToInsert.length === 0) {
+    return currentValue
+  }
+
+  // Insert the items that doesn't exist
+  return insert(
+    {
+      type: 'insert',
+      items: itemsToInsert,
+      referenceItem: op.referenceItem,
+      position: op.position,
+    },
+    currentValue,
   )
 }
 

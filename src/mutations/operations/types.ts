@@ -59,12 +59,24 @@ export type ReplaceOp<
   referenceItem: ReferenceItem
   items: Items
 }
+
 export type UpsertOp<
-  Items extends AnyArray,
+  Items extends AnyArray<{_key: string}>,
   Pos extends RelativePosition,
   ReferenceItem extends Index | KeyedPathElement,
 > = {
   type: 'upsert'
+  items: Items
+  referenceItem: ReferenceItem
+  position: Pos
+}
+
+export type InsertIfMissingOp<
+  Items extends AnyArray<{_key: string}>,
+  Pos extends RelativePosition,
+  ReferenceItem extends Index | KeyedPathElement,
+> = {
+  type: 'insertIfMissing'
   items: Items
   referenceItem: ReferenceItem
   position: Pos
@@ -94,6 +106,7 @@ export type ObjectOp = AssignOp | UnassignOp
 export type ArrayOp =
   | InsertOp<AnyArray, RelativePosition, Index | KeyedPathElement>
   | UpsertOp<AnyArray, RelativePosition, Index | KeyedPathElement>
+  | InsertIfMissingOp<AnyArray, RelativePosition, Index | KeyedPathElement>
   | ReplaceOp<AnyArray, Index | KeyedPathElement>
   | TruncateOp
   | RemoveOp<Index | KeyedPathElement>

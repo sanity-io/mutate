@@ -37,6 +37,15 @@ export type UpsertMutation = [
   RevisionLock?,
 ]
 
+export type InsertIfMissingMutation = [
+  'patch',
+  'insertIfMissing',
+  Id,
+  CompactPath,
+  [RelativePosition, ItemRef, AnyArray],
+  RevisionLock?,
+]
+
 export type TruncateMutation = [
   'patch',
   'truncate',
@@ -117,6 +126,7 @@ export type CompactPatchMutation =
   | UnsetMutation
   | InsertMutation
   | UpsertMutation
+  | InsertIfMissingMutation
   | TruncateMutation
   | IncMutation
   | DecMutation

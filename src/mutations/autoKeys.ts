@@ -18,9 +18,10 @@ export function autoKeys<Item>(generateKey: (item: Item) => string) {
     referenceItem: Ref,
     items: Item[],
   ) => _insert(ensureKeys(items), position, referenceItem)
+
   const upsert = <
     Pos extends RelativePosition,
-    ReferenceItem extends Index | KeyedPathElement,
+    ReferenceItem extends KeyedPathElement,
   >(
     items: Item[],
     position: Pos,
@@ -53,24 +54,20 @@ export function autoKeys<Item>(generateKey: (item: Item) => string) {
   return {insert, upsert, replace, insertBefore, prepend, insertAfter, append}
 }
 
-function hasKey<T extends object>(item: T): item is T & {_key: string} {
-  return '_key' in item
+function hasKey<T>(item: T): item is T & {_key: string} {
+  return isObject(item) && '_key' in item
 }
 
 function createEnsureKeys<T>(generateKey: (item: T) => string) {
-  return (array: T[]): T[] => {
+  return (array: T[]): (T & {_key: string})[] => {
     let didModify = false
-    const withKeys = array.map(item => {
-      if (needsKey(item)) {
+    const withKeys = array.map((item): T & {_key: string} => {
+      if (!hasKey(item)) {
         didModify = true
         return {...item, _key: generateKey(item)}
       }
       return item
     })
-    return didModify ? withKeys : array
+    return didModify ? withKeys : (array as (T & {_key: string})[])
   }
-}
-
-function needsKey(arrayItem: any): arrayItem is object {
-  return isObject(arrayItem) && !hasKey(arrayItem)
 }
