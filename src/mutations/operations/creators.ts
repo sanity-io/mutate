@@ -173,17 +173,17 @@ export function upsert<
 use this when the reference Items may or may not exist
  */
 export function insertIfMissing<
-  const Items extends {_key: string}[] | {_key: string},
+  const Item extends {_key: string},
   const Pos extends RelativePosition,
   const ReferenceItem extends Index | KeyedPathElement,
 >(
-  items: Items,
+  items: Item | Item[],
   position: Pos,
   referenceItem: ReferenceItem,
-): InsertIfMissingOp<Arrify<Items>, Pos, ReferenceItem> {
+): InsertIfMissingOp<Arrify<Item>, Pos, ReferenceItem> {
   return {
     type: 'insertIfMissing',
-    items: arrify(items) as Arrify<Items>,
+    items: arrify(items) as Arrify<Item>,
     referenceItem,
     position,
   }
