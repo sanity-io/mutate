@@ -153,17 +153,17 @@ export function remove<ReferenceItem extends Index | KeyedPathElement>(
 use this when the reference Items may or may not exist
  */
 export function upsert<
-  const Items extends {_key: string}[] | {_key: string},
+  const Item extends {_key: string},
   const Pos extends RelativePosition,
   const ReferenceItem extends Index | KeyedPathElement,
 >(
-  items: Items,
+  items: Item | Item[],
   position: Pos,
   referenceItem: ReferenceItem,
-): UpsertOp<Arrify<Items>, Pos, ReferenceItem> {
+): UpsertOp<Arrify<Item>, Pos, ReferenceItem> {
   return {
     type: 'upsert',
-    items: arrify(items) as Arrify<Items>,
+    items: arrify(items) as Arrify<Item>,
     referenceItem,
     position,
   }
