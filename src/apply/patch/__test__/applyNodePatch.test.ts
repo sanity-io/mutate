@@ -1,7 +1,7 @@
 import {assertType, describe, expect, test} from 'vitest'
 
 import {at} from '../../../mutations/creators'
-import {set, setIfMissing} from '../../../mutations/operations/creators'
+import {set, setIfMissing, unset} from '../../../mutations/operations/creators'
 import {applyNodePatch} from '../applyNodePatch'
 
 describe('set', () => {
@@ -29,6 +29,51 @@ describe('set', () => {
     const result = applyNodePatch(patch, document)
 
     assertType<{_key: string; title: string}[]>(result.objects)
+  })
+
+  test('unset on array item', () => {
+    const document = {
+      objects: [
+        {_key: 'first', title: 'first'},
+        {_key: 'second', title: 'second'},
+        {_key: 'third', title: 'third'},
+      ],
+    }
+
+    const patch = at('objects[_key=="second"]', unset())
+
+    const result = applyNodePatch(patch, document)
+
+    expect(result).toEqual({
+      objects: [
+        {_key: 'first', title: 'first'},
+        {_key: 'third', title: 'third'},
+      ],
+    })
+
+    assertType<{_key: string; title: string}[]>(result.objects)
+  })
+
+  test('unset on object property should remove the property', () => {
+    const document = {
+      foo: 'foo',
+      bar: 'bar',
+      baz: 'baz',
+    } as const
+
+    const patch = at('bar', unset())
+
+    const result = applyNodePatch(patch, document)
+
+    expect(result).toEqual({
+      foo: 'foo',
+      bar: undefined,
+      baz: 'baz',
+    })
+
+    expect(Object.keys(result)).toEqual(['foo', 'baz'])
+
+    assertType<{foo: 'foo'; baz: 'baz'}>(result)
   })
 
   test('set same value inside object array', () => {
