@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.14.0](https://github.com/sanity-io/mutate/compare/mutate-v0.13.0...mutate-v0.14.0) (2025-10-14)
+
+
+### Features
+
+* add support for insertIfMissing patch ([#68](https://github.com/sanity-io/mutate/issues/68)) ([01df02d](https://github.com/sanity-io/mutate/commit/01df02d84ef2e0f94d4dc6e5265c358baf381c97))
+
+
+### Bug Fixes
+
+* make upsert require keyed items ([#69](https://github.com/sanity-io/mutate/issues/69)) ([57d7f71](https://github.com/sanity-io/mutate/commit/57d7f71bd48a647ac608f582f9439e56dc93fe5a))
+* **patch:** remove array elements and object fields after unset ([#72](https://github.com/sanity-io/mutate/issues/72)) ([a0ebfc9](https://github.com/sanity-io/mutate/commit/a0ebfc97faacb999c45bb8c9505e2d793d0dad73))
+* remove duplicate function ([#71](https://github.com/sanity-io/mutate/issues/71)) ([560ea6d](https://github.com/sanity-io/mutate/commit/560ea6ddd735b3f261366f319de625f9ea0cb049))
+
 ## [0.13.0](https://github.com/sanity-io/mutate/compare/mutate-v0.12.6...mutate-v0.13.0) (2025-09-04)
 
 
