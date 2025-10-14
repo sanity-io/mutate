@@ -5,6 +5,7 @@ import {isObject} from '../../utils/isObject'
 import {type NormalizeReadOnlyArray} from '../../utils/typeUtils'
 import {type KeyedPathElement, type Path} from '../'
 import {findTargetIndex, splice} from '../utils/array'
+import {omit} from '../utils/omit'
 import {applyOp} from './applyOp'
 import {
   type ApplyAtPath,
@@ -71,6 +72,13 @@ function applyInObject<Key extends keyof any, T extends {[key in Key]?: any}>(
   // so forward it to the item
   const patchedValue = applyAtPath(tail, op, current)
 
+  if (patchedValue === undefined) {
+    // unset op on an object field should not leave the field undefined
+    // eg. apply(at('bar', unset()), {foo: 1, bar: 2, baz: 3} should result in
+    // {foo: 1, baz: 3}, not {foo: 1, bar: undefined, baz: 3}
+
+    return omit(object, [head])
+  }
   // If the result of applying it to the item yields the item back we assume it was
   // a noop and don't modify our value. If we get a new value back, we return a
   // new array with the modified item replaced
@@ -107,7 +115,15 @@ function applyInArray<T>(
   // new array with the modified item replaced
   return patchedItem === current
     ? value
-    : splice(value, index, 1, [patchedItem])
+    : splice(
+        value,
+        index,
+        1,
+        // unset op on an array item should not leave a "hole" in the array
+        // eg. apply(at('someArray[1]', unset()), ['foo', 'bar', 'baz'] should result in
+        // ['foo', 'baz'], not ['foo', undefined, 'baz']
+        patchedItem === undefined ? [] : [patchedItem],
+      )
 }
 
 function isNonEmptyArray<T>(a: T[] | readonly T[]): a is [T, ...T[]] {
