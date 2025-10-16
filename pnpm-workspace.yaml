@@ -7,7 +7,4 @@ packages:
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@sanity/*'
-  - '@portabletext/*'
-  - 'react-rx'
-  - 'use-effect-event'
   - 'groq-js'
