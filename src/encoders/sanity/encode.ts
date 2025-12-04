@@ -44,7 +44,7 @@ export function encodeMutation(
           patch: {
             id: mutation.id,
             ...(ifRevisionID && {ifRevisionID}),
-            ...patchToSanity(patch),
+            ...encodePatch(patch),
           },
         } as {id: string; patch: PatchMutationOperation}
       })
@@ -52,7 +52,7 @@ export function encodeMutation(
   }
 }
 
-function patchToSanity(patch: NodePatch) {
+export function encodePatch(patch: NodePatch) {
   const {path, op} = patch
   if (op.type === 'unset') {
     return {unset: [stringifyPath(path)]}
