@@ -44,11 +44,6 @@ jobs:
           cache: pnpm
           node-version: lts/*
           registry-url: "https://registry.npmjs.org"
-      - name: Authenticate with private NPM for installing @sanity/sanitype
-        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
-        if: ${{ steps.release.outputs.release_created || github.event.inputs.publish == 'true' }}
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_SANITYPE_TOKEN}}
       - run: pnpm install --ignore-scripts
         if: ${{ steps.release.outputs.release_created || github.event.inputs.publish == 'true' }}
       - name: Set publishing config

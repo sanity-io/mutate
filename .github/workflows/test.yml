@@ -39,11 +39,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: pnpm
 
-      - name: Authenticate with private NPM for installing @sanity/sanitype
-        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NODE_AUTH_TOKEN}"
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_SANITYPE_TOKEN}}
-
       - name: Install dependencies
         run: pnpm install
 
