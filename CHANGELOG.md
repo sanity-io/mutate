@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.0](https://github.com/sanity-io/mutate/compare/mutate-v0.14.0...mutate-v0.15.0) (2025-12-05)
+
+
+### Features
+
+* expose `SanityEncoder.encodePatch` function ([#75](https://github.com/sanity-io/mutate/issues/75)) ([85d43bb](https://github.com/sanity-io/mutate/commit/85d43bb821a9dda309624b35da472805b33c208c))
+
 ## [0.14.0](https://github.com/sanity-io/mutate/compare/mutate-v0.13.0...mutate-v0.14.0) (2025-10-14)
 
 
