@@ -1,6 +1,7 @@
 import {defineForm} from '@sanity/sanitype'
 
 import {address, person} from '../schema/person'
+import {textsDemo} from '../schema/textsDemo'
 
 const addressForm = defineForm(address, {
   title: 'Address',
@@ -15,6 +16,15 @@ const addressForm = defineForm(address, {
     country: {
       title: 'Country',
     },
+  },
+})
+
+export const textsDemoForm = defineForm(textsDemo, {
+  fields: {
+    title: {title: 'Title'},
+    textOne: {title: 'Text 1', multiline: true},
+    textTwo: {title: 'Text 2', multiline: true},
+    textThree: {title: 'Text 3', multiline: true},
   },
 })
 /**

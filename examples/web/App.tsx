@@ -1,8 +1,7 @@
 import {createClient} from '@sanity/client'
-import {CollapseIcon, ExpandIcon} from '@sanity/icons'
+import {CollapseIcon, ExpandIcon, PauseIcon, PlayIcon} from '@sanity/icons'
 import {createIfNotExists, del, type Mutation, type Path} from '@sanity/mutate'
 import {
-  createMockBackendAPI,
   createOptimisticStore,
   createOptimisticStoreClientBackend,
   createOptimisticStoreMockBackend,
@@ -41,13 +40,21 @@ import {
   TabPanel,
   Text,
 } from '@sanity/ui'
-import {Fragment, type ReactNode, useCallback, useEffect, useState} from 'react'
-import {filter, merge, tap} from 'rxjs'
+import {isEqual} from 'lodash'
+import {
+  Fragment,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
+import {tap} from 'rxjs'
 import styled from 'styled-components'
-import {useDebouncedCallback} from 'use-debounce'
+import {useThrottledCallback} from 'use-debounce'
 
 import {DocumentView} from './DocumentView'
-import {personForm} from './forms/person'
+import {textsDemoForm} from './forms/person'
 import {
   BooleanInput,
   DocumentInput,
@@ -62,7 +69,9 @@ import {FormNode} from './lib/form/FormNode'
 import {PrimitiveUnionInput} from './lib/form/inputs/PrimitiveUnionInput'
 import {JsonView} from './lib/json-view/JsonView'
 import {FormatMutation} from './lib/mutate-formatter/react'
+import {startTyping} from './lib/textTyper'
 import {person} from './schema/person'
+import {textsDemo} from './schema/textsDemo'
 
 function Unresolved<Schema extends SanityAny>(props: InputProps<Schema>) {
   return <Text>Unresolved input for type {props.schema.typeName}</Text>
@@ -144,8 +153,8 @@ function renderInput<Props extends InputProps<SanityAny>>(
   return <Unresolved {...props} />
 }
 
-const personDraft = draft(person)
-type PersonDraft = Infer<typeof personDraft>
+const textsDemoDraft = draft(textsDemo)
+type DraftDocument = Infer<typeof textsDemoDraft>
 
 const sanityClient = createClient({
   projectId: import.meta.env.VITE_SANITY_API_PROJECT_ID,
@@ -155,22 +164,23 @@ const sanityClient = createClient({
   token: import.meta.env.VITE_SANITY_API_TOKEN,
 })
 
-const USE_MOCK_BACKEND = true
+const USE_CLIENT_BACKEND = true
 
 const datastore = createOptimisticStore(
-  USE_MOCK_BACKEND
-    ? createOptimisticStoreMockBackend(createMockBackendAPI())
-    : createOptimisticStoreClientBackend(sanityClient),
+  USE_CLIENT_BACKEND
+    ? createOptimisticStoreClientBackend(sanityClient)
+    : createOptimisticStoreMockBackend(),
 )
 //events.subscribe(console.log)
 
+const TEXT = `We inhabit a universe where atoms are made in the centers of stars; where each second a thousand suns are born; where life is sparked by sunlight and lightning in the airs and waters of youthful planets; where the raw material for biological evolution is sometimes made by the explosion of a star halfway across the Milky Way; where a thing as beautiful as a galaxy is formed a hundred billion times - a Cosmos of quasars and quarks, snowflakes and fireflies, where there may be black holes and other universe and extraterrestrial civilizations whose radio messages are at this moment reaching the Earth. How pallid by comparison are the pretensions of superstition and pseudoscience; how important it is for us to pursue and understand science, that characteristically human endeavor.`
 const DOCUMENT_IDS = ['some-document', 'some-other-document']
 
 function App() {
   const [documentId, setDocumentId] = useState<string>(DOCUMENT_IDS[0]!)
   const [documentState, setDocumentState] = useState<{
-    local?: PersonDraft
-    remote?: PersonDraft
+    local?: DraftDocument
+    remote?: DraftDocument
   }>({})
 
   const [staged, setStaged] = useState<MutationGroup[]>([])
@@ -182,48 +192,26 @@ function App() {
   >([])
 
   useEffect(() => {
-    const staged$ = datastore.meta.stage.pipe(tap(next => setStaged(next)))
-    const remote$ = datastore.meta.events.pipe(
-      filter(
-        (ev): ev is RemoteDocumentEvent =>
-          ev.type === 'sync' || ev.type === 'mutation',
-      ),
-      tap(event => setRemoteLogEntries(e => [...e, event].slice(0, 100))),
-    )
-    const sub = merge(staged$, remote$).subscribe()
-    return () => sub.unsubscribe()
-  }, [])
-  useEffect(() => {
     const sub = datastore
-      .listenEvents(documentId)
+      .listen(documentId)
       .pipe(
-        tap(event => {
-          setDocumentState(current => {
-            return (
-              event.type === 'optimistic'
-                ? {...current, local: event.after}
-                : event.after
-            ) as {remote: PersonDraft; local: PersonDraft}
-          })
-        }),
+        tap(document => setDocumentState({local: document as DraftDocument})),
       )
       .subscribe()
     return () => sub.unsubscribe()
   }, [documentId])
 
-  const commit = useDebouncedCallback(
+  const commit = useThrottledCallback(
     () => {
-      // eslint-disable-next-line no-console
-      datastore.submit().catch(err => console.error(err))
+      datastore.submit()
     },
-    500,
-    {trailing: true},
+    1000,
+    {leading: false, trailing: true},
   )
 
   const handleMutate = useCallback(
     (mutations: Mutation[]) => {
       datastore.mutate(mutations)
-      if (autoOptimize) datastore.optimize()
       if (autoSave) {
         commit()
       }
@@ -244,6 +232,22 @@ function App() {
     id: documentId,
     path: [],
   })
+
+  const [typing, setTyping] = useState<{id: string; path: Path} | null>(null)
+
+  const typingRef = useRef<HTMLInputElement>()
+  useEffect(() => {
+    if (typing && typingRef.current) {
+      typingRef.current.focus()
+      return startTyping(
+        typingRef.current,
+        TEXT,
+        () => Math.random() * 20 + Math.random() * 100,
+        () => setTyping(null),
+      )
+    }
+    return undefined
+  }, [typing])
 
   const handleDelete = useCallback(() => {
     handleMutate([del(documentId)])
@@ -313,11 +317,11 @@ function App() {
                           value={
                             documentState.local || {
                               _id: documentId,
-                              _type: person.shape._type.value,
+                              _type: textsDemo.shape._type.value,
                             }
                           }
-                          schema={personDraft}
-                          form={personForm}
+                          schema={textsDemoDraft}
+                          form={textsDemoForm}
                           onMutation={handleMutation}
                           renderInput={inputProps => {
                             const hasAttention =
@@ -343,17 +347,46 @@ function App() {
                                 icon={hasAttention ? CollapseIcon : ExpandIcon}
                               />
                             )
+                            const isTyping =
+                              documentId === id &&
+                              isEqual(typing?.path, inputProps.path)
+
                             return (
                               <Stack space={1}>
                                 <Flex>
-                                  <Box flex={1}>{renderInput(inputProps)}</Box>
+                                  <Box flex={1}>
+                                    {renderInput(
+                                      isTyping
+                                        ? {
+                                            ...inputProps,
+                                            ref: typingRef,
+                                          }
+                                        : inputProps,
+                                    )}
+                                  </Box>
 
                                   <Box>
-                                    {attentionButton ? (
-                                      <Flex justify="flex-end">
-                                        {attentionButton}
-                                      </Flex>
-                                    ) : null}
+                                    <Flex justify="flex-end">
+                                      {isStringInputProps(inputProps) ? (
+                                        <Button
+                                          icon={isTyping ? PauseIcon : PlayIcon}
+                                          mode="bleed"
+                                          onClick={() => {
+                                            setTyping(current =>
+                                              current
+                                                ? null
+                                                : {
+                                                    id: documentId,
+                                                    path: inputProps.path,
+                                                  },
+                                            )
+                                          }}
+                                        />
+                                      ) : null}
+                                      {false && attentionButton
+                                        ? attentionButton
+                                        : null}
+                                    </Flex>
                                   </Box>
                                 </Flex>
                               </Stack>
@@ -373,12 +406,14 @@ function App() {
                 ))}
               </Stack>
             </Card>
-            <Box flex={2}>
-              <DocumentView
-                local={documentState.local}
-                remote={documentState.remote}
-              />
-            </Box>
+            {false && (
+              <Box flex={2}>
+                <DocumentView
+                  local={documentState.local}
+                  remote={documentState.remote}
+                />
+              </Box>
+            )}
           </Flex>
           <Flex size={2} gap={2}>
             <Card flex={1} shadow={2} radius={2} height="fill" overflow="auto">
@@ -420,6 +455,7 @@ function App() {
                       />
                       <Text size={1}>Autosave</Text>
                     </Flex>
+
                     <Button
                       onClick={() => {
                         datastore.submit()
@@ -469,9 +505,7 @@ function App() {
                             <JsonView
                               oneline
                               value={
-                                e.type === 'sync'
-                                  ? e.after.remote
-                                  : e.effects || e.mutations
+                                e.type === 'sync' ? e.after.remote : e.effects
                               }
                             />
                           </Text>

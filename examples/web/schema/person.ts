@@ -14,6 +14,13 @@ export const address = object({
   country: string(),
 })
 
+export const textsDemo = document({
+  _type: literal('textsDemo'),
+  textOne: string(),
+  textTwo: string(),
+  textThree: string(),
+})
+
 export const person = document({
   _type: literal('person'),
   name: string(),

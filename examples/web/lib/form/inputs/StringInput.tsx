@@ -7,8 +7,12 @@ import {
   forwardRef,
   useCallback,
 } from 'react'
+import {createMultiplayerInput} from 'react-multiplayer-input'
 
 import {type InputProps} from '../types'
+
+const MultiplayerTextInput = createMultiplayerInput(TextInput)
+const MultiplayerTextArea = createMultiplayerInput(TextArea)
 
 export const StringInput = forwardRef(function StringInput(
   props: InputProps<SanityString>,
@@ -33,14 +37,14 @@ export const StringInput = forwardRef(function StringInput(
     )
 
   return props.form?.multiline ? (
-    <TextArea
+    <MultiplayerTextArea
       ref={forwardedRef as ForwardedRef<HTMLTextAreaElement>}
       value={value || ''}
       rows={8}
       onChange={handleChange}
     />
   ) : (
-    <TextInput
+    <MultiplayerTextInput
       ref={forwardedRef as ForwardedRef<HTMLInputElement>}
       value={value || ''}
       onChange={handleChange}
