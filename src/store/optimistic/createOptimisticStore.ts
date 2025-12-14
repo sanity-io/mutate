@@ -32,7 +32,9 @@ import {
 import {
   type ListenerEvent,
   type MutationGroup,
+  type OptimisticDocumentEvent,
   type OptimisticStore,
+  type RemoteDocumentEvent,
   type SubmitResult,
   type TransactionalMutationGroup,
 } from '../types'
@@ -96,6 +98,11 @@ export function createOptimisticStore(
     submitTransactions: backend.submit,
   })
   return {
+    listenEvents(
+      id: string,
+    ): Observable<RemoteDocumentEvent | OptimisticDocumentEvent> {
+      return EMPTY
+    },
     submit: () => {
       onSubmitLocal.next()
     },
@@ -156,7 +163,9 @@ export function createOptimisticStoreInternal(
 
   const {onSubmitLocal, localMutations, listen, submitTransactions} = config
 
-  const rewriteMutations$ = new Subject<MutationGroup[]>()
+  // this emits whenever we receive a remote mutation that causes local mutations to be rebased
+  // this causes pending, unsubmitted mutations to be replaced with rebased mutations
+  const rebasedMutations = new Subject<readonly MutationGroup[]>()
 
   function listenDocumentUpdates<Doc extends SanityDocumentBase>(
     documentId: string,
@@ -213,16 +222,18 @@ export function createOptimisticStoreInternal(
     )
   }
 
-  const ready = merge(
+  const pendingMutations = merge(
     localMutations.pipe(
       map(local => ({type: 'add' as const, mutations: local})),
     ),
-    rewriteMutations$.pipe(
-      map(mutations => ({type: 'replace' as const, mutations})),
+    rebasedMutations.pipe(
+      // if pending mutations are rebased
+      map(mutations => ({type: 'rebase' as const, mutations})),
     ),
   ).pipe(
-    scan((current: MutationGroup[], action) => {
-      if (action.type === 'replace') {
+    scan((current: readonly MutationGroup[], action) => {
+      if (action.type === 'rebase') {
+        // replace current pending mutations with rebased ones
         return action.mutations
       }
       if (action.type === 'add') {
@@ -232,7 +243,7 @@ export function createOptimisticStoreInternal(
     }, []),
   )
   const submitRequests = onSubmitLocal.pipe(
-    withLatestFrom(ready),
+    withLatestFrom(pendingMutations),
     mergeMap(([, mutationGroups]) => {
       const transactions = toTransactions(
         squashDMPStrings(edge, squashMutationGroups(mutationGroups)),
@@ -258,7 +269,7 @@ export function createOptimisticStoreInternal(
         ),
         map(update => ({
           base: update.snapshot,
-          type: 'arrive' as const,
+          type: 'remoteMutation' as const,
           transactionId: update.event.transactionId,
         })),
       )
@@ -298,20 +309,29 @@ export function createOptimisticStoreInternal(
             }
           }
 
-          if (ev.type === 'arrive') {
-            const isPending = inflight[0]?.id === ev.transactionId
-            const nextInflight = isPending ? inflight.slice(1) : inflight
+          if (ev.type === 'remoteMutation') {
+            const isHeadInflight = inflight[0]?.id === ev.transactionId
+            if (isHeadInflight) {
+              // we received the first inflight transaction we submitted
+              // no rebase needed
+              //rebasedMutations.next(local)
+              return {
+                base: ev.base,
+                inflight: inflight.slice(1),
+                local,
+              }
+            }
 
             const newEdge = applyAll(
               ev.base,
-              filterDocumentTransactions(nextInflight, id),
+              filterDocumentTransactions(inflight, id),
             )
 
             const oldEdge = edge.get(id)
             const [newLocalMutations] = rebase(id, oldEdge, newEdge, local)
 
-            // todo – find a less dirty way to do this
-            rewriteMutations$.next(newLocalMutations)
+            // todo – is there a cleaner way to do this?
+            rebasedMutations.next(newLocalMutations)
 
             // now calculate dmps for each of them against current edge
             // We received a mutation from the listener that came before any of the ones in-flight
@@ -324,7 +344,7 @@ export function createOptimisticStoreInternal(
             // 4. calculate set patches from the results and use as new `local`
             return {
               base: ev.base,
-              inflight: nextInflight,
+              inflight: inflight,
               local: newLocalMutations,
             }
           }
@@ -341,7 +361,6 @@ export function createOptimisticStoreInternal(
           return state
         }, SEED_STATE),
         startWith({inflight: [], local: [], base: undefined}),
-
         //tap(s => console.log(s)),
         map(state => {
           const nextEdge = applyAll(
