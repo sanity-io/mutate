@@ -1,10 +1,7 @@
-import {
-  type ReconnectEvent,
-  type SanityClient,
-  type WelcomeEvent,
-} from '@sanity/client'
+import {type ReconnectEvent, type WelcomeEvent} from '@sanity/client'
 import {type Observable, timer} from 'rxjs'
 
+import {type SanityClientLike} from '../optimistic/backend/createOptimisticStoreClientBackend'
 import {
   type ListenerEndpointEvent,
   type ListenerMutationEvent,
@@ -63,7 +60,7 @@ export interface RequestOptions {
  * Requires a Sanity client instance
  */
 export function createSharedListenerFromClient(
-  client: SanityClient,
+  client: SanityClientLike,
   options?: ListenerOptions,
 ): Observable<WelcomeEvent | ListenerMutationEvent | ReconnectEvent> {
   const listener = (
