@@ -235,7 +235,7 @@ function App() {
 
   const [typing, setTyping] = useState<{id: string; path: Path} | null>(null)
 
-  const typingRef = useRef<HTMLInputElement>()
+  const typingRef = useRef<HTMLInputElement | undefined>(undefined)
   useEffect(() => {
     if (typing && typingRef.current) {
       typingRef.current.focus()
