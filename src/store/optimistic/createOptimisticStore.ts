@@ -7,7 +7,6 @@ import {
   map,
   merge,
   mergeMap,
-  NEVER,
   type Observable,
   of,
   share,
@@ -33,9 +32,7 @@ import {
 import {
   type ListenerEvent,
   type MutationGroup,
-  type OptimisticDocumentEvent,
   type OptimisticStore,
-  type RemoteDocumentEvent,
   type SubmitResult,
   type TransactionalMutationGroup,
 } from '../types'
@@ -99,11 +96,6 @@ export function createOptimisticStore(
     submitTransactions: backend.submit,
   })
   return {
-    listenEvents(
-      id: string,
-    ): Observable<RemoteDocumentEvent | OptimisticDocumentEvent> {
-      return NEVER
-    },
     submit: () => {
       onSubmitLocal.next()
     },

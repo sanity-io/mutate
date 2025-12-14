@@ -144,13 +144,6 @@ export interface OptimisticStore {
   ): void
 
   /**
-   * Listen for events for a given document id
-   */
-  listenEvents(
-    id: string,
-  ): Observable<RemoteDocumentEvent | OptimisticDocumentEvent>
-
-  /**
    * Checkout a document for editing. This is required to be able to see optimistic changes
    */
   listen(id: string): Observable<SanityDocumentBase | undefined>
