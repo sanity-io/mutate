@@ -131,6 +131,9 @@ export type MutationGroup =
   | TransactionalMutationGroup
 
 export interface OptimisticStore {
+  listenEvents: (
+    id: string,
+  ) => Observable<RemoteDocumentEvent | OptimisticDocumentEvent>
   /**
    * Applies the given mutations. Mutations are not guaranteed to be submitted in the same transaction
    */
