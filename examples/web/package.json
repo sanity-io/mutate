@@ -19,6 +19,7 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-jason": "^1.1.2",
+    "react-multiplayer-input": "file://./react-multiplayer-input-0.0.2.tgz",
     "rxjs": "^7.8.2",
     "styled-components": "^6.3.8",
     "use-debounce": "^10.1.0"

@@ -277,6 +277,9 @@ importers:
       react-jason:
         specifier: ^1.1.2
         version: 1.1.2(react@19.2.4)
+      react-multiplayer-input:
+        specifier: file://./react-multiplayer-input-0.0.2.tgz
+        version: file:examples/web/react-multiplayer-input-0.0.2.tgz
       rxjs:
         specifier: ^7.8.2
         version: 7.8.2
@@ -1223,6 +1226,10 @@ packages:
   '@sanity/browserslist-config@1.0.5':
     resolution: {integrity: sha512-so+/UtCge8t1jq509hH0otbbptRz0zM/Aa0dh5MhMD7HGT6n2igWIL2VWH/9QR9e77Jn3dJsjz23mW1WCxT+sg==}
 
+  '@sanity/client@6.29.1':
+    resolution: {integrity: sha512-BQRCMeDlBxwnMbFtB61HUxFf9aSb4HNVrpfrC7IFVqFf4cwcc3o5H8/nlrL9U3cDFedbe4W0AXt1mQzwbY/ljw==}
+    engines: {node: '>=14.18'}
+
   '@sanity/client@7.14.1':
     resolution: {integrity: sha512-lCDx0vuNUgg9FL2E5Hiv1q7u6iHd1Z+jjMZAaYtfzzFPoBKOiyZlaFwqyLVHRyTbwnXQdIGDPmx2AvfBTbGQsQ==}
     engines: {node: '>=20'}
@@ -1237,6 +1244,10 @@ packages:
 
   '@sanity/diff-match-patch@3.2.0':
     resolution: {integrity: sha512-4hPADs0qUThFZkBK/crnfKKHg71qkRowfktBljH2UIxGHHTxIzt8g8fBiXItyCjxkuNy+zpYOdRMifQNv8+Yww==}
+    engines: {node: '>=18.18'}
+
+  '@sanity/diff-match-patch@3.2.0-beta.0':
+    resolution: {integrity: sha512-DqxmheeX8mVNBwEmNZDIKuZ6ZU0v6gKM+t+1qA9CL2b7twgk7Mgb6cMXL2hqjnlYDIP5CZAGlQv7jma2qfmk7g==}
     engines: {node: '>=18.18'}
 
   '@sanity/eventsource@5.0.2':
@@ -3138,6 +3149,11 @@ packages:
     peerDependencies:
       react: '>=16'
 
+  react-multiplayer-input@file:examples/web/react-multiplayer-input-0.0.2.tgz:
+    resolution: {integrity: sha512-rEaL1HU918Wt6S6V8lbGUf50zLn9KgNsidQ5w00WS12qJgBTA7EavdOwQaUanmj6A2TapHOsU825ZsXT4IhmRg==, tarball: file:examples/web/react-multiplayer-input-0.0.2.tgz}
+    version: 0.0.2
+    engines: {node: '>=18'}
+
   react-refractor@4.0.0:
     resolution: {integrity: sha512-2VMRH3HA/Nu+tMFzyQwdBK0my0BIZy1pkWHhjuSrplMyf8ZLx/Gw7tUXV0t2JbEsbSNHbEc9TbHhq3sUx2seVA==}
     engines: {node: '>=20.0.0'}
@@ -4731,6 +4747,14 @@ snapshots:
 
   '@sanity/browserslist-config@1.0.5': {}
 
+  '@sanity/client@6.29.1':
+    dependencies:
+      '@sanity/eventsource': 5.0.2
+      get-it: 8.7.0
+      rxjs: 7.8.2
+    transitivePeerDependencies:
+      - debug
+
   '@sanity/client@7.14.1':
     dependencies:
       '@sanity/eventsource': 5.0.2
@@ -4749,6 +4773,8 @@ snapshots:
       xstate: 5.26.0
 
   '@sanity/diff-match-patch@3.2.0': {}
+
+  '@sanity/diff-match-patch@3.2.0-beta.0': {}
 
   '@sanity/eventsource@5.0.2':
     dependencies:
@@ -4934,7 +4960,7 @@ snapshots:
 
   '@types/follow-redirects@1.14.4':
     dependencies:
-      '@types/node': 22.19.7
+      '@types/node': 25.1.0
 
   '@types/hast@3.0.4':
     dependencies:
@@ -6875,6 +6901,13 @@ snapshots:
   react-jason@1.1.2(react@19.2.4):
     dependencies:
       react: 19.2.4
+
+  react-multiplayer-input@file:examples/web/react-multiplayer-input-0.0.2.tgz:
+    dependencies:
+      '@sanity/client': 6.29.1
+      '@sanity/diff-match-patch': 3.2.0-beta.0
+    transitivePeerDependencies:
+      - debug
 
   react-refractor@4.0.0(react@19.2.4):
     dependencies:
