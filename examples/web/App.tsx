@@ -49,7 +49,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import {tap} from 'rxjs'
+import {concatMap, map, tap, timer} from 'rxjs'
 import styled from 'styled-components'
 import {useThrottledCallback} from 'use-debounce'
 
@@ -165,6 +165,15 @@ const sanityClient = createClient({
 })
 
 const USE_CLIENT_BACKEND = true
+
+const listen = sanityClient.listen
+
+;(sanityClient as any).listen = function (...args: any) {
+  return listen.apply(sanityClient, args).pipe(
+    concatMap(ev => timer(2000).pipe(map(() => ev))),
+    tap(e => console.log('incoming listener event', e)),
+  )
+}
 
 const datastore = createOptimisticStore(
   USE_CLIENT_BACKEND
