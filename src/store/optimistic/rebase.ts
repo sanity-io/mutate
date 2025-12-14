@@ -1,36 +1,10 @@
 import {applyPatches} from '../../apply'
-import {
-  type Mutation,
-  type NodePatch,
-  type PatchMutation,
-  type SanityDocumentBase,
-} from '../../mutations/types'
+import {type NodePatch, type SanityDocumentBase} from '../../mutations/types'
 import {getAtPath} from '../../path'
 import {applyAll} from '../documentMap/applyDocumentMutation'
 import {type MutationGroup} from '../types'
 import {getMutationDocumentId} from '../utils/getMutationDocumentId'
 import {compactDMPSetPatches} from './optimizations/squashNodePatches'
-
-type RebaseTransaction = {
-  mutations: Mutation[]
-}
-
-type FlatMutation = Exclude<Mutation, PatchMutation>
-
-function flattenMutations(mutations: Mutation[]) {
-  return mutations.flatMap((mut): Mutation | Mutation[] => {
-    if (mut.type === 'patch') {
-      return mut.patches.map(
-        (patch): PatchMutation => ({
-          type: 'patch',
-          id: mut.id,
-          patches: [patch],
-        }),
-      )
-    }
-    return mut
-  })
-}
 
 export function rebase(
   documentId: string,
