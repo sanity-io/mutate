@@ -119,15 +119,7 @@ describe('local mutations', () => {
           id: 'foo',
           after: {_id: 'foo', _type: 'foo'},
           before: undefined,
-          mutations: [
-            {
-              document: {
-                _id: 'foo',
-                _type: 'foo',
-              },
-              type: 'create',
-            },
-          ],
+          mutations: [],
           stagedChanges: [
             {
               document: {
@@ -168,15 +160,7 @@ describe('local mutations', () => {
           id: 'foo',
           after: {_id: 'foo', _type: 'foo'},
           before: undefined,
-          mutations: [
-            {
-              document: {
-                _id: 'foo',
-                _type: 'foo',
-              },
-              type: 'createIfNotExists',
-            },
-          ],
+          mutations: [],
           stagedChanges: [
             {
               document: {
@@ -200,15 +184,7 @@ describe('local mutations', () => {
           id: 'foo',
           after: {_id: 'foo', _type: 'foo'},
           before: undefined,
-          mutations: [
-            {
-              document: {
-                _id: 'foo',
-                _type: 'foo',
-              },
-              type: 'createIfNotExists',
-            },
-          ],
+          mutations: [],
           stagedChanges: [
             {
               document: {
@@ -296,15 +272,7 @@ describe('local mutations', () => {
           after: {_id: 'foo', _type: 'foo'},
           before: undefined,
           id: 'foo',
-          mutations: [
-            {
-              type: 'create',
-              document: {
-                _id: 'foo',
-                _type: 'foo',
-              },
-            },
-          ],
+          mutations: [],
           stagedChanges: [
             {
               document: {
@@ -327,11 +295,7 @@ describe('local mutations', () => {
           after: {_id: 'foo', _type: 'foo'},
           before: undefined,
           id: 'foo',
-          mutations: [
-            {
-              type: 'create',
-            },
-          ],
+          mutations: [],
           type: 'optimistic',
         },
       },
