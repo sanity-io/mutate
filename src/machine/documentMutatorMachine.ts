@@ -22,11 +22,11 @@ import {encodeTransaction, type Mutation} from '../encoders/sanity'
 import {
   type MutationGroup,
   type SanityDocumentBase,
+  toTransactions,
   type Transaction,
 } from '../store'
 import {applyMutations} from '../store/documentMap/applyMutations'
 import {commit} from '../store/documentMap/commit'
-import {toTransactions} from '../store/optimistic/createOptimisticStore'
 import {squashDMPStrings} from '../store/optimistic/optimizations/squashDMPStrings'
 import {squashMutationGroups} from '../store/optimistic/optimizations/squashMutations'
 import {rebase} from '../store/optimistic/rebase'
