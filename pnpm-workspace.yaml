@@ -3,6 +3,7 @@ packages:
   - '.'
   # all packages in subdirs of components/
   - 'examples/**'
+  - 'docs'
 
 allowBuilds:
   esbuild: false
@@ -11,5 +12,4 @@ minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@sanity/*'
   - 'groq-js'
-  # Renovate security update: lodash@4.18.1
-  - lodash@4.18.1
+  - 'react-multiplayer-input'

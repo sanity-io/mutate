@@ -31,7 +31,7 @@ The package exports four distinct entry points, each backed by a `src/_*.ts` shi
 - `@sanity/mutate/path` (`src/_path.ts`) — path parsing/stringifying utilities
 - `@sanity/mutate/_unstable_apply` (`src/_unstable_apply.ts` → `src/apply/`) — pure functions that apply mutations to in-memory documents
 - `@sanity/mutate/_unstable_machine` (`src/_unstable_machine.ts` → `src/machine/`) — lower-level building blocks (apply/commit/rebase/squash + xstate-based document mutator machine; `xstate` is an optional peer dep)
-- `@sanity/mutate/_unstable_store` (`src/_unstable_store.ts` → `src/store/`) — higher-level optimistic store with listeners and client/mock backends
+- `@sanity/mutate/_unstable_store` (`src/_unstable_store.ts` → `src/store/`) — higher-level optimistic store with listeners and client / in-memory backends
 
 ### Module layout
 
@@ -52,7 +52,7 @@ The package exports four distinct entry points, each backed by a `src/_*.ts` shi
   - **Referential-integrity invariant**: when a mutation is a no-op (or only affects part of a tree), unaffected nodes/objects must keep the same object identity. Tests in `src/apply/__test__/` and `test/shallow-ops.test.ts` enforce this — preserve it in any change to apply logic.
 - `src/store/` — optimistic in-memory dataset replica
   - `optimistic/createOptimisticStore.ts` — public store with `mutate`/`transaction`/`submit`/`listen`/`listenEvents` (see `OptimisticStore` in `store/types.ts`)
-  - `optimistic/backend/` — `createOptimisticStoreClientBackend` (real `@sanity/client`) and `createOptimisticStoreMockBackend` (tests)
+  - `optimistic/backend/` — `createOptimisticStoreClientBackend` (real `@sanity/client`) and `createOptimisticStoreInMemoryBackend` (tests)
   - `optimistic/rebase.ts` + `optimistic/optimizations/` — rebase staged mutations onto remote state; squash diff-match-patch strings and consecutive mutation groups
   - `listeners/` — RxJS-based document/idSet/shared listeners on top of the Sanity listener endpoint
   - `documentMap/` — `applyMutations` + `commit` primitives shared with the machine entry point
@@ -73,4 +73,4 @@ The package exports four distinct entry points, each backed by a `src/_*.ts` shi
 - `no-console` is **error**; allowed in `examples/ts/**`.
 - Test files live next to source under `__test__/` or `__tests__/` directories (both naming styles exist; match the surrounding directory).
 - Releases are managed by **release-please** (`.release-please-manifest.json`, `release-please-config.json`); don't hand-edit `CHANGELOG.md` or bump `version` in `package.json`.
-- The `pnpm-workspace.yaml` sets a `minimumReleaseAge` for dependencies (with `@sanity/*` and `groq-js` excluded) — fresh non-Sanity dependency versions will be rejected by pnpm install until they age.
+- The `pnpm-workspace.yaml` sets a `minimumReleaseAge` for dependencies (with `@sanity/*`, `groq-js`, and `react-multiplayer-input` excluded as first-party / owned packages) — fresh third-party dependency versions will be rejected by pnpm install until they age. Never add to `minimumReleaseAgeExclude` without explicit approval.
