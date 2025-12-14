@@ -2,7 +2,6 @@ import {type RawPatch} from 'mendoza'
 import {type Observable} from 'rxjs'
 
 import {type Mutation, type SanityDocumentBase} from '../mutations/types'
-import {type Path} from '../path'
 import {type SanityMutation} from './sanityMutationTypes'
 
 export interface ListenerSyncEvent<
@@ -49,7 +48,9 @@ export type ListenerEndpointEvent =
   | ListenerDisconnectEvent
 
 export type ListenerEvent<Doc extends SanityDocumentBase = SanityDocumentBase> =
-  ListenerSyncEvent<Doc> | ListenerMutationEvent | ListenerReconnectEvent
+  | ListenerSyncEvent<Doc>
+  | ListenerMutationEvent
+  | ListenerReconnectEvent
 
 export interface OptimisticDocumentEvent {
   type: 'optimistic'
@@ -129,50 +130,18 @@ export type MutationGroup =
   | NonTransactionalMutationGroup
   | TransactionalMutationGroup
 
-// todo: needs more work
-export type Conflict = {
-  path: Path
-  error: Error
-  base: SanityDocumentBase | undefined
-  local: SanityDocumentBase | undefined
-}
-
 export interface OptimisticStore {
-  meta: {
-    // just some ideas…
-    /**
-     * A stream of events for anything that happens in the store
-     */
-    events: Observable<OptimisticDocumentEvent | RemoteDocumentEvent>
-
-    /**
-     * A stream of current staged changes
-     */
-    stage: Observable<MutationGroup[]>
-
-    /**
-     * A stream of current conflicts. TODO: Needs more work
-     */
-    conflicts: Observable<Conflict[]>
-  }
-
   /**
    * Applies the given mutations. Mutations are not guaranteed to be submitted in the same transaction
-   * Can this mutate both local and remote documents at the same time
    */
-  mutate(mutation: Mutation[]): MutationResult
+  mutate(mutation: Mutation[]): void
 
   /**
    * Makes sure the given mutations are posted in a single transaction
    */
   transaction(
     transaction: {id?: string; mutations: Mutation[]} | Mutation[],
-  ): MutationResult
-
-  /**
-   * Checkout a document for editing. This is required to be able to see optimistic changes
-   */
-  listen(id: string): Observable<SanityDocumentBase | undefined>
+  ): void
 
   /**
    * Listen for events for a given document id
@@ -182,12 +151,12 @@ export interface OptimisticStore {
   ): Observable<RemoteDocumentEvent | OptimisticDocumentEvent>
 
   /**
-   * Optimize list of pending mutations
+   * Checkout a document for editing. This is required to be able to see optimistic changes
    */
-  optimize(): void
+  listen(id: string): Observable<SanityDocumentBase | undefined>
 
   /**
    * Submit pending mutations
    */
-  submit(): Promise<SubmitResult[]>
+  submit(): void
 }
