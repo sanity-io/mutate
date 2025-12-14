@@ -5,14 +5,12 @@ export * from './listeners/createDocumentUpdateListener'
 export * from './listeners/createIdSetListener'
 export * from './listeners/createSharedListener'
 export type * from './listeners/types'
-export {
-  createMockBackendAPI,
-  type MockBackendAPI,
-} from './mock/createMockBackendAPI'
-export {createOptimisticStoreClientBackend} from './optimistic/backend/createOptimisticStoreClientBackend'
-export {createOptimisticStoreMockBackend} from './optimistic/backend/createOptimisticStoreMockBackend'
+export * from './optimistic/backend/createOptimisticStoreClientBackend'
+export * from './optimistic/backend/createOptimisticStoreMockBackend'
 export * from './optimistic/createOptimisticStore'
 export type * from './types'
+export {toTransactions} from './utils/toTransactions'
+
 /** Required support types */
 // eslint-disable-next-line import/export
 export type * from '../mutations/operations/types' // todo: fix duplicate exports

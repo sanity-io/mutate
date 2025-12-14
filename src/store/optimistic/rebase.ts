@@ -10,7 +10,7 @@ export function rebase(
   documentId: string,
   oldBase: SanityDocumentBase | undefined,
   newBase: SanityDocumentBase | undefined,
-  localMutations: MutationGroup[],
+  localMutations: readonly MutationGroup[],
 ): [newLocal: MutationGroup[], rebased: SanityDocumentBase | undefined] {
   // const flattened = flattenMutations(newStage.flatMap(t => t.mutations))
 
