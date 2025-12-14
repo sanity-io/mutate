@@ -19,6 +19,11 @@ export function startTyping(
 ) {
   let charIdx = 0
 
+  const computedStyles = window.getComputedStyle(input)
+  const currentCursorStyle = computedStyles.cursor
+  const wasDisabled = input.disabled
+  input.disabled = true
+  input.style.cursor = 'wait'
   let timerId = setTimeout(write, 0)
 
   function write() {
@@ -32,6 +37,8 @@ export function startTyping(
     }
   }
   return () => {
+    input.disabled = wasDisabled
+    input.style.cursor = currentCursorStyle
     clearTimeout(timerId)
   }
 }
