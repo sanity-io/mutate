@@ -279,7 +279,7 @@ export function createOptimisticStore(
   }
 }
 
-function toTransactions(groups: MutationGroup[]): Transaction[] {
+export function toTransactions(groups: MutationGroup[]): Transaction[] {
   return groups.map(group => {
     if (group.transaction && group.id !== undefined) {
       return {id: group.id!, mutations: group.mutations}

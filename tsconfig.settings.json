@@ -2,7 +2,7 @@
   "compilerOptions": {
     "module": "ES2022",
     "target": "ES2022",
-    "lib": ["es2023"],
+    "lib": ["es2023", "es2024.promise"],
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
