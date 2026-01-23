@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.0](https://github.com/sanity-io/mutate/compare/mutate-v0.15.0...mutate-v0.16.0) (2026-01-23)
+
+
+### Features
+
+* export `_unstable_machine` ([#80](https://github.com/sanity-io/mutate/issues/80)) ([ab897cc](https://github.com/sanity-io/mutate/commit/ab897cc72fcb2209767abedcd643782ef63ddeac))
+
 ## [0.15.0](https://github.com/sanity-io/mutate/compare/mutate-v0.14.0...mutate-v0.15.0) (2025-12-05)
 
 
