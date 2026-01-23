@@ -86,6 +86,7 @@
     "typecheck:examples": "run-p typecheck:examples:*",
     "typecheck:examples:ts": "tsc --project examples/ts/tsconfig.json",
     "typecheck:examples:web": "tsc --project examples/web/tsconfig.json",
+    "typecheck:examples:visual-editing": "tsc --project examples/visual-editing/tsconfig.json",
     "lint": "eslint .",
     "test": "vitest run --typecheck",
     "test:watch": "vitest --typecheck",
