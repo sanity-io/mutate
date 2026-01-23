@@ -13,7 +13,7 @@
     "@react-spring/three": "^9.7.5",
     "@react-three/drei": "^9.117.3",
     "@react-three/fiber": "^8.17.10",
-    "@sanity/client": "^6.22.5",
+    "@sanity/client": "^7.9.0",
     "@sanity/comlink": "^2.0.0",
     "@sanity/icons": "^3.5.0",
     "@sanity/mutate": "workspace:*",
