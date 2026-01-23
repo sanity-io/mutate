@@ -161,7 +161,7 @@ export function defineDocumentEditorMachine<
 
     invoke: {
       src: 'remoteEvents',
-      // id: 'remoteEvents',
+      id: 'remoteEvents',
       input: ({context}) => ({documentId: context.documentId}),
     },
 

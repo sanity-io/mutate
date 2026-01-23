@@ -35,7 +35,7 @@
     "rxjs": "^7.8.1",
     "styled-components": "^6.1.13",
     "three": "^0.169.0",
-    "xstate": "^5.18.2"
+    "xstate": "^5.25.1"
   },
   "devDependencies": {
     "@types/node": "^22.12.0",

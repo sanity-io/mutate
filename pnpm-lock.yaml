@@ -184,7 +184,7 @@ importers:
         specifier: ^0.169.0
         version: 0.169.0
       xstate:
-        specifier: ^5.18.2
+        specifier: ^5.25.1
         version: 5.25.1
     devDependencies:
       '@types/node':

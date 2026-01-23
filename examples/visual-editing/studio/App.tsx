@@ -6,14 +6,15 @@ import {
   SanityEncoder,
 } from '@sanity/mutate'
 import {
+  createSharedListener,
   type documentMutatorMachine,
   type DocumentMutatorMachineParentEvent,
 } from '@sanity/mutate/_unstable_machine'
 import {
   createDocumentEventListener,
-  createDocumentLoader,
+  createDocumentLoaderFromClient,
   createOptimisticStore,
-  createSharedListener,
+  createSharedListenerFromClient,
   type MutationGroup,
 } from '@sanity/mutate/_unstable_store'
 import {
@@ -57,7 +58,7 @@ import {
   useEffect,
   useState,
 } from 'react'
-import {concatMap, from, tap} from 'rxjs'
+import {from, tap} from 'rxjs'
 import styled from 'styled-components'
 import {type ActorRefFrom} from 'xstate'
 
@@ -186,25 +187,24 @@ const sanityClient = createClient({
   token: import.meta.env.VITE_SANITY_API_TOKEN,
 })
 
-const sharedListener = createSharedListener({client: sanityClient})
+const sharedListener = createSharedListener(sanityClient)
+const sharedListenerForStore = createSharedListenerFromClient(sanityClient)
 
-const loadDocument = createDocumentLoader({client: sanityClient})
+const loadDocument = createDocumentLoaderFromClient(sanityClient)
 
 const listenDocument = createDocumentEventListener({
   loadDocument,
-  listenerEvents: sharedListener,
+  listenerEvents: sharedListenerForStore,
 })
 
 const datastore = createOptimisticStore({
   listen: listenDocument,
-  submit: transactions => {
-    return from(transactions).pipe(
-      concatMap(transaction =>
-        sanityClient.dataRequest(
-          'mutate',
-          SanityEncoder.encodeTransaction(transaction),
-          {visibility: 'async', returnDocuments: false},
-        ),
+  submit: transaction => {
+    return from(
+      sanityClient.dataRequest(
+        'mutate',
+        SanityEncoder.encodeTransaction(transaction),
+        {visibility: 'async', returnDocuments: false},
       ),
     )
   },

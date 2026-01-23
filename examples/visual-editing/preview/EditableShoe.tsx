@@ -10,7 +10,7 @@ import {Box, Card, Heading, Inline} from '@sanity/ui'
 import {useEffect, useRef, useState} from 'react'
 import {HexColorPicker} from 'react-colorful'
 import {styled} from 'styled-components'
-import {type Group, type Object3DEventMap} from 'three'
+import {type Group, type Mesh, type Object3DEventMap} from 'three'
 
 import {type airmax, type dunklow, type ultraboost} from '../studio/schema/shoe'
 import {AirmaxModel, DunklowModel, UltraboostModel} from './Shoes'
@@ -85,12 +85,14 @@ export default function EditableShoe(props: {
         />
         <group
           onPointerOver={e => (
-            e.stopPropagation(), setHovered(e.object.material.name)
+            e.stopPropagation(),
+            setHovered((e.object as Mesh).material?.name ?? null)
           )}
           onPointerOut={e => e.intersections.length === 0 && setHovered(null)}
           onPointerMissed={() => setSelectedColor(null)}
           onClick={e => (
-            e.stopPropagation(), setSelectedColor(e.object.material.name)
+            e.stopPropagation(),
+            setSelectedColor((e.object as Mesh).material?.name ?? null)
           )}
         >
           {model._type === 'airmax' ? (
@@ -207,7 +209,7 @@ function Picker({
       <HexColorPicker
         className="picker"
         style={{height: 90, width: 90}}
-        color={model[selectedColor!]}
+        color={(model as Record<string, string>)[selectedColor!]}
         onChange={color =>
           mutateModel(prev => ({...prev, [selectedColor!]: color}))
         }

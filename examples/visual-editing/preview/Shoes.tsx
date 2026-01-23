@@ -1,9 +1,12 @@
 import {useGLTF} from '@react-three/drei'
 import {type Infer} from '@sanity/sanitype'
 import {forwardRef} from 'react'
-import {type Group, type Object3DEventMap} from 'three'
+import {type Group, type Mesh, type Object3DEventMap} from 'three'
 
 import {type airmax, type dunklow, type ultraboost} from '../studio/schema/shoe'
+
+// Helper to safely cast Object3D nodes to Mesh
+const asMesh = (node: unknown) => node as Mesh
 
 export const AirmaxModel = forwardRef<
   Group<Object3DEventMap>,
@@ -20,7 +23,7 @@ export const AirmaxModel = forwardRef<
       <mesh
         castShadow
         receiveShadow
-        geometry={nodes.mesh_49?.geometry}
+        geometry={asMesh(nodes.mesh_49).geometry}
         material={color}
         material-name="color"
         material-color={model['color']}
@@ -28,7 +31,7 @@ export const AirmaxModel = forwardRef<
       <mesh
         castShadow
         receiveShadow
-        geometry={nodes.mesh_49_1?.geometry}
+        geometry={asMesh(nodes.mesh_49_1).geometry}
         material={gel}
         material-name="gel"
         material-color={model['gel']}
@@ -55,7 +58,7 @@ export const DunklowModel = forwardRef<
   const patch = materials['Material.006']?.clone()
   const laces = materials['Material.003']?.clone()
   const nikeText = materials.Material?.clone()
-  const inner = nodes.desighn_00?.material?.clone()
+  const inner = asMesh(nodes.desighn_00).material?.clone()
 
   return (
     <group
@@ -73,7 +76,7 @@ export const DunklowModel = forwardRef<
           // towel
           castShadow
           receiveShadow
-          geometry={nodes.Plane?.geometry}
+          geometry={asMesh(nodes.Plane).geometry}
           material={towel}
           material-name="towel"
           material-color={model.towel}
@@ -81,7 +84,7 @@ export const DunklowModel = forwardRef<
         <mesh
           castShadow
           receiveShadow
-          geometry={nodes.Plane_1?.geometry}
+          geometry={asMesh(nodes.Plane_1).geometry}
           material={neck}
           material-name="neck"
           material-color={model.neck}
@@ -95,7 +98,7 @@ export const DunklowModel = forwardRef<
         <mesh
           castShadow
           receiveShadow
-          geometry={nodes.Plane001?.geometry}
+          geometry={asMesh(nodes.Plane001).geometry}
           material={soleTop}
           material-name="soleTop"
           material-color={model['soleTop']}
@@ -103,7 +106,7 @@ export const DunklowModel = forwardRef<
         <mesh
           castShadow
           receiveShadow
-          geometry={nodes.Plane001_1?.geometry}
+          geometry={asMesh(nodes.Plane001_1).geometry}
           material={soleBottom}
           material-name="soleBottom"
           material-color={model['soleBottom']}
@@ -112,7 +115,7 @@ export const DunklowModel = forwardRef<
       <mesh
         castShadow
         receiveShadow
-        geometry={nodes.design_3?.geometry}
+        geometry={asMesh(nodes.design_3).geometry}
         position={[0, -0.176, 0]}
         rotation={[Math.PI / 2, 0, 0]}
         scale={[1, 1.099, 1]}
@@ -123,7 +126,7 @@ export const DunklowModel = forwardRef<
       <mesh
         castShadow
         receiveShadow
-        geometry={nodes.nikey_logo?.geometry}
+        geometry={asMesh(nodes.nikey_logo).geometry}
         position={[0, -0.176, 0]}
         rotation={[Math.PI / 2, 0, 0]}
         scale={[1, 1.099, 1]}
@@ -134,7 +137,7 @@ export const DunklowModel = forwardRef<
       <mesh
         castShadow
         receiveShadow
-        geometry={nodes.design1?.geometry}
+        geometry={asMesh(nodes.design1).geometry}
         position={[0, -0.176, 0]}
         rotation={[Math.PI / 2, 0, 0]}
         scale={[1, 1.099, 1]}
@@ -145,7 +148,7 @@ export const DunklowModel = forwardRef<
       <mesh
         castShadow
         receiveShadow
-        geometry={nodes.design_2?.geometry}
+        geometry={asMesh(nodes.design_2).geometry}
         position={[0, -0.176, 0]}
         rotation={[0.667, 0.287, 0.335]}
         scale={[0.619, 0.927, 0.155]}
@@ -156,7 +159,7 @@ export const DunklowModel = forwardRef<
       <mesh
         castShadow
         receiveShadow
-        geometry={nodes.desighn_4?.geometry}
+        geometry={asMesh(nodes.desighn_4).geometry}
         position={[0, -0.176, 0]}
         rotation={[Math.PI / 2, 0, 0]}
         scale={[1, 1.099, 1]}
@@ -167,7 +170,7 @@ export const DunklowModel = forwardRef<
       <mesh
         castShadow
         receiveShadow
-        geometry={nodes.laces?.geometry}
+        geometry={asMesh(nodes.laces).geometry}
         position={[-0.46, 1.045, -0.001]}
         rotation={[1.529, -1.161, 1.532]}
         scale={[0.476, 0.502, 0.018]}
@@ -178,7 +181,7 @@ export const DunklowModel = forwardRef<
       <mesh
         castShadow
         receiveShadow
-        geometry={nodes.Text?.geometry}
+        geometry={asMesh(nodes.Text).geometry}
         position={[1.987, 1.218, -0.034]}
         rotation={[Math.PI / 2, 0, -Math.PI / 2]}
         scale={0.193}
@@ -189,7 +192,7 @@ export const DunklowModel = forwardRef<
       <mesh
         castShadow
         receiveShadow
-        geometry={nodes.desighn_00?.geometry}
+        geometry={asMesh(nodes.desighn_00).geometry}
         position={[0, -0.076, 0]}
         rotation={[Math.PI / 2, 0, 0]}
         scale={[0.943, 0.857, 0.922]}
@@ -222,35 +225,35 @@ export const UltraboostModel = forwardRef<
       <mesh
         receiveShadow
         castShadow
-        geometry={nodes.shoe?.geometry}
+        geometry={asMesh(nodes.shoe).geometry}
         material={laces}
         material-color={model.laces}
       />
       <mesh
         receiveShadow
         castShadow
-        geometry={nodes.shoe_1?.geometry}
+        geometry={asMesh(nodes.shoe_1).geometry}
         material={mesh}
         material-color={model.mesh}
       />
       <mesh
         receiveShadow
         castShadow
-        geometry={nodes.shoe_2?.geometry}
+        geometry={asMesh(nodes.shoe_2).geometry}
         material={caps}
         material-color={model.caps}
       />
       <mesh
         receiveShadow
         castShadow
-        geometry={nodes.shoe_3?.geometry}
+        geometry={asMesh(nodes.shoe_3).geometry}
         material={inner}
         material-color={model.inner}
       />
       <mesh
         receiveShadow
         castShadow
-        geometry={nodes.shoe_4?.geometry}
+        geometry={asMesh(nodes.shoe_4).geometry}
         material={sole}
         material-color={model.sole}
       />
@@ -258,21 +261,21 @@ export const UltraboostModel = forwardRef<
       <mesh
         receiveShadow
         castShadow
-        geometry={nodes.shoe_5?.geometry}
+        geometry={asMesh(nodes.shoe_5).geometry}
         material={stripes}
         material-color={model.stripes}
       />
       <mesh
         receiveShadow
         castShadow
-        geometry={nodes.shoe_6?.geometry}
+        geometry={asMesh(nodes.shoe_6).geometry}
         material={band}
         material-color={model.band}
       />
       <mesh
         receiveShadow
         castShadow
-        geometry={nodes.shoe_7?.geometry}
+        geometry={asMesh(nodes.shoe_7).geometry}
         material={patch}
         material-color={model.patch}
       />
