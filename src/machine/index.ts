@@ -3,11 +3,11 @@ export {
   type UpdateResult,
 } from '../store/documentMap/applyMutations'
 export {commit} from '../store/documentMap/commit'
+export {toTransactions} from '../store/optimistic/createOptimisticStore'
 export {type DataStore} from '../store/optimistic/optimizations/squashDMPStrings'
 export {squashDMPStrings} from '../store/optimistic/optimizations/squashDMPStrings'
 export {squashMutationGroups} from '../store/optimistic/optimizations/squashMutations'
 export {rebase} from '../store/optimistic/rebase'
-export {toTransactions} from '../store/optimistic/createOptimisticStore'
 export type {
   Conflict,
   DocumentMap,
@@ -24,7 +24,8 @@ export type {
 export * from './documentMutatorMachine'
 
 /** Required support types */
-export type * from '../mutations/operations/types'
+// eslint-disable-next-line import/export
+export type * from '../mutations/operations/types' // todo: fix duplicate exports
 export type {NodePatch, PatchOptions} from '../mutations/types'
 export type {
   CreateIfNotExistsMutation,
@@ -37,5 +38,6 @@ export type {
   SanityDocumentBase,
   Transaction,
 } from '../mutations/types'
-export type * from '../path'
+// eslint-disable-next-line import/export
+export type * from '../path' // todo: fix duplicate exports
 export type {Optional} from '../utils/typeUtils'

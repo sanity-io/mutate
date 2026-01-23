@@ -58,7 +58,10 @@ export const DunklowModel = forwardRef<
   const patch = materials['Material.006']?.clone()
   const laces = materials['Material.003']?.clone()
   const nikeText = materials.Material?.clone()
-  const inner = asMesh(nodes.desighn_00).material?.clone()
+  const innerMat = asMesh(nodes.desighn_00).material
+  const inner = Array.isArray(innerMat)
+    ? innerMat[0]?.clone()
+    : innerMat?.clone()
 
   return (
     <group

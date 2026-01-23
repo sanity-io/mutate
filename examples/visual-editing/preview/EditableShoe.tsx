@@ -39,7 +39,7 @@ export default function EditableShoe(props: {
     }
   }, [documentId, props.model, syncedId])
 
-  const [hovered, setHovered] = useState(null)
+  const [hovered, setHovered] = useState<string | null>(null)
   useEffect(() => {
     const el = ref.current
     if (!hovered || !el) return
@@ -84,16 +84,18 @@ export default function EditableShoe(props: {
           castShadow
         />
         <group
-          onPointerOver={e => (
-            e.stopPropagation(),
-            setHovered((e.object as Mesh).material?.name ?? null)
-          )}
+          onPointerOver={e => {
+            e.stopPropagation()
+            const mat = (e.object as Mesh).material
+            setHovered(Array.isArray(mat) ? null : (mat?.name ?? null))
+          }}
           onPointerOut={e => e.intersections.length === 0 && setHovered(null)}
           onPointerMissed={() => setSelectedColor(null)}
-          onClick={e => (
-            e.stopPropagation(),
-            setSelectedColor((e.object as Mesh).material?.name ?? null)
-          )}
+          onClick={e => {
+            e.stopPropagation()
+            const mat = (e.object as Mesh).material
+            setSelectedColor(Array.isArray(mat) ? null : (mat?.name ?? null))
+          }}
         >
           {model._type === 'airmax' ? (
             <EditableAirmaxShoe model={model} />

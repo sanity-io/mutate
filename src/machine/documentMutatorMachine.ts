@@ -26,11 +26,11 @@ import {
 } from '../store'
 import {applyMutations} from '../store/documentMap/applyMutations'
 import {commit} from '../store/documentMap/commit'
+import {toTransactions} from '../store/optimistic/createOptimisticStore'
+import {squashDMPStrings} from '../store/optimistic/optimizations/squashDMPStrings'
+import {squashMutationGroups} from '../store/optimistic/optimizations/squashMutations'
+import {rebase} from '../store/optimistic/rebase'
 import {createSharedListener, type SharedListenerEvents} from './listener'
-import { squashDMPStrings } from '../store/optimistic/optimizations/squashDMPStrings'
-import { rebase } from '../store/optimistic/rebase'
-import { squashMutationGroups } from '../store/optimistic/optimizations/squashMutations'
-import { toTransactions } from '../store/optimistic/createOptimisticStore'
 
 export {createSharedListener}
 

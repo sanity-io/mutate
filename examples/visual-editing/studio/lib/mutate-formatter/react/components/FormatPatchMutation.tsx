@@ -125,6 +125,5 @@ function FormatOp(props: {op: Operation}) {
       </Text>
     )
   }
-  // @ts-expect-error all cases are covered
-  throw new Error(`Invalid operation type: ${op.type}`)
+  throw new Error(`Invalid operation type: ${(op as {type: string}).type}`)
 }

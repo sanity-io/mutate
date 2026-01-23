@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import {type MutationEvent, type SanityDocument} from '@sanity/client'
 import {type SanityDocumentBase} from '@sanity/mutate'
 import {applyPatch, type RawPatch} from 'mendoza'

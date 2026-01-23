@@ -357,7 +357,7 @@ describe('local mutations', () => {
     // Set up error capture via parent subscription
     const errorPromise = new Promise<Error>((_, reject) => {
       parent.subscribe({
-        error: (err) => reject(err),
+        error: err => reject(err),
       })
     })
 

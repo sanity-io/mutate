@@ -14,6 +14,8 @@ export default [
       '**/dist/**',
       '**/tmp/**',
       'coverage',
+      // ignore eslint config files (they use CommonJS globals)
+      '**/.eslintrc.cjs',
     ],
   },
   js.configs.recommended,
