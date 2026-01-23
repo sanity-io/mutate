@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.1](https://github.com/sanity-io/mutate/compare/mutate-v0.16.0...mutate-v0.16.1) (2026-01-23)
+
+
+### Bug Fixes
+
+* ts issues with mendoza export ([7fb1164](https://github.com/sanity-io/mutate/commit/7fb1164b751ba3de22e1c75c200afba7fe95cc2e))
+
 ## [0.16.0](https://github.com/sanity-io/mutate/compare/mutate-v0.15.0...mutate-v0.16.0) (2026-01-23)
 
 
