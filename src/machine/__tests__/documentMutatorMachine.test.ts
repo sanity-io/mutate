@@ -5,9 +5,12 @@ import {
 } from '@sanity/client'
 import {concat, delay, type Observable, of} from 'rxjs'
 import {describe, expect, test, vi} from 'vitest'
-import {createActor, waitFor} from 'xstate'
+import {type ActorRefFrom, createActor, setup, waitFor} from 'xstate'
 
-import {documentMutatorMachine} from '../documentMutatorMachine'
+import {
+  documentMutatorMachine,
+  type DocumentMutatorMachineInput,
+} from '../documentMutatorMachine'
 import {
   expected,
   initialSnapshot,
@@ -34,13 +37,43 @@ const createFakeClient = (
   return client as unknown as SanityClient
 }
 
+/**
+ * Helper to create the documentMutatorMachine with a parent context.
+ * This is needed because the machine uses sendParent() which requires a parent actor.
+ */
+function createDocumentMutatorActor(input: DocumentMutatorMachineInput) {
+  const parentMachine = setup({
+    types: {} as {
+      context: {childInput: DocumentMutatorMachineInput}
+      input: DocumentMutatorMachineInput
+    },
+    actors: {
+      documentMutator: documentMutatorMachine,
+    },
+  }).createMachine({
+    context: ({input: machineInput}) => ({childInput: machineInput}),
+    invoke: {
+      src: 'documentMutator',
+      id: 'child',
+      input: ({context}) => context.childInput,
+    },
+  })
+
+  const parent = createActor(parentMachine, {input})
+  parent.start()
+
+  // Get the child actor reference
+  const child = parent.getSnapshot().children.child as ActorRefFrom<
+    typeof documentMutatorMachine
+  >
+  return {parent, actor: child}
+}
+
 describe.runIf('withResolvers' in Promise)('observing documents', () => {
   test('observing a document that does not exist on the backend', async () => {
     const client = createFakeClient()
 
-    const actor = createActor(documentMutatorMachine, {
-      input: {client, id},
-    }).start()
+    const {actor} = createDocumentMutatorActor({client, id})
     const {context} = await waitFor(actor, state => state.hasTag('ready'))
     expect(context).toMatchObject({
       id,
@@ -53,9 +86,7 @@ describe.runIf('withResolvers' in Promise)('observing documents', () => {
     const doc = {_id: id, _type: 'foo'}
     const client = createFakeClient(doc)
 
-    const actor = createActor(documentMutatorMachine, {
-      input: {client, id},
-    }).start()
+    const {actor} = createDocumentMutatorActor({client, id})
     const {context} = await waitFor(actor, state => state.hasTag('ready'))
     expect(context).toMatchObject({id, local: doc, remote: doc})
   })
@@ -94,9 +125,7 @@ describe.runIf('withResolvers' in Promise)('observing documents', () => {
       ),
     )
 
-    const actor = createActor(documentMutatorMachine, {
-      input: {client, id},
-    }).start()
+    const {actor} = createDocumentMutatorActor({client, id})
 
     const {context} = await waitFor(
       actor,
@@ -109,9 +138,7 @@ describe.runIf('withResolvers' in Promise)('observing documents', () => {
     const doc = {_id: id, _type: 'foo'}
     const client = createFakeClient()
 
-    const actor = createActor(documentMutatorMachine, {
-      input: {client, id},
-    }).start()
+    const {actor} = createDocumentMutatorActor({client, id})
 
     await waitFor(actor, state => state.hasTag('ready'))
 
@@ -153,9 +180,7 @@ describe.runIf('withResolvers' in Promise)('observing documents', () => {
     const {resolve, promise} = Promise.withResolvers<undefined>()
     const client = createFakeClient(promise)
 
-    const actor = createActor(documentMutatorMachine, {
-      input: {client, id},
-    }).start()
+    const {actor} = createDocumentMutatorActor({client, id})
 
     await waitFor(actor, state => state.matches('connected'))
 
@@ -197,9 +222,7 @@ describe('local mutations', () => {
   test('mutating a document that does not exist on the backend', async () => {
     const client = createFakeClient()
 
-    const actor = createActor(documentMutatorMachine, {
-      input: {client, id},
-    }).start()
+    const {actor} = createDocumentMutatorActor({client, id})
     await waitFor(actor, state => state.hasTag('ready'))
 
     actor.send({
@@ -231,9 +254,7 @@ describe('local mutations', () => {
     const doc = {_id: id, _type: 'foo'}
     const client = createFakeClient()
 
-    const actor = createActor(documentMutatorMachine, {
-      input: {client, id},
-    }).start()
+    const {actor} = createDocumentMutatorActor({client, id})
 
     // Wait for initial remote snapshot fetch to resolve
     await waitFor(actor, state => state.hasTag('ready'))
@@ -331,9 +352,14 @@ describe('local mutations', () => {
     const {resolve, promise} = Promise.withResolvers<typeof doc>()
     const client = createFakeClient(promise)
 
-    const actor = createActor(documentMutatorMachine, {
-      input: {client, id},
-    }).start()
+    const {actor, parent} = createDocumentMutatorActor({client, id})
+
+    // Set up error capture via parent subscription
+    const errorPromise = new Promise<Error>((_, reject) => {
+      parent.subscribe({
+        error: (err) => reject(err),
+      })
+    })
 
     // this will go through at first, but then we'll get an error an instant later during rebase after the document is loaded from the server
     // this is expected, and will be similar to what would have happened if the mutation was sent directly to the server
@@ -348,8 +374,11 @@ describe('local mutations', () => {
     resolve(doc)
 
     try {
-      // awaiting should trigger an error
-      await waitFor(actor, state => state.hasTag('ready'))
+      // awaiting should trigger an error - race between waitFor and errorPromise
+      await Promise.race([
+        waitFor(actor, state => state.hasTag('ready')),
+        errorPromise,
+      ])
     } catch (err) {
       expect(err).toMatchInlineSnapshot(`[Error: Document already exist]`)
     }
@@ -361,9 +390,7 @@ describe('remote mutations', () => {
     const {resolve, promise} = Promise.withResolvers<typeof initialSnapshot>()
     const client = createFakeClient(promise)
 
-    const actor = createActor(documentMutatorMachine, {
-      input: {client, id},
-    }).start()
+    const {actor} = createDocumentMutatorActor({client, id})
 
     // Wait for the observer to emit welcome
     await waitFor(actor, s => s.matches('connected'))
@@ -385,9 +412,7 @@ describe('remote mutations', () => {
     const {resolve, promise} = Promise.withResolvers<typeof middleSnapshot>()
     const client = createFakeClient(promise)
 
-    const actor = createActor(documentMutatorMachine, {
-      input: {client, id},
-    }).start()
+    const {actor} = createDocumentMutatorActor({client, id})
 
     // Wait for the observer to emit welcome
     await waitFor(actor, s => s.matches('connected'))
@@ -409,9 +434,7 @@ describe('remote mutations', () => {
     const {resolve, promise} = Promise.withResolvers<undefined>()
     const client = createFakeClient(promise)
 
-    const actor = createActor(documentMutatorMachine, {
-      input: {client, id},
-    }).start()
+    const {actor} = createDocumentMutatorActor({client, id})
 
     // Wait for the observer to emit welcome
     await waitFor(actor, s => s.matches('connected'))
@@ -473,9 +496,7 @@ describe('remote mutations', () => {
     const {resolve, promise} = Promise.withResolvers<typeof snapshot>()
     const client = createFakeClient(promise)
 
-    const actor = createActor(documentMutatorMachine, {
-      input: {client, id},
-    }).start()
+    const {actor} = createDocumentMutatorActor({client, id})
 
     // Wait for the observer to emit welcome
     await waitFor(actor, s => s.matches('connected'))
