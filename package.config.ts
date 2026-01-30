@@ -9,7 +9,7 @@ export default defineConfig({
       'ae-internal-missing-underscore': 'off',
     },
     // Resolve build issue downstream with `error TS2742: The inferred type of 'createDatasetMutator' cannot be named without a reference to '/node_modules/mendoza'. This is likely not portable. A type annotation is necessary.`
-    bundledPackages: ['mendoza']
+    bundledPackages: ['mendoza'],
   },
   // the path to the tsconfig file for distributed builds
   tsconfig: 'tsconfig.dist.json',
