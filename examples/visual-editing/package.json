@@ -18,7 +18,7 @@
     "@sanity/icons": "^3.5.0",
     "@sanity/mutate": "workspace:*",
     "@sanity/sanitype": "^0.6.2",
-    "@sanity/ui": "^2.8.9",
+    "@sanity/ui": "^3.1.11",
     "@statelyai/inspect": "^0.4.0",
     "@types/three": "^0.169.0",
     "@xstate/react": "^4.1.3",
@@ -33,7 +33,7 @@
     "react-dom": "^18.3.1",
     "react-jason": "^1.1.2",
     "rxjs": "^7.8.1",
-    "styled-components": "^6.1.13",
+    "styled-components": "^6.3.8",
     "three": "^0.169.0",
     "xstate": "^5.25.1"
   },
