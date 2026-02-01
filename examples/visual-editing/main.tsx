@@ -37,7 +37,7 @@ const GlobalStyle = createGlobalStyle`
     }
 
     ::-webkit-scrollbar-thumb:hover {
-      background-color: var(--card-muted-fg-color, ${({theme}) => theme.sanity.color.muted.fg});
+      background-color: var(--card-muted-fg-color, ${({theme}) => theme.sanity.color.muted.default.enabled.fg});
     }
 
     ::-webkit-scrollbar-track {
