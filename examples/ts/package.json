@@ -4,6 +4,6 @@
   "private": true,
   "devDependencies": {
     "@sanity/mutate": "workspace:^",
-    "ulid": "^2.4.0"
+    "ulid": "^3.0.2"
   }
 }
