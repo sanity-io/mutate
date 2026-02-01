@@ -9,25 +9,25 @@
     "start": "vite dev"
   },
   "dependencies": {
-    "@sanity/client": "^7.9.0",
-    "@sanity/icons": "^3.7.0",
+    "@sanity/client": "^7.14.1",
+    "@sanity/icons": "^3.7.4",
     "@sanity/mutate": "workspace:^",
     "@sanity/sanitype": "^0.6.2",
-    "@sanity/ui": "^2.15.5",
+    "@sanity/ui": "^3.1.11",
     "dataloader": "^2.2.3",
-    "groq-js": "^1.16.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "groq-js": "^1.26.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "react-jason": "^1.1.2",
     "rxjs": "^7.8.2",
-    "styled-components": "^6.1.15",
-    "use-debounce": "^10.0.4"
+    "styled-components": "^6.3.8",
+    "use-debounce": "^10.1.0"
   },
   "devDependencies": {
-    "@types/node": "^22.12.0",
-    "@types/react": "^18.3.18",
-    "@types/react-dom": "^18.3.5",
-    "@vitejs/plugin-react": "^5.0.1",
-    "vite": "^7.1.3"
+    "@types/node": "^22.19.7",
+    "@types/react": "^19.2.10",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.2",
+    "vite": "^7.3.1"
   }
 }
