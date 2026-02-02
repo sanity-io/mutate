@@ -8,3 +8,5 @@ minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@sanity/*'
   - 'groq-js'
+  # Renovate security update: lodash@4.17.23
+  - lodash@4.17.23
