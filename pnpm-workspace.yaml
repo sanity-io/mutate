@@ -8,3 +8,5 @@ minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@sanity/*'
   - 'groq-js'
+  # Renovate security update: eslint@9.26.0
+  - eslint@9.26.0
