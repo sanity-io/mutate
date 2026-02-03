@@ -123,26 +123,11 @@
   },
   "publishConfig": {
     "exports": {
-      ".": {
-        "import": "./dist/index.js",
-        "default": "./dist/index.js"
-      },
-      "./path": {
-        "import": "./dist/_path.js",
-        "default": "./dist/_path.js"
-      },
-      "./_unstable_apply": {
-        "import": "./dist/_unstable_apply.js",
-        "default": "./dist/_unstable_apply.js"
-      },
-      "./_unstable_machine": {
-        "import": "./dist/_unstable_machine.js",
-        "default": "./dist/_unstable_machine.js"
-      },
-      "./_unstable_store": {
-        "import": "./dist/_unstable_store.js",
-        "default": "./dist/_unstable_store.js"
-      },
+      ".": "./dist/index.js",
+      "./path": "./dist/_path.js",
+      "./_unstable_apply": "./dist/_unstable_apply.js",
+      "./_unstable_machine": "./dist/_unstable_machine.js",
+      "./_unstable_store": "./dist/_unstable_store.js",
       "./package.json": "./package.json"
     }
   }
