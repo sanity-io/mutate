@@ -78,6 +78,7 @@
   },
   "browserslist": "extends @sanity/browserslist-config",
   "dependencies": {
+    "@isaacs/ttlcache": "^2.1.4",
     "@sanity/client": "^7.14.1",
     "@sanity/diff-match-patch": "^3.2.0",
     "@sanity/uuid": "^3.0.2",
