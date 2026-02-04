@@ -23,54 +23,32 @@
     ".": {
       "source": "./src/index.ts",
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
       "default": "./dist/index.js"
     },
     "./path": {
       "source": "./src/_path.ts",
       "import": "./dist/_path.js",
-      "require": "./dist/_path.cjs",
       "default": "./dist/_path.js"
     },
     "./_unstable_apply": {
       "source": "./src/_unstable_apply.ts",
       "import": "./dist/_unstable_apply.js",
-      "require": "./dist/_unstable_apply.cjs",
       "default": "./dist/_unstable_apply.js"
     },
     "./_unstable_machine": {
       "source": "./src/_unstable_machine.ts",
       "import": "./dist/_unstable_machine.js",
-      "require": "./dist/_unstable_machine.cjs",
       "default": "./dist/_unstable_machine.js"
     },
     "./_unstable_store": {
       "source": "./src/_unstable_store.ts",
       "import": "./dist/_unstable_store.js",
-      "require": "./dist/_unstable_store.cjs",
       "default": "./dist/_unstable_store.js"
     },
     "./package.json": "./package.json"
   },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
+  "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "path": [
-        "./dist/_path.d.ts"
-      ],
-      "_unstable_apply": [
-        "./dist/_unstable_apply.d.ts"
-      ],
-      "_unstable_machine": [
-        "./dist/_unstable_machine.d.ts"
-      ],
-      "_unstable_store": [
-        "./dist/_unstable_store.d.ts"
-      ]
-    }
-  },
   "files": [
     "dist",
     "test",
@@ -141,30 +119,15 @@
   },
   "packageManager": "pnpm@10.28.2",
   "engines": {
-    "node": ">=18"
+    "node": ">=20.19 <22 || >=22.12"
   },
   "publishConfig": {
     "exports": {
-      ".": {
-        "require": "./dist/index.cjs",
-        "default": "./dist/index.js"
-      },
-      "./path": {
-        "require": "./dist/_path.cjs",
-        "default": "./dist/_path.js"
-      },
-      "./_unstable_apply": {
-        "require": "./dist/_unstable_apply.cjs",
-        "default": "./dist/_unstable_apply.js"
-      },
-      "./_unstable_machine": {
-        "require": "./dist/_unstable_machine.cjs",
-        "default": "./dist/_unstable_machine.js"
-      },
-      "./_unstable_store": {
-        "require": "./dist/_unstable_store.cjs",
-        "default": "./dist/_unstable_store.js"
-      },
+      ".": "./dist/index.js",
+      "./path": "./dist/_path.js",
+      "./_unstable_apply": "./dist/_unstable_apply.js",
+      "./_unstable_machine": "./dist/_unstable_machine.js",
+      "./_unstable_store": "./dist/_unstable_store.js",
       "./package.json": "./package.json"
     }
   }
