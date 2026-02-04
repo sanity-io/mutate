@@ -13,6 +13,7 @@ import {type SanityDocumentBase} from '../../mutations/types'
 import {type ListenerMutationEvent, type ListenerSyncEvent} from '../types'
 import {FetchError, isClientError, PermissionDeniedError} from './errors'
 import {type DocumentLoader} from './types'
+import {dedupeListenerEvents} from './utils/dedupeListenerEvents'
 import {sequentializeListenerEvents} from './utils/sequentializeListenerEvents'
 
 /**
@@ -79,6 +80,7 @@ export function createDocumentEventListener(options: {
         // ignore unknown events
         return EMPTY
       }),
+      dedupeListenerEvents(),
       sequentializeListenerEvents<Doc>({
         maxBufferSize: 10,
         resolveChainDeadline: 10_000,
