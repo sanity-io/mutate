@@ -242,6 +242,7 @@ export function createOptimisticStoreInternal(
       return current
     }, []),
   )
+  // Create the submit requests observable with share() to multicast to listeners
   const submitRequests = onSubmitLocal.pipe(
     withLatestFrom(pendingMutations),
     mergeMap(([, mutationGroups]) => {
@@ -257,6 +258,19 @@ export function createOptimisticStoreInternal(
     }),
     share(),
   )
+
+  // Execute submit side-effect globally (once per submit), not per-listener.
+  // We subscribe eagerly so submissions happen regardless of listener state.
+  // The subscription is kept alive by the store itself.
+  submitRequests
+    .pipe(
+      concatMap(submitRequest =>
+        from(submitRequest.transaction).pipe(
+          concatMap(transaction => submitTransactions(transaction)),
+        ),
+      ),
+    )
+    .subscribe()
 
   return {
     listen(id: string): Observable<SanityDocumentBase | undefined> {
@@ -281,15 +295,6 @@ export function createOptimisticStoreInternal(
 
       return merge(
         remoteSync,
-        // subscribing for the side effect
-        submitRequests.pipe(
-          concatMap(submitRequest =>
-            from(submitRequest.transaction).pipe(
-              concatMap(transaction => submitTransactions(transaction)),
-              mergeMap(() => EMPTY),
-            ),
-          ),
-        ),
         submitRequests,
         localMutations.pipe(
           map(m => ({type: 'localMutation' as const, mutations: m})),
