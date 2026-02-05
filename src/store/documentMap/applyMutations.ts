@@ -60,6 +60,7 @@ export function applyMutations<T extends SanityDocumentBase>(
       documentMap.set(documentId, res.after)
 
       updatedDocs[documentId]!.after = res.after
+      updatedDocs[documentId]!.muts.push(mutation)
     }
   }
 
