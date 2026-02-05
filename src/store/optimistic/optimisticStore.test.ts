@@ -1,6 +1,8 @@
 import {concat, delay, NEVER, of, take} from 'rxjs'
 import {describe, expect, test} from 'vitest'
 
+import {at, patch} from '../../mutations/creators'
+import {set} from '../../mutations/operations/creators'
 import {allValuesFrom, collectNotifications, sleep} from '../__test__/helpers'
 import {createOptimisticStore} from './createOptimisticStore'
 
@@ -301,6 +303,89 @@ describe('local mutations', () => {
       },
       {kind: 'ERROR', error: {message: 'Document already exist'}},
     ])
+
+    unsubscribe()
+  })
+
+  test('mutating after sync has been fully emitted (async gap)', async () => {
+    const doc = {_id: 'foo', _type: 'foo', title: 'original'}
+    const store = createOptimisticStore({
+      listen: id => of({type: 'sync', id, document: doc} as const),
+      submit: () => NEVER,
+    })
+
+    const {notifications, unsubscribe} = collectNotifications(
+      store.listenEvents('foo'),
+    )
+
+    // Wait for the sync event to be fully emitted via the scheduled microtask
+    await sleep(10)
+
+    // At this point, the sync event should have been emitted
+    expect(notifications).toHaveLength(1)
+    expect(notifications[0]).toMatchObject({
+      kind: 'NEXT',
+      value: {
+        type: 'sync',
+        id: 'foo',
+        after: {local: doc, remote: doc},
+      },
+    })
+
+    // Now mutate - this should hit the "else if (state.hasSynced)" branch
+    // because there's no pending sync emit
+    store.mutate([patch('foo', at('title', set('updated')))])
+
+    // Should have 3 notifications now: initial sync, new sync with mutation, and optimistic
+    expect(notifications).toHaveLength(3)
+
+    // The second notification should be a sync event with the mutation in rebasedStage
+    // and after.local should reflect the mutated state
+    expect(notifications[1]).toMatchObject({
+      kind: 'NEXT',
+      value: {
+        type: 'sync',
+        id: 'foo',
+        before: {
+          local: {_id: 'foo', _type: 'foo', title: 'original'},
+          remote: {_id: 'foo', _type: 'foo', title: 'original'},
+        },
+        after: {
+          local: {_id: 'foo', _type: 'foo', title: 'updated'},
+          remote: {_id: 'foo', _type: 'foo', title: 'original'},
+        },
+        rebasedStage: [
+          {
+            transaction: false,
+            mutations: [
+              {
+                type: 'patch',
+                id: 'foo',
+                patches: [{path: ['title'], op: {type: 'set', value: 'updated'}}],
+              },
+            ],
+          },
+        ],
+      },
+    })
+
+    // The third notification should be the optimistic event
+    expect(notifications[2]).toMatchObject({
+      kind: 'NEXT',
+      value: {
+        type: 'optimistic',
+        id: 'foo',
+        before: {_id: 'foo', _type: 'foo', title: 'original'},
+        after: {_id: 'foo', _type: 'foo', title: 'updated'},
+        stagedChanges: [
+          {
+            type: 'patch',
+            id: 'foo',
+            patches: [{path: ['title'], op: {type: 'set', value: 'updated'}}],
+          },
+        ],
+      },
+    })
 
     unsubscribe()
   })

@@ -1,6 +1,7 @@
 import {
   concat,
   concatMap,
+  EMPTY,
   filter,
   from,
   map,
@@ -162,8 +163,12 @@ export function createOptimisticStore(
         const remoteEvents$ = backend.listen(id).pipe(share())
 
         const subscription = merge(
-          remoteEvents$.pipe(map(event => ({source: 'remote' as const, event}))),
-          localMutations$.pipe(map(group => ({source: 'local' as const, group}))),
+          remoteEvents$.pipe(
+            map(event => ({source: 'remote' as const, event})),
+          ),
+          localMutations$.pipe(
+            map(group => ({source: 'local' as const, group})),
+          ),
         ).subscribe({
           next: action => {
             if (action.source === 'remote') {
