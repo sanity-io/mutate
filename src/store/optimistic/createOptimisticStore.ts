@@ -242,6 +242,7 @@ export function createOptimisticStoreInternal(
       return current
     }, []),
   )
+  // Create the submit requests observable with share() to multicast to listeners
   const submitRequests = onSubmitLocal.pipe(
     withLatestFrom(pendingMutations),
     mergeMap(([, mutationGroups]) => {
@@ -255,6 +256,15 @@ export function createOptimisticStoreInternal(
         }),
       )
     }),
+    concatMap(submitRequest =>
+      merge(
+        of(submitRequest),
+        from(submitRequest.transaction).pipe(
+          concatMap(transaction => submitTransactions(transaction)),
+          mergeMap(() => EMPTY),
+        ),
+      ),
+    ),
     share(),
   )
 
@@ -281,15 +291,6 @@ export function createOptimisticStoreInternal(
 
       return merge(
         remoteSync,
-        // subscribing for the side effect
-        submitRequests.pipe(
-          concatMap(submitRequest =>
-            from(submitRequest.transaction).pipe(
-              concatMap(transaction => submitTransactions(transaction)),
-              mergeMap(() => EMPTY),
-            ),
-          ),
-        ),
         submitRequests,
         localMutations.pipe(
           map(m => ({type: 'localMutation' as const, mutations: m})),
