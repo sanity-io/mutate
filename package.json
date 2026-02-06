@@ -22,27 +22,22 @@
   "exports": {
     ".": {
       "source": "./src/index.ts",
-      "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
     "./path": {
       "source": "./src/_path.ts",
-      "import": "./dist/_path.js",
       "default": "./dist/_path.js"
     },
     "./_unstable_apply": {
       "source": "./src/_unstable_apply.ts",
-      "import": "./dist/_unstable_apply.js",
       "default": "./dist/_unstable_apply.js"
     },
     "./_unstable_machine": {
       "source": "./src/_unstable_machine.ts",
-      "import": "./dist/_unstable_machine.js",
       "default": "./dist/_unstable_machine.js"
     },
     "./_unstable_store": {
       "source": "./src/_unstable_store.ts",
-      "import": "./dist/_unstable_store.js",
       "default": "./dist/_unstable_store.js"
     },
     "./package.json": "./package.json"
