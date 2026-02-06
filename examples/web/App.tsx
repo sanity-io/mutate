@@ -166,13 +166,17 @@ const sanityClient = createClient({
 
 const USE_CLIENT_BACKEND = true
 
+const LISTENER_LATENCY_MS = 0
+
 const listen = sanityClient.listen
 
-;(sanityClient as any).listen = function (...args: any) {
-  return listen.apply(sanityClient, args).pipe(
-    concatMap(ev => timer(2000).pipe(map(() => ev))),
-    tap(e => console.log('incoming listener event', e)),
-  )
+if (LISTENER_LATENCY_MS > 0) {
+  ;(sanityClient as any).listen = function (...args: any) {
+    return listen.apply(sanityClient, args).pipe(
+      concatMap(ev => timer(LISTENER_LATENCY_MS).pipe(map(() => ev))),
+      tap(e => console.log('incoming listener event', e)),
+    )
+  }
 }
 
 const datastore = createOptimisticStore(
