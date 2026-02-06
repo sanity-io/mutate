@@ -167,6 +167,9 @@ export function createOptimisticStoreInternal(
   // this causes pending, unsubmitted mutations to be replaced with rebased mutations
   const rebasedMutations = new Subject<readonly MutationGroup[]>()
 
+  // Signals that pending mutations should be cleared after they've been captured for submit
+  const clearPendingMutations = new Subject<void>()
+
   function listenDocumentUpdates<Doc extends SanityDocumentBase>(
     documentId: string,
   ) {
@@ -230,6 +233,10 @@ export function createOptimisticStoreInternal(
       // if pending mutations are rebased
       map(mutations => ({type: 'rebase' as const, mutations})),
     ),
+    clearPendingMutations.pipe(
+      // clear pending mutations after they've been captured for submit
+      map(() => ({type: 'clear' as const})),
+    ),
   ).pipe(
     scan((current: readonly MutationGroup[], action) => {
       if (action.type === 'rebase') {
@@ -239,6 +246,9 @@ export function createOptimisticStoreInternal(
       if (action.type === 'add') {
         return current.concat(action.mutations)
       }
+      if (action.type === 'clear') {
+        return []
+      }
       return current
     }, []),
   )
@@ -246,6 +256,9 @@ export function createOptimisticStoreInternal(
   const submitRequests = onSubmitLocal.pipe(
     withLatestFrom(pendingMutations),
     mergeMap(([, mutationGroups]) => {
+      // Clear pending mutations now that we've captured them for this submit
+      clearPendingMutations.next()
+
       const transactions = toTransactions(
         squashDMPStrings(edge, squashMutationGroups(mutationGroups)),
       )
