@@ -19,8 +19,10 @@ import {
   stopChild,
 } from 'xstate'
 
-export interface DatasetMutatorMachineInput
-  extends Omit<DocumentMutatorMachineInput, 'id'> {
+export interface DatasetMutatorMachineInput extends Omit<
+  DocumentMutatorMachineInput,
+  'id'
+> {
   client: SanityClient
   /** A shared listener can be provided, if not it'll be created using `client.listen()` */
   sharedListener?: ReturnType<typeof createSharedListener>

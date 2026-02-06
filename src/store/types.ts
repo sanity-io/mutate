@@ -49,7 +49,9 @@ export type ListenerEndpointEvent =
   | ListenerDisconnectEvent
 
 export type ListenerEvent<Doc extends SanityDocumentBase = SanityDocumentBase> =
-  ListenerSyncEvent<Doc> | ListenerMutationEvent | ListenerReconnectEvent
+  | ListenerSyncEvent<Doc>
+  | ListenerMutationEvent
+  | ListenerReconnectEvent
 
 export interface OptimisticDocumentEvent {
   type: 'optimistic'
