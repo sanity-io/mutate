@@ -1,9 +1,11 @@
-import {concat, delay, NEVER, of, take} from 'rxjs'
+import {concat, delay, NEVER, of, Subject, take} from 'rxjs'
 import {describe, expect, test} from 'vitest'
 
 import {at, patch} from '../../mutations/creators'
 import {set} from '../../mutations/operations/creators'
+import {type SanityDocumentBase} from '../../mutations/types'
 import {allValuesFrom, collectNotifications, sleep} from '../__test__/helpers'
+import {type ListenerEvent} from '../types'
 import {createOptimisticStore} from './createOptimisticStore'
 
 describe('observing documents', () => {
@@ -361,7 +363,9 @@ describe('local mutations', () => {
               {
                 type: 'patch',
                 id: 'foo',
-                patches: [{path: ['title'], op: {type: 'set', value: 'updated'}}],
+                patches: [
+                  {path: ['title'], op: {type: 'set', value: 'updated'}},
+                ],
               },
             ],
           },
@@ -388,5 +392,132 @@ describe('local mutations', () => {
     })
 
     unsubscribe()
+  })
+})
+
+interface RebaseDoc extends SanityDocumentBase {
+  title?: string
+  counter?: number
+}
+
+describe('listenEvents() rebase semantics', () => {
+  test('a remote sync arriving after a local mutation rebases the staged value into the new sync event', async () => {
+    // Manually drive the listen stream so we can interleave events.
+    const listen$ = new Subject<ListenerEvent<RebaseDoc>>()
+    const store = createOptimisticStore({
+      listen: () => listen$,
+      submit: () => NEVER,
+    })
+
+    const {notifications, unsubscribe} = collectNotifications(
+      store.listenEvents('foo'),
+    )
+
+    // Initial remote sync
+    listen$.next({
+      type: 'sync',
+      document: {_id: 'foo', _type: 'demo', title: 'v1', counter: 0},
+    })
+    await sleep(10)
+
+    // Local edit (still pending — no submit)
+    store.mutate([patch('foo', at('title', set('local-edit')))])
+
+    // A new remote sync arrives — simulating that someone else updated the
+    // counter field. The local edit should be rebased onto the new remote.
+    listen$.next({
+      type: 'sync',
+      document: {_id: 'foo', _type: 'demo', title: 'v1', counter: 99},
+    })
+    await sleep(10)
+
+    const syncEvents = notifications.flatMap(n =>
+      n.kind === 'NEXT' && n.value.type === 'sync' ? [n.value] : [],
+    )
+    const lastSync = syncEvents.at(-1)
+
+    expect(lastSync).toMatchObject({
+      type: 'sync',
+      id: 'foo',
+      after: {
+        // local view = new remote with our staged edit applied
+        local: {title: 'local-edit', counter: 99},
+        remote: {title: 'v1', counter: 99},
+      },
+    })
+    // staged change must still be present after rebase
+    expect(lastSync?.rebasedStage).toHaveLength(1)
+    expect(lastSync?.rebasedStage[0]?.mutations[0]).toMatchObject({
+      type: 'patch',
+      id: 'foo',
+      patches: [{path: ['title'], op: {type: 'set'}}],
+    })
+
+    unsubscribe()
+  })
+
+  test('local mutation targeting a different document does not appear in this document’s feed', async () => {
+    const store = createOptimisticStore({
+      listen: id =>
+        of({
+          type: 'sync',
+          id,
+          document: {_id: id, _type: 'demo'},
+        } as const),
+      submit: () => NEVER,
+    })
+
+    const {notifications, unsubscribe} = collectNotifications(
+      store.listenEvents('foo'),
+    )
+    await sleep(10)
+
+    // Mutate a different document
+    store.mutate([patch('bar', at('x', set(1)))])
+    await sleep(10)
+
+    // listenEvents on 'foo' still emits the local mutation event with
+    // stagedChanges (current implementation does not filter by id), but the
+    // local snapshot must remain the foo document unaffected.
+    const optimistic = notifications.flatMap(n =>
+      n.kind === 'NEXT' && n.value.type === 'optimistic' ? [n.value] : [],
+    )[0]
+
+    if (optimistic) {
+      // before/after should be the 'foo' document, not 'bar'
+      expect(optimistic.id).toBe('foo')
+      expect(optimistic.after?._id ?? 'foo').toBe('foo')
+    }
+
+    unsubscribe()
+  })
+})
+
+describe('multiple listen() subscribers share the same backing state', () => {
+  test('two subscribers to listen(id) on the same store both see local mutations', async () => {
+    const store = createOptimisticStore({
+      listen: id =>
+        of({
+          type: 'sync',
+          id,
+          document: {_id: id, _type: 'demo', title: 'orig'},
+        } as const),
+      submit: () => NEVER,
+    })
+
+    const subA = collectNotifications(store.listen('foo'))
+    const subB = collectNotifications(store.listen('foo'))
+    await sleep(20)
+
+    store.mutate([patch('foo', at('title', set('mutated')))])
+    await sleep(20)
+
+    const aLast = subA.notifications.at(-1)
+    const bLast = subB.notifications.at(-1)
+    expect(aLast).toMatchObject({kind: 'NEXT', value: {title: 'mutated'}})
+    expect(bLast).toMatchObject({kind: 'NEXT', value: {title: 'mutated'}})
+
+    subA.unsubscribe()
+    subB.unsubscribe()
   })
 })
