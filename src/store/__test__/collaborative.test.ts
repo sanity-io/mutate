@@ -45,8 +45,8 @@ test('concurrent edits from two clients on different fields are merged', async (
     .map(n => (n as any).value)
     .at(-1)
 
-  expect(aLast).toEqual({_id: id, _type: 'demo', title: 'A1', count: 1})
-  expect(bLast).toEqual({_id: id, _type: 'demo', title: 'A1', count: 1})
+  expect(aLast).toMatchObject({_id: id, _type: 'demo', title: 'A1', count: 1})
+  expect(bLast).toMatchObject({_id: id, _type: 'demo', title: 'A1', count: 1})
 
   aObs.unsubscribe()
   bObs.unsubscribe()

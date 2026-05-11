@@ -7,7 +7,7 @@ import {
   map,
   merge,
   mergeMap,
-  type Observable,
+  Observable,
   of,
   share,
   startWith,
@@ -101,7 +101,188 @@ export function createOptimisticStore(
     listenEvents(
       id: string,
     ): Observable<RemoteDocumentEvent | OptimisticDocumentEvent> {
-      return EMPTY
+      return new Observable(subscriber => {
+        // State that tracks both remote and local document versions
+        type ListenEventsState = {
+          remote: SanityDocumentBase | undefined
+          local: SanityDocumentBase | undefined
+          stagedChanges: MutationGroup[]
+          hasSynced: boolean
+          pendingSyncEmit: boolean
+          prevLocal: SanityDocumentBase | undefined
+          prevRemote: SanityDocumentBase | undefined
+        }
+
+        let state: ListenEventsState = {
+          remote: undefined,
+          local: undefined,
+          stagedChanges: [],
+          hasSynced: false,
+          pendingSyncEmit: false,
+          prevLocal: undefined,
+          prevRemote: undefined,
+        }
+
+        let syncEmitScheduled = false
+
+        const emitSyncEvent = (isFromMutation = false) => {
+          if (state.pendingSyncEmit && state.hasSynced) {
+            // For sync events:
+            // - If emitted together with a mutation, after.local = remote (base state before mutations)
+            // - If emitted after mutations were already applied, after.local = local (with mutations)
+            const afterLocal = isFromMutation ? state.remote : state.local
+            const syncEvent: RemoteDocumentEvent = {
+              type: 'sync',
+              id,
+              before: {
+                local: state.prevLocal,
+                remote: state.prevRemote,
+              },
+              after: {
+                local: afterLocal,
+                remote: state.remote,
+              },
+              rebasedStage: state.stagedChanges,
+            }
+            state = {...state, pendingSyncEmit: false}
+            subscriber.next(syncEvent)
+          }
+        }
+
+        const scheduleSyncEmit = () => {
+          if (!syncEmitScheduled) {
+            syncEmitScheduled = true
+            Promise.resolve().then(() => {
+              syncEmitScheduled = false
+              emitSyncEvent()
+            })
+          }
+        }
+
+        // Listen to remote events from the backend
+        const remoteEvents$ = backend.listen(id).pipe(share())
+
+        const subscription = merge(
+          remoteEvents$.pipe(
+            map(event => ({source: 'remote' as const, event})),
+          ),
+          localMutations$.pipe(
+            map(group => ({source: 'local' as const, group})),
+          ),
+        ).subscribe({
+          next: action => {
+            if (action.source === 'remote') {
+              const event = action.event
+              if (event.type === 'sync') {
+                const newRemote = event.document
+                try {
+                  // When we get a sync, rebase local mutations on top of new remote state
+                  const [rebasedMutations] = rebase(
+                    id,
+                    state.remote,
+                    newRemote,
+                    state.stagedChanges,
+                  )
+                  // Apply rebased mutations to get local state
+                  const newLocal = applyAll(
+                    newRemote,
+                    filterDocumentTransactions(rebasedMutations, id),
+                  )
+                  state = {
+                    remote: newRemote,
+                    local: newLocal,
+                    stagedChanges: rebasedMutations,
+                    hasSynced: true,
+                    pendingSyncEmit: true,
+                    prevLocal: state.local,
+                    prevRemote: state.remote,
+                  }
+
+                  // If there are already staged mutations, emit immediately
+                  // Otherwise, schedule for next microtask to allow batching with synchronous mutations
+                  if (rebasedMutations.length > 0) {
+                    emitSyncEvent(false)
+                  } else {
+                    scheduleSyncEmit()
+                  }
+                } catch (err) {
+                  // Emit error on the observable when rebase fails
+                  // This can happen e.g. when trying to create a document that already exists
+                  subscriber.error(err)
+                  return
+                }
+              }
+            } else {
+              // Local mutation
+              const newStagedChanges = [...state.stagedChanges, action.group]
+              const newLocal = applyAll(
+                state.remote,
+                filterDocumentTransactions(newStagedChanges, id),
+              )
+
+              // Capture beforeLocal BEFORE we potentially emit sync event
+              // If there's a pending sync, before should be the remote state (base state before any mutations)
+              const wasPendingSync = state.pendingSyncEmit
+              const beforeLocal = wasPendingSync ? state.remote : state.local
+
+              // If there's a pending sync emit, update state and emit now
+              if (wasPendingSync) {
+                state = {
+                  ...state,
+                  stagedChanges: newStagedChanges,
+                  local: newLocal,
+                }
+                // Emit the sync event immediately with the mutation included
+                // Pass true to indicate this is from a mutation (so after.local = base state)
+                emitSyncEvent(true)
+              } else if (state.hasSynced) {
+                // Emit a sync event with updated rebasedStage
+                // after.local should be the result of applying mutations (newLocal),
+                // not the old local state
+                const syncEvent: RemoteDocumentEvent = {
+                  type: 'sync',
+                  id,
+                  before: {
+                    local: state.local,
+                    remote: state.remote,
+                  },
+                  after: {
+                    local: newLocal,
+                    remote: state.remote,
+                  },
+                  rebasedStage: newStagedChanges,
+                }
+                subscriber.next(syncEvent)
+              }
+
+              // Emit the optimistic event
+              const optimisticEvent: OptimisticDocumentEvent = {
+                type: 'optimistic',
+                id,
+                before: beforeLocal,
+                after: newLocal,
+                mutations: [],
+                stagedChanges: action.group.mutations,
+              }
+
+              state = {
+                ...state,
+                local: newLocal,
+                stagedChanges: newStagedChanges,
+                pendingSyncEmit: false,
+                prevLocal: beforeLocal,
+                prevRemote: state.remote,
+              }
+
+              subscriber.next(optimisticEvent)
+            }
+          },
+          error: err => subscriber.error(err),
+          complete: () => subscriber.complete(),
+        })
+
+        return () => subscription.unsubscribe()
+      })
     },
     submit: () => {
       onSubmitLocal.next()
@@ -313,7 +494,14 @@ export function createOptimisticStoreInternal(
         scan((state: LocalState, ev) => {
           const {base, inflight, local} = state
           if (ev.type === 'sync') {
-            return {...state, base: ev.snapshot}
+            // When a sync event arrives, the document might already include effects of
+            // inflight transactions (if they were applied before the sync event was received).
+            // Remove any inflight transactions that match the document's revision.
+            const docRev = ev.snapshot?._rev
+            const newInflight = docRev
+              ? inflight.filter(tx => tx.id !== docRev)
+              : inflight
+            return {...state, base: ev.snapshot, inflight: newInflight}
           }
           if (ev.type === 'localMutation') {
             return {
