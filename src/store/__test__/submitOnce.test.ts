@@ -1,4 +1,4 @@
-import {NEVER, of} from 'rxjs'
+import {of} from 'rxjs'
 import {describe, expect, test, vi} from 'vitest'
 
 import {createOptimisticStore} from '../optimistic/createOptimisticStore'
@@ -55,7 +55,9 @@ describe('submit clears pending mutations', () => {
     // It should only contain the second mutation (field2)
     expect(secondSubmit.mutations.length).toBeGreaterThan(0)
     // Verify the patches don't include the first mutation
-    const secondPatches = secondSubmit.mutations.flatMap((m: any) => m.patch || [])
+    const secondPatches = secondSubmit.mutations.flatMap(
+      (m: any) => m.patch || [],
+    )
     const hasField1 = secondPatches.some((p: any) =>
       JSON.stringify(p).includes('field1'),
     )

@@ -12,8 +12,6 @@ export function rebase(
   newBase: SanityDocumentBase | undefined,
   localMutations: readonly MutationGroup[],
 ): [newLocal: MutationGroup[], rebased: SanityDocumentBase | undefined] {
-  // const flattened = flattenMutations(newStage.flatMap(t => t.mutations))
-
   // 1. get the dmpified mutations from the newStage based on the old base
   // 2. apply those to the new base
   // 3. convert those back into set patches based on the new base and return as a new newStage

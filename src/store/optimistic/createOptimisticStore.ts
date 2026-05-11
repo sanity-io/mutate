@@ -541,7 +541,6 @@ export function createOptimisticStoreInternal(
             if (isHeadInflight) {
               // we received the first inflight transaction we submitted
               // no rebase needed
-              //rebasedMutations.next(local)
               return {
                 base: ev.base,
                 inflight: inflight.slice(1),
