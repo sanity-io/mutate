@@ -1,8 +1,10 @@
 import {
   concat,
   concatMap,
+  defer,
   EMPTY,
   filter,
+  finalize,
   from,
   map,
   merge,
@@ -97,6 +99,10 @@ export function createOptimisticStore(
     onSubmitLocal,
     submitTransactions: backend.submit,
   })
+  // Tracks the number of currently-active subscriptions to listen(id), used
+  // to detect submit() calls that would be silently dropped because no
+  // subscriber is keeping the rebase pipeline alive.
+  let activeListenSubscribers = 0
   return {
     listenEvents(
       id: string,
@@ -285,9 +291,28 @@ export function createOptimisticStore(
       })
     },
     submit: () => {
+      if (activeListenSubscribers === 0) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          '[@sanity/mutate] submit() was called without an active listen() subscriber. ' +
+            'Pending mutations will not be sent to the backend until at least one ' +
+            'listen(id) subscription exists and submit() is called again. ' +
+            'See the OptimisticStore docs for details.',
+        )
+        return
+      }
       onSubmitLocal.next()
     },
-    listen: store.listen,
+    listen(id: string) {
+      return defer(() => {
+        activeListenSubscribers++
+        return store.listen(id)
+      }).pipe(
+        finalize(() => {
+          activeListenSubscribers--
+        }),
+      )
+    },
     mutate(mutations: Mutation[]) {
       localMutations$.next({transaction: false, mutations})
     },
