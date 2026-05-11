@@ -22,7 +22,7 @@ importers:
         version: 1.0.13
       lodash:
         specifier: ^4.17.23
-        version: 4.17.23
+        version: 4.18.1
       mendoza:
         specifier: ^3.0.8
         version: 3.0.8
@@ -222,7 +222,7 @@ importers:
         version: 2.32.0(@typescript-eslint/parser@8.54.0(eslint@9.39.2)(typescript@5.9.3))(eslint@9.39.2)
       eslint-plugin-prettier:
         specifier: ^5.5.5
-        version: 5.5.5(eslint-config-prettier@10.1.8(eslint@9.39.2))(eslint@9.39.2)(prettier@3.8.1)
+        version: 5.5.5(eslint-config-prettier@10.1.8(eslint@9.39.2))(eslint@9.39.2)(prettier@3.8.3)
       eslint-plugin-react:
         specifier: ^7.37.5
         version: 7.37.5(eslint@9.39.2)
@@ -2758,6 +2758,9 @@ packages:
   lodash@4.17.23:
     resolution: {integrity: sha512-LgVTMpQtIopCi79SJeDiP0TfWi5CNEc/L/aRdTh3yIvmZXTnheWpKjSZhnvMl8iXbC1tFg9gdHHDMLoV7CnG+w==}
 
+  lodash@4.18.1:
+    resolution: {integrity: sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==}
+
   loose-envify@1.4.0:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
     hasBin: true
@@ -3070,6 +3073,11 @@ packages:
 
   prettier@3.8.1:
     resolution: {integrity: sha512-UOnG6LftzbdaHZcKoPFtOcCKztrQ57WkHDeRD9t/PTQtmT0NHSeWWepj6pS0z/N7+08BHFDQVUrfmfMRcZwbMg==}
+    engines: {node: '>=14'}
+    hasBin: true
+
+  prettier@3.8.3:
+    resolution: {integrity: sha512-7igPTM53cGHMW8xWuVTydi2KO233VFiTNyF5hLJqpilHfmn8C8gPf+PS7dUT64YcXFbiMGZxS9pCSxL/Dxm/Jw==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -3695,10 +3703,12 @@ packages:
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   vite@7.3.1:
@@ -5824,6 +5834,15 @@ snapshots:
     optionalDependencies:
       eslint-config-prettier: 10.1.8(eslint@9.39.2)
 
+  eslint-plugin-prettier@5.5.5(eslint-config-prettier@10.1.8(eslint@9.39.2))(eslint@9.39.2)(prettier@3.8.3):
+    dependencies:
+      eslint: 9.39.2
+      prettier: 3.8.3
+      prettier-linter-helpers: 1.0.1
+      synckit: 0.11.12
+    optionalDependencies:
+      eslint-config-prettier: 10.1.8(eslint@9.39.2)
+
   eslint-plugin-react-hooks@7.0.1(eslint@9.39.2):
     dependencies:
       '@babel/core': 7.29.0
@@ -6519,6 +6538,8 @@ snapshots:
 
   lodash@4.17.23: {}
 
+  lodash@4.18.1: {}
+
   loose-envify@1.4.0:
     dependencies:
       js-tokens: 4.0.0
@@ -6814,6 +6835,8 @@ snapshots:
       prettier: 3.8.1
 
   prettier@3.8.1: {}
+
+  prettier@3.8.3: {}
 
   pretty-bytes@7.1.0: {}
 
