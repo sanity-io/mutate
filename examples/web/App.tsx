@@ -4,7 +4,7 @@ import {createIfNotExists, del, type Mutation, type Path} from '@sanity/mutate'
 import {
   createOptimisticStore,
   createOptimisticStoreClientBackend,
-  createOptimisticStoreMockBackend,
+  createOptimisticStoreInMemoryBackend,
   type MutationGroup,
   type RemoteDocumentEvent,
 } from '@sanity/mutate/_unstable_store'
@@ -169,7 +169,7 @@ const USE_CLIENT_BACKEND = true
 const datastore = createOptimisticStore(
   USE_CLIENT_BACKEND
     ? createOptimisticStoreClientBackend(sanityClient)
-    : createOptimisticStoreMockBackend(),
+    : createOptimisticStoreInMemoryBackend(),
 )
 //events.subscribe(console.log)
 

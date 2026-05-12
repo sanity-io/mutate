@@ -2,7 +2,7 @@ import {describe, expect, test} from 'vitest'
 
 import {at, patch} from '../../mutations/creators'
 import {insert, set, setIfMissing} from '../../mutations/operations/creators'
-import {createOptimisticStoreMockBackend} from '../optimistic/backend/createOptimisticStoreMockBackend'
+import {createOptimisticStoreInMemoryBackend} from '../optimistic/backend/createOptimisticStoreInMemoryBackend'
 import {createOptimisticStore} from '../optimistic/createOptimisticStore'
 import {type OptimisticStore} from '../types'
 import {collectNotifications, sleep} from './helpers'
@@ -34,7 +34,7 @@ function subscribe(store: OptimisticStore, id: string) {
 async function bootstrap(
   initial: Record<string, unknown> & {_id: string; _type: string},
 ) {
-  const backend = createOptimisticStoreMockBackend()
+  const backend = createOptimisticStoreInMemoryBackend()
   const seed = createOptimisticStore(backend)
   const seedObs = subscribe(seed, initial._id)
   seed.mutate([{type: 'createIfNotExists', document: initial}])
@@ -236,7 +236,7 @@ describe('concurrent array operations', () => {
 
 describe('multi-document submits', () => {
   test('a single submit covering two documents propagates to both', async () => {
-    const backend = createOptimisticStoreMockBackend()
+    const backend = createOptimisticStoreInMemoryBackend()
     const store = createOptimisticStore(backend)
 
     const aObs = subscribe(store, 'multi-a')

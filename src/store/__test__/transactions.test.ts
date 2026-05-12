@@ -4,7 +4,7 @@ import {describe, expect, test, vi} from 'vitest'
 import {at, patch} from '../../mutations/creators'
 import {set} from '../../mutations/operations/creators'
 import {type Transaction} from '../../mutations/types'
-import {createOptimisticStoreMockBackend} from '../optimistic/backend/createOptimisticStoreMockBackend'
+import {createOptimisticStoreInMemoryBackend} from '../optimistic/backend/createOptimisticStoreInMemoryBackend'
 import {createOptimisticStore} from '../optimistic/createOptimisticStore'
 import {type SubmitResult} from '../types'
 import {collectNotifications, sleep} from './helpers'
@@ -146,7 +146,7 @@ describe('transaction()', () => {
   })
 
   test('transactional mutations across two documents within one submit yield one transaction', async () => {
-    const backend = createOptimisticStoreMockBackend()
+    const backend = createOptimisticStoreInMemoryBackend()
     const spy = createSubmitSpy()
     const store = createOptimisticStore({
       listen: backend.listen,

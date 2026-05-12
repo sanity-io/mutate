@@ -16,11 +16,11 @@ import {createTransactionId} from '../utils/createTransactionId'
 function createWelcomeEvent(): ListenerWelcomeEvent {
   return {
     type: 'welcome',
-    listenerName: 'mock' + Math.random().toString(32).substring(2),
+    listenerName: 'in-memory-' + Math.random().toString(32).substring(2),
   }
 }
 
-export function createMockBackend() {
+export function createInMemoryBackend() {
   const store = createDocumentMap()
   const listenerEvents = new Subject<ListenerEndpointEvent>()
   return {
