@@ -4,6 +4,9 @@ packages:
   # all packages in subdirs of components/
   - 'examples/**'
 
+allowBuilds:
+  esbuild: false
+
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@sanity/*'
