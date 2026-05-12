@@ -97,6 +97,7 @@ export function rebase(
           } catch (second: any) {
             throw new Error(
               `Failed to apply patch for document "${documentId}": ${second.message}`,
+              {cause: second},
             )
           }
         }

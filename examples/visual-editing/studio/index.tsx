@@ -1,6 +1,13 @@
 import {Card, Grid} from '@sanity/ui'
 import {createBrowserInspector} from '@statelyai/inspect'
-import {useEffect, useRef, useState} from 'react'
+import {
+  type ComponentProps,
+  type FC,
+  type PropsWithChildren,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import {styled} from 'styled-components'
 
 // import * as Comlink from 'comlink'
@@ -94,13 +101,17 @@ const Iframe = styled.iframe`
   border-radius: inherit;
 `
 
-const Container = styled(Grid)<{$debug: boolean}>`
+// styled-components 6 + TS 6 hit "TS2590: union too complex" when styled() is given
+// a heavily-generic component like Grid. Pass a thin-typed view into styled(), then
+// recover the full Grid prop types on the result for JSX usage.
+const ThinGrid = Grid as unknown as FC<PropsWithChildren<{className?: string}>>
+const Container = styled(ThinGrid)<{$debug: boolean}>`
   box-sizing: border-box;
   height: 100vh;
   max-height: 100dvh;
   overflow: clip;
   overscroll-behavior: none;
-  grid-template-areas: ${props =>
+  grid-template-areas: ${(props: {$debug: boolean}) =>
     props.$debug
       ? `
     'preview editor  inspect'
@@ -111,6 +122,6 @@ const Container = styled(Grid)<{$debug: boolean}>`
     'preview editor  remote'`};
   /* grid-template-columns: 2fr 2fr 3fr; */
   grid-template-columns: minmax(auto, 400px) minmax(auto, 440px) 3fr;
-  grid-auto-rows: ${props =>
+  grid-auto-rows: ${(props: {$debug: boolean}) =>
     props.$debug ? '1fr min-content min-content' : '1fr min-content'};
-`
+` as unknown as FC<ComponentProps<typeof Grid> & {$debug: boolean}>

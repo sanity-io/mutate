@@ -51,7 +51,10 @@ import {
 } from '@sanity/ui'
 import {useActorRef, useSelector} from '@xstate/react'
 import {
+  type ComponentProps,
+  type FC,
   Fragment,
+  type PropsWithChildren,
   type ReactNode,
   useCallback,
   useDeferredValue,
@@ -59,7 +62,7 @@ import {
   useState,
 } from 'react'
 import {from, tap} from 'rxjs'
-import styled from 'styled-components'
+import {styled} from 'styled-components'
 import {type ActorRefFrom} from 'xstate'
 
 import {DOCUMENT_IDS} from '../shared/constants'
@@ -600,7 +603,11 @@ function RemoteLogEntries(props: {
   )
 }
 
-const ScrollBack = styled(Stack)`
+// See studio/index.tsx for context on this thin-target cast workaround.
+const ThinStack = Stack as unknown as FC<
+  PropsWithChildren<{className?: string}>
+>
+const ScrollBack = styled(ThinStack)`
   overflow-y: scroll;
   overscroll-behavior-y: contain;
   scroll-snap-type: y proximity;
@@ -611,6 +618,6 @@ const ScrollBack = styled(Stack)`
       padding-bottom: 0;
     }
   }
-`
+` as unknown as FC<ComponentProps<typeof Stack>>
 
 export default App

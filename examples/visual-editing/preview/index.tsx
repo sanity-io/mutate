@@ -1,7 +1,15 @@
 import {useGLTF, View} from '@react-three/drei'
 import {Canvas} from '@react-three/fiber'
 import {Card, Grid} from '@sanity/ui'
-import {useEffect, useMemo, useRef, useState} from 'react'
+import {
+  type ComponentProps,
+  type FC,
+  type PropsWithChildren,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import {styled} from 'styled-components'
 
 // import * as Comlink from 'comlink'
@@ -69,16 +77,21 @@ export default function Preview(props: {debug: boolean}) {
   )
 }
 
-const Container = styled(Grid)`
+// See studio/index.tsx for context on this thin-target cast workaround.
+const ThinGrid = Grid as unknown as FC<PropsWithChildren<{className?: string}>>
+const Container = styled(ThinGrid)`
   box-sizing: border-box;
   height: 100vh;
   max-height: 100dvh;
   overflow: clip;
   overscroll-behavior: none;
   grid-auto-rows: min-content 1fr;
-`
+` as unknown as FC<ComponentProps<typeof Grid>>
 
-const StyledCanvas = styled(Canvas)`
+const ThinCanvas = Canvas as unknown as FC<
+  PropsWithChildren<{className?: string}>
+>
+const StyledCanvas = styled(ThinCanvas)`
   pointer-events: none;
   position: absolute !important;
   top: 0.75rem;
@@ -87,4 +100,4 @@ const StyledCanvas = styled(Canvas)`
   right: 0.75rem;
   height: auto !important;
   width: auto !important;
-`
+` as unknown as FC<ComponentProps<typeof Canvas>>
