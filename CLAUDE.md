@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Common commands
 
-Package manager is **pnpm**; Node `>=20.19 <22 || >=22.12`.
+Package manager is **pnpm**.
 
 - `pnpm dev` — `pkg watch` (rebuild dist on change)
 - `pnpm build` — `pkg build --strict --check --clean` (uses `@sanity/pkg-utils` with `package.config.ts`; dts via rolldown)

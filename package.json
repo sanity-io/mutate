@@ -113,9 +113,6 @@
     }
   },
   "packageManager": "pnpm@10.28.2",
-  "engines": {
-    "node": ">=20.19 <22 || >=22.12"
-  },
   "publishConfig": {
     "exports": {
       ".": "./dist/index.js",
