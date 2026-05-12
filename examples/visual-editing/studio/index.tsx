@@ -47,6 +47,7 @@ export default function Studio(props: {debug: boolean}) {
   return (
     <>
       <Card tone="transparent">
+        {/* @ts-expect-error TS 6 + styled-components 6 hit a "union too complex" inference issue on styled(Grid) */}
         <Container $debug={debug} gap={2} padding={2}>
           <Card radius={4} border style={{gridArea: 'preview'}}>
             <Iframe
@@ -94,13 +95,14 @@ const Iframe = styled.iframe`
   border-radius: inherit;
 `
 
+// @ts-expect-error TS 6 + styled-components 6 hit a "union too complex" inference issue on styled(Grid)
 const Container = styled(Grid)<{$debug: boolean}>`
   box-sizing: border-box;
   height: 100vh;
   max-height: 100dvh;
   overflow: clip;
   overscroll-behavior: none;
-  grid-template-areas: ${props =>
+  grid-template-areas: ${(props: {$debug: boolean}) =>
     props.$debug
       ? `
     'preview editor  inspect'

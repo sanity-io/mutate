@@ -491,6 +491,7 @@ function StagedMutations(props: {
         <Heading size={1} textOverflow="ellipsis">
           Staged mutations
         </Heading>
+        {/* @ts-expect-error TS 6 + styled-components 6 hit a "union too complex" inference issue on styled(Stack) */}
         <ScrollBack
           space={5}
           height="fill"
