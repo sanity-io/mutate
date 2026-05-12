@@ -7,7 +7,14 @@ import {
 import {useFrame} from '@react-three/fiber'
 import {type Infer} from '@sanity/sanitype'
 import {Box, Card, Heading, Inline} from '@sanity/ui'
-import {useEffect, useRef, useState} from 'react'
+import {
+  type ComponentProps,
+  type FC,
+  type PropsWithChildren,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import {HexColorPicker} from 'react-colorful'
 import {styled} from 'styled-components'
 import {type Group, type Mesh, type Object3DEventMap} from 'three'
@@ -15,10 +22,12 @@ import {type Group, type Mesh, type Object3DEventMap} from 'three'
 import {type airmax, type dunklow, type ultraboost} from '../studio/schema/shoe'
 import {AirmaxModel, DunklowModel, UltraboostModel} from './Shoes'
 
-const StyledView = styled(View)`
+// See studio/index.tsx for context on this thin-target cast workaround.
+const ThinView = View as unknown as FC<PropsWithChildren<{className?: string}>>
+const StyledView = styled(ThinView)`
   height: 100%;
   width: 100%;
-`
+` as unknown as FC<ComponentProps<typeof View>>
 
 export default function EditableShoe(props: {
   documentId: string

@@ -7,17 +7,24 @@ import {
 import {useFrame} from '@react-three/fiber'
 import {type Infer} from '@sanity/sanitype'
 import {Box, Heading} from '@sanity/ui'
-import {useRef} from 'react'
+import {
+  type ComponentProps,
+  type FC,
+  type PropsWithChildren,
+  useRef,
+} from 'react'
 import {styled} from 'styled-components'
 import {type Group, type Object3DEventMap} from 'three'
 
 import {type airmax, type dunklow, type ultraboost} from '../studio/schema/shoe'
 import {AirmaxModel, DunklowModel, UltraboostModel} from './Shoes'
 
-const StyledView = styled(View)`
+// See studio/index.tsx for context on this thin-target cast workaround.
+const ThinView = View as unknown as FC<PropsWithChildren<{className?: string}>>
+const StyledView = styled(ThinView)`
   height: 100%;
   width: 100%;
-`
+` as unknown as FC<ComponentProps<typeof View>>
 
 export default function PreviewShoe(
   props: {
