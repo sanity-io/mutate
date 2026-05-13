@@ -8,7 +8,7 @@ import {collectNotifications, sleep} from './helpers'
 
 /**
  * Tests covering defensive and rare-path branches of the optimistic store
- * that are awkward to exercise via the mock backend.
+ * that are awkward to exercise via the in-memory backend.
  */
 
 interface MendozaDoc extends SanityDocumentBase {

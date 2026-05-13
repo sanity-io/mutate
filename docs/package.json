@@ -1,0 +1,20 @@
+{
+  "name": "@sanity/mutate-docs",
+  "version": "0.0.0",
+  "private": true,
+  "description": "@sanity/mutate documentation site",
+  "type": "module",
+  "scripts": {
+    "build": "vitepress build",
+    "dev": "vitepress dev",
+    "preview": "vitepress preview"
+  },
+  "devDependencies": {
+    "@sanity/mutate": "workspace:*",
+    "@shikijs/vitepress-twoslash": "^4.0.2",
+    "@types/markdown-it": "^14.1.2",
+    "typescript": "^6.0.3",
+    "vitepress": "next",
+    "vue": "^3.5.34"
+  }
+}
