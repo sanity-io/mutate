@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 224 224" role="img" aria-label="@sanity/mutate">
+  <title>@sanity/mutate</title>
+  <g transform="translate(147 142)">
+    <g transform="skewY(-16)">
+      <g transform="translate(56 -56)" fill="#CECECE">
+        <rect x="-120" y="-69" width="32" height="32"></rect>
+        <rect x="-79" y="-69" width="32" height="32"></rect>
+        <rect x="-38" y="-69" width="32" height="32"></rect>
+        <rect x="-120" y="-28" width="32" height="32"></rect>
+        <rect x="-79" y="-28" width="32" height="32"></rect>
+        <rect x="-38" y="-28" width="32" height="32"></rect>
+        <rect x="-120" y="13" width="32" height="32"></rect>
+        <rect x="-79" y="13" width="32" height="32"></rect>
+        <rect x="-38" y="13" width="32" height="32"></rect>
+      </g>
+      <g transform="translate(24 -24)" fill="#FF7733" opacity="0.4">
+        <rect x="-120" y="-69" width="32" height="32"></rect>
+        <rect x="-120" y="13" width="32" height="32"></rect>
+        <rect x="-38" y="13" width="32" height="32"></rect>
+      </g>
+      <g transform="translate(12 -12)" fill="#FF7733" opacity="0.7">
+        <rect x="-120" y="-69" width="32" height="32"></rect>
+        <rect x="-120" y="13" width="32" height="32"></rect>
+        <rect x="-38" y="13" width="32" height="32"></rect>
+      </g>
+      <g fill="#FF7733">
+        <rect x="-120" y="-69" width="32" height="32"></rect>
+        <rect x="-120" y="13" width="32" height="32"></rect>
+        <rect x="-38" y="13" width="32" height="32"></rect>
+      </g>
+      <g fill="rgba(255,119,51,0.14)" stroke="#FF7733" stroke-width="2" vector-effect="non-scaling-stroke">
+        <rect x="-79" y="-69" width="32" height="32"></rect>
+        <rect x="-38" y="-69" width="32" height="32"></rect>
+        <rect x="-120" y="-28" width="32" height="32"></rect>
+        <rect x="-79" y="-28" width="32" height="32"></rect>
+        <rect x="-38" y="-28" width="32" height="32"></rect>
+        <rect x="-79" y="13" width="32" height="32"></rect>
+      </g>
+    </g>
+  </g>
+</svg>
