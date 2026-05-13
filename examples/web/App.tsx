@@ -383,6 +383,7 @@ function App() {
                                           }}
                                         />
                                       ) : null}
+                                      {/* eslint-disable-next-line no-constant-condition, no-constant-binary-expression */}
                                       {false && attentionButton
                                         ? attentionButton
                                         : null}
@@ -406,6 +407,7 @@ function App() {
                 ))}
               </Stack>
             </Card>
+            {/* eslint-disable-next-line no-constant-binary-expression */}
             {false && (
               <Box flex={2}>
                 <DocumentView
