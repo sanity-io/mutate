@@ -12,22 +12,19 @@ test('rebase() a simple case', () => {
   const staged = [
     {
       transaction: false,
-      mutations: [patch('test', [at('foo', set('bar\nbat'))])],
+      mutations: [patch('test', [at(['foo'], set('bar\nbat'))])],
     },
   ]
 
-  const [nextPendingChanges, nextLocal] = rebase(
-    'test',
-    oldRemote,
-    newRemote,
-    staged,
-  )
+  const rebased = rebase('test', oldRemote, newRemote, staged)
+  if (rebased instanceof Error) throw rebased
+  const [nextPendingChanges, nextLocal] = rebased
   expect(nextLocal).toEqual({_id: 'test', _type: 'test', foo: 'car\nbat'})
 
   expect(nextPendingChanges).toEqual([
     {
       transaction: false,
-      mutations: [patch('test', [at('foo', set('car\nbat'))])],
+      mutations: [patch('test', [at(['foo'], set('car\nbat'))])],
     },
   ])
 })
@@ -38,7 +35,9 @@ test('rebase() without pending mutations', () => {
 
   const staged: MutationGroup[] = []
 
-  const [nextStage, nextLocal] = rebase('test', oldRemote, newRemote, staged)
+  const rebased = rebase('test', oldRemote, newRemote, staged)
+  if (rebased instanceof Error) throw rebased
+  const [nextStage, nextLocal] = rebased
   expect(nextLocal).toEqual(newRemote)
 
   expect(nextStage).toEqual([])
@@ -82,12 +81,9 @@ test('rebase() where a the new base has a deleted parent', () => {
     },
   ]
 
-  const [nextStage, nextLocal] = rebase(
-    'some-document',
-    oldBase,
-    newBase,
-    staged,
-  )
+  const rebased3 = rebase('some-document', oldBase, newBase, staged)
+  if (rebased3 instanceof Error) throw rebased3
+  const [nextStage, nextLocal] = rebased3
   expect(nextLocal).toEqual({
     _id: 'some-document',
     _type: 'person',

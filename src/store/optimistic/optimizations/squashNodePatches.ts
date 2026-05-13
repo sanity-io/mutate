@@ -1,6 +1,6 @@
 import {makePatches, stringifyPatches} from '@sanity/diff-match-patch'
 
-import {applyNodePatch} from '../../../apply'
+import {applyNodePatch, type ApplyPatchError} from '../../../apply'
 import {type Operation} from '../../../mutations/operations/types'
 import {type NodePatch, type SanityDocumentBase} from '../../../mutations/types'
 import {getAtPath, type Path, startsWith, stringify} from '../../../path'
@@ -91,11 +91,14 @@ export function compactSetIfMissingPatches(patches: NodePatch[]) {
 export function compactDMPSetPatches(
   base: SanityDocumentBase,
   patches: NodePatch[],
-) {
+): NodePatch[] | ApplyPatchError {
   let edge = base
-  return patches.reduce((previousPatches: NodePatch[], patch: NodePatch) => {
+  const result: NodePatch[] = []
+  for (const patch of patches) {
     const before = edge
-    edge = applyNodePatch(patch, edge)
+    const next = applyNodePatch(patch, edge)
+    if (next instanceof Error) return next
+    edge = next as SanityDocumentBase
     if (patch.op.type === 'set' && typeof patch.op.value === 'string') {
       const current = getAtPath(patch.path, before)
       if (typeof current === 'string') {
@@ -109,17 +112,17 @@ export function compactDMPSetPatches(
             value: stringifyPatches(makePatches(current, patch.op.value)),
           },
         }
-        return previousPatches
-          .flatMap(ep => {
-            return isEqualPath(ep.path, patch.path) &&
-              ep.op.type === 'diffMatchPatch'
-              ? []
-              : ep
-          })
-          .concat(replaced)
+        const filtered = result.flatMap(ep =>
+          isEqualPath(ep.path, patch.path) && ep.op.type === 'diffMatchPatch'
+            ? []
+            : ep,
+        )
+        result.length = 0
+        result.push(...filtered, replaced)
+        continue
       }
     }
-    previousPatches.push(patch)
-    return previousPatches
-  }, [])
+    result.push(patch)
+  }
+  return result
 }

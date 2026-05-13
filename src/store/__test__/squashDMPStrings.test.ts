@@ -15,7 +15,7 @@ test('squashDMPStrings() a simple case', () => {
   const mutationGroups = [
     {
       transaction: false,
-      mutations: [patch('test', [at('foo', set('bar\nbat'))])],
+      mutations: [patch('test', [at(['foo'], set('bar\nbat'))])],
     },
   ]
 
@@ -26,7 +26,7 @@ test('squashDMPStrings() a simple case', () => {
       transaction: false,
       mutations: [
         patch('test', [
-          at('foo', diffMatchPatch(`@@ -3,5 +3,5 @@\n r%0Aba\n-z\n+t\n`)),
+          at(['foo'], diffMatchPatch(`@@ -3,5 +3,5 @@\n r%0Aba\n-z\n+t\n`)),
         ]),
       ],
     },
@@ -45,9 +45,9 @@ test('squashDMPStrings() where a value has been unset and re-set', () => {
       transaction: false,
       mutations: [
         patch('test', [
-          at('foo', unset()),
-          at('foo', setIfMissing({})),
-          at('foo.something', set('bar\nbat')),
+          at(['foo'], unset()),
+          at(['foo'], setIfMissing({})),
+          at(['foo', 'something'], set('bar\nbat')),
         ]),
       ],
     },
@@ -60,9 +60,9 @@ test('squashDMPStrings() where a value has been unset and re-set', () => {
       transaction: false,
       mutations: [
         patch('test', [
-          at('foo', unset()),
-          at('foo', setIfMissing({})),
-          at('foo.something', set('bar\nbat')),
+          at(['foo'], unset()),
+          at(['foo'], setIfMissing({})),
+          at(['foo', 'something'], set('bar\nbat')),
         ]),
       ],
     },

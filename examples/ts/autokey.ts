@@ -13,7 +13,7 @@ const result = applyInCollection(
   [
     patch(
       'some-document',
-      at('array', insert('after', -1, [{order: 'second'}])),
+      at(['array'], insert('after', -1, [{order: 'second'}])),
     ),
   ],
 )

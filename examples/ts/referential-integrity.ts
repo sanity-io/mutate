@@ -13,8 +13,8 @@ const initial = [
 
 const updated = applyInCollection(initial, [
   createIfNotExists({_id: 'someDoc', _type: 'foo'}),
-  patch('someDoc', [at('value', set('ok'))]),
-  patch('someDoc', [at('nested.value', set('something'))]),
+  patch('someDoc', [at(['value'], set('ok'))]),
+  patch('someDoc', [at(['nested', 'value'], set('something'))]),
 ])
 
 console.log(initial === updated)

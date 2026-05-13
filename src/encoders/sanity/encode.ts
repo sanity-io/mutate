@@ -6,26 +6,47 @@ import {
   type Transaction,
 } from '../../mutations/types'
 import {stringify as stringifyPath} from '../../path/parser/stringify'
+import {
+  UnsupportedEncodeOperationError,
+  UnsupportedSanityOperationError,
+} from '../errors'
 import {type SanityMutation} from './types'
 
-export function encode(mutation: Mutation): SanityMutation[] | SanityMutation {
+export type SanityEncodeError =
+  | UnsupportedEncodeOperationError
+  | UnsupportedSanityOperationError
+
+export function encode(
+  mutation: Mutation,
+): SanityMutation[] | SanityMutation | SanityEncodeError {
   return encodeMutation(mutation)
 }
 
-export function encodeAll(mutations: Mutation[]): SanityMutation[] {
-  return mutations.flatMap(encode)
+export function encodeAll(
+  mutations: Mutation[],
+): SanityMutation[] | SanityEncodeError {
+  const result: SanityMutation[] = []
+  for (const m of mutations) {
+    const encoded = encode(m)
+    if (encoded instanceof Error) return encoded
+    if (Array.isArray(encoded)) result.push(...encoded)
+    else result.push(encoded)
+  }
+  return result
 }
 
 export function encodeTransaction(transaction: Transaction) {
+  const mutations = encodeAll(transaction.mutations)
+  if (mutations instanceof Error) return mutations
   return {
     transactionId: transaction.id,
-    mutations: encodeAll(transaction.mutations),
+    mutations,
   }
 }
 
 export function encodeMutation(
   mutation: Mutation,
-): SanityMutation[] | SanityMutation {
+): SanityMutation[] | SanityMutation | SanityEncodeError {
   switch (mutation.type) {
     case 'create':
       return {[mutation.type]: mutation.document}
@@ -39,15 +60,19 @@ export function encodeMutation(
       }
     case 'patch': {
       const ifRevisionID = mutation.options?.ifRevision
-      return mutation.patches.map(patch => {
-        return {
+      const result: {id: string; patch: PatchMutationOperation}[] = []
+      for (const patch of mutation.patches) {
+        const encoded = encodePatch(patch)
+        if (encoded instanceof Error) return encoded
+        result.push({
           patch: {
             id: mutation.id,
             ...(ifRevisionID && {ifRevisionID}),
-            ...encodePatch(patch),
+            ...encoded,
           },
-        } as {id: string; patch: PatchMutationOperation}
-      })
+        } as {id: string; patch: PatchMutationOperation})
+      }
+      return result
     }
   }
 }
@@ -126,9 +151,10 @@ export function encodePatch(patch: NodePatch) {
     }
   }
   if (op.type === 'insertIfMissing') {
-    // note: insertIfMissing currently not supported by sanity, so will always insert at reference position
-    throw new Error('Patch type insertIfMissing is not supported by Sanity')
+    return new UnsupportedSanityOperationError({operation: 'insertIfMissing'})
   }
-  //@ts-expect-error all cases should be covered
-  throw new Error(`Unknown operation type ${op.type}`)
+  return new UnsupportedEncodeOperationError({
+    //@ts-expect-error all cases should be covered
+    type: op.type,
+  })
 }

@@ -181,41 +181,46 @@ export function createOptimisticStore(
               const event = action.event
               if (event.type === 'sync') {
                 const newRemote = event.document
-                try {
-                  // When we get a sync, rebase local mutations on top of new remote state
-                  const [rebasedMutations] = rebase(
-                    id,
-                    state.remote,
-                    newRemote,
-                    state.stagedChanges,
-                  )
-                  // Apply rebased mutations to get local state
-                  const newLocal = applyAll(
-                    newRemote,
-                    filterDocumentTransactions(rebasedMutations, id),
-                  )
-                  state = {
-                    remote: newRemote,
-                    local: newLocal,
-                    stagedChanges: rebasedMutations,
-                    hasSynced: true,
-                    pendingSyncEmit: true,
-                    prevLocal: state.local,
-                    prevRemote: state.remote,
-                  }
-
-                  // If there are already staged mutations, emit immediately
-                  // Otherwise, schedule for next microtask to allow batching with synchronous mutations
-                  if (rebasedMutations.length > 0) {
-                    emitSyncEvent(false)
-                  } else {
-                    scheduleSyncEmit()
-                  }
-                } catch (err) {
+                // TODO Phase 4c: surface rebase/applyAll errors as values on next
+                // When we get a sync, rebase local mutations on top of new remote state
+                const rebased = rebase(
+                  id,
+                  state.remote,
+                  newRemote,
+                  state.stagedChanges,
+                )
+                if (rebased instanceof Error) {
                   // Emit error on the observable when rebase fails
                   // This can happen e.g. when trying to create a document that already exists
-                  subscriber.error(err)
+                  subscriber.error(rebased)
                   return
+                }
+                const [rebasedMutations] = rebased
+                // Apply rebased mutations to get local state
+                const newLocal = applyAll(
+                  newRemote,
+                  filterDocumentTransactions(rebasedMutations, id),
+                )
+                if (newLocal instanceof Error) {
+                  subscriber.error(newLocal)
+                  return
+                }
+                state = {
+                  remote: newRemote,
+                  local: newLocal,
+                  stagedChanges: rebasedMutations,
+                  hasSynced: true,
+                  pendingSyncEmit: true,
+                  prevLocal: state.local,
+                  prevRemote: state.remote,
+                }
+
+                // If there are already staged mutations, emit immediately
+                // Otherwise, schedule for next microtask to allow batching with synchronous mutations
+                if (rebasedMutations.length > 0) {
+                  emitSyncEvent(false)
+                } else {
+                  scheduleSyncEmit()
                 }
               }
             } else {
@@ -409,13 +414,13 @@ export function createOptimisticStoreInternal(
               }
             }
             if (hasProperty(event, 'mutations')) {
+              // TODO Phase 4: surface PathParseError as a value event
+              const decoded = decodeAll(event.mutations)
+              if (decoded instanceof Error) throw decoded
               return {
                 event,
                 documentId,
-                snapshot: applyAll(
-                  prev.snapshot,
-                  decodeAll(event.mutations),
-                ) as Doc,
+                snapshot: applyAll(prev.snapshot, decoded) as Doc,
               }
             }
             throw new Error(
@@ -465,9 +470,13 @@ export function createOptimisticStoreInternal(
       // Clear pending mutations now that we've captured them for this submit
       clearPendingMutations.next()
 
-      const transactions = toTransactions(
-        squashDMPStrings(edge, squashMutationGroups(mutationGroups)),
+      // TODO Phase 4c: surface squashDMPStrings error as a value event
+      const squashed = squashDMPStrings(
+        edge,
+        squashMutationGroups(mutationGroups),
       )
+      if (squashed instanceof Error) throw squashed
+      const transactions = toTransactions(squashed)
       return concat(
         of({
           type: 'submit' as const,
@@ -552,9 +561,14 @@ export function createOptimisticStoreInternal(
               ev.base,
               filterDocumentTransactions(inflight, id),
             )
+            // TODO Phase 4c: surface applyAll error as a value
+            if (newEdge instanceof Error) throw newEdge
 
             const oldEdge = edge.get(id)
-            const [newLocalMutations] = rebase(id, oldEdge, newEdge, local)
+            // TODO Phase 4c: surface rebase error as a value
+            const rebased = rebase(id, oldEdge, newEdge, local)
+            if (rebased instanceof Error) throw rebased
+            const [newLocalMutations] = rebased
 
             // todo – is there a cleaner way to do this?
             rebasedMutations.next(newLocalMutations)

@@ -88,12 +88,11 @@ test('upsert when items doesnt exist', () => {
 
 test('insert relative to nonexisting keyed path elements', () => {
   const arr = [{_key: 'foo', value: 'foo'}]
-  expect(() =>
-    applyOp(
-      upsert([{_key: 'hello', value: 'bar'}], 'before', {_key: 'doesntexist'}),
-      arr,
-    ),
-  ).toThrowErrorMatchingInlineSnapshot(
-    `[Error: Found no matching array element to insert before]`,
+  const result = applyOp(
+    upsert([{_key: 'hello', value: 'bar'}], 'before', {_key: 'doesntexist'}),
+    arr,
+  )
+  expect(result).toMatchInlineSnapshot(
+    `[MissingArrayItemError: Found no matching array element to insert before]`,
   )
 })

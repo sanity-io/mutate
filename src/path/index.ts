@@ -1,3 +1,4 @@
+export * from './errors'
 export * from './get/getAtPath'
 export type * from './get/types'
 export {parse} from './parser/parse'

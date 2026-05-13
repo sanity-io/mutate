@@ -1,4 +1,4 @@
-import {parse, type Path, type SafePath} from '../path'
+import {parse, type Path, type PathParseError, type SafePath} from '../path'
 import {arrify} from '../utils/arrify'
 import {
   type NormalizeReadOnlyArray,
@@ -45,16 +45,18 @@ export function at<const P extends Path, O extends Operation>(
 export function at<const P extends string, O extends Operation>(
   path: P,
   operation: O,
-): NodePatch<SafePath<P>, O>
+): NodePatch<SafePath<P>, O> | PathParseError
 
 export function at<O extends Operation>(
   path: Path | string,
   operation: O,
-): NodePatch<Path, O> {
-  return {
-    path: typeof path === 'string' ? parse(path) : path,
-    op: operation,
+): NodePatch<Path, O> | PathParseError {
+  if (typeof path === 'string') {
+    const parsed = parse(path)
+    if (parsed instanceof Error) return parsed
+    return {path: parsed as Path, op: operation}
   }
+  return {path, op: operation}
 }
 
 export function createIfNotExists<const Doc extends SanityDocumentBase>(

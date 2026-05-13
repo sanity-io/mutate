@@ -6,8 +6,17 @@ import {
   type PatchMutation,
   type SanityDocumentBase,
 } from '../../mutations/types'
-import {type Index, type KeyedPathElement} from '../../path'
+import {
+  type Index,
+  type KeyedPathElement,
+  type PathParseError,
+} from '../../path'
 import {parse as parsePath} from '../../path/parser/parse'
+import {
+  MissingKeyError,
+  UnsupportedDecodeMutationError,
+  UnsupportedDecodeOperationError,
+} from '../errors'
 import {
   type CompactMutation,
   type CompactPatchMutation,
@@ -17,17 +26,29 @@ import {
   type DeleteMutation,
 } from './types'
 
+export type CompactDecodeError =
+  | PathParseError
+  | MissingKeyError
+  | UnsupportedDecodeMutationError
+  | UnsupportedDecodeOperationError
+
 export {Mutation, SanityDocumentBase}
 
 export function decode<Doc extends SanityDocumentBase>(
   mutations: CompactMutation<Doc>[],
-): Mutation[] {
-  return mutations.map(decodeMutation)
+): Mutation[] | CompactDecodeError {
+  const result: Mutation[] = []
+  for (const mutation of mutations) {
+    const decoded = decodeMutation(mutation)
+    if (decoded instanceof Error) return decoded
+    result.push(decoded)
+  }
+  return result
 }
 
 export function decodeMutation<Doc extends SanityDocumentBase>(
   mutation: CompactMutation<Doc>,
-): Mutation {
+): Mutation | CompactDecodeError {
   const [type] = mutation
   if (type === 'delete') {
     const [, id] = mutation as DeleteMutation
@@ -44,13 +65,18 @@ export function decodeMutation<Doc extends SanityDocumentBase>(
   } else if (type === 'patch') {
     return decodePatchMutation(mutation)
   }
-  throw new Error(`Unrecognized mutation: ${JSON.stringify(mutation)}`)
+  return new UnsupportedDecodeMutationError({
+    reason: `unrecognized mutation: ${JSON.stringify(mutation)}`,
+  })
 }
 
-function decodePatchMutation(mutation: CompactPatchMutation): PatchMutation {
+function decodePatchMutation(
+  mutation: CompactPatchMutation,
+): PatchMutation | CompactDecodeError {
   const [, type, id, serializedPath, , revisionId] = mutation
 
   const path = parsePath(serializedPath)
+  if (path instanceof Error) return path
   if (type === 'dec' || type === 'inc') {
     const [, , , , [amount]] = mutation
     return {
@@ -135,11 +161,13 @@ function decodePatchMutation(mutation: CompactPatchMutation): PatchMutation {
   }
   if (type === 'replace') {
     const [, , , , [ref, items]] = mutation
+    const refDecoded = decodeItemRef(ref)
+    if (refDecoded instanceof Error) return refDecoded
     return {
       type: 'patch',
       id,
       patches: [
-        {path, op: {type: 'replace', items, referenceItem: decodeItemRef(ref)}},
+        {path, op: {type: 'replace', items, referenceItem: refDecoded}},
       ],
       ...createOpts(revisionId),
     }
@@ -147,6 +175,7 @@ function decodePatchMutation(mutation: CompactPatchMutation): PatchMutation {
   if (type === 'upsert') {
     const [, , , , [position, referenceItem, items]] = mutation
     const decodedReferenceItem = decodeItemRef(referenceItem)
+    if (decodedReferenceItem instanceof Error) return decodedReferenceItem
     return {
       type: 'patch',
       id,
@@ -164,10 +193,12 @@ function decodePatchMutation(mutation: CompactPatchMutation): PatchMutation {
       ...createOpts(revisionId),
     }
   }
-  throw new Error(`Invalid mutation type: ${type}`)
+  return new UnsupportedDecodeOperationError({type: String(type)})
 }
 
-function decodeItemRef(ref: unknown): Index | KeyedPathElement {
+function decodeItemRef(
+  ref: unknown,
+): Index | KeyedPathElement | MissingKeyError {
   if (typeof ref === 'string') {
     return {_key: ref}
   }
@@ -175,7 +206,7 @@ function decodeItemRef(ref: unknown): Index | KeyedPathElement {
     return ref
   }
   if (!hasKey(ref)) {
-    throw new Error('Cannot decode upsert patch: referenceItem is missing key')
+    return new MissingKeyError()
   }
   return ref
 }

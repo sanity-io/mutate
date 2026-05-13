@@ -17,15 +17,15 @@ localStore.apply(
 )
 console.log('after createOrReplace', localStore.get('hello'))
 
-localStore.apply(patch('hello', at('some', setIfMissing({}))))
-localStore.apply(patch('hello', at('some.nested', setIfMissing({}))))
-localStore.apply(patch('hello', at('some.nested.field', set('hi!'))))
+localStore.apply(patch('hello', at(['some'], setIfMissing({}))))
+localStore.apply(patch('hello', at(['some', 'nested'], setIfMissing({}))))
+localStore.apply(patch('hello', at(['some', 'nested', 'field'], set('hi!'))))
 
 console.log('after set nested field', localStore.get('hello'))
 
 localStore.apply([
   createIfNotExists({_id: 'new', _type: 'newDoc'}),
-  patch('hello', at('blabla', set('hei hei'))),
+  patch('hello', at(['blabla'], set('hei hei'))),
 ])
 
 localStore.apply([
@@ -34,9 +34,9 @@ localStore.apply([
 ])
 
 localStore.apply([
-  patch('drafts.blog-post-1', at('title', set('ready'))),
-  patch('drafts.blog-post-1', at('title', set('ready for'))),
-  patch('drafts.blog-post-1', at('title', set('ready for publishing'))),
+  patch('drafts.blog-post-1', at(['title'], set('ready'))),
+  patch('drafts.blog-post-1', at(['title'], set('ready for'))),
+  patch('drafts.blog-post-1', at(['title'], set('ready for publishing'))),
 ])
 
 const doc = localStore.get('drafts.blog-post-1')

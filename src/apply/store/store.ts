@@ -51,10 +51,12 @@ export const createStore = <Doc extends SanityDocumentBase>(
       index[id] as any,
     apply: (mutations: Mutation[] | Mutation) => {
       const nextIndex = applyInIndex(index, arrify(mutations))
+      if (nextIndex instanceof Error) return nextIndex
       if (nextIndex !== index) {
         index = nextIndex
         version++
       }
+      return undefined
     },
   }
 }

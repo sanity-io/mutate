@@ -81,7 +81,7 @@ test('single patch with revision', () => {
 test('multiple mutations', () => {
   expect([
     createOrReplace({_id: 'foo', _type: 'lol', count: 1}),
-    patch('foo', [at('title', set('hello')), at('count', inc(2))], {
+    patch('foo', [at(['title'], set('hello')), at(['count'], inc(2))], {
       ifRevision: 'someRev',
     }),
   ]).toEqual([
@@ -116,7 +116,7 @@ test('multiple mutations', () => {
 test('multiple ops in a single patch mutation', () => {
   expect([
     createIfNotExists({_id: 'foo', _type: 'lol', count: 1}),
-    patch('foo', [at('title', set('hello')), at('count', inc(2))], {
+    patch('foo', [at(['title'], set('hello')), at(['count'], inc(2))], {
       ifRevision: 'someRev',
     }),
   ]).toEqual([
@@ -160,20 +160,20 @@ test('all permutations', () => {
     patch(
       'qux',
       [
-        at('title', set('hello')),
-        at('items', setIfMissing([])),
-        at('items', insert([1, 2, 3], 'after', 1)),
-        at('title', unset()),
-        at('count', inc(2)),
+        at(['title'], set('hello')),
+        at(['items'], setIfMissing([])),
+        at(['items'], insert([1, 2, 3], 'after', 1)),
+        at(['title'], unset()),
+        at(['count'], inc(2)),
       ],
       {ifRevision: 'someRev'},
     ),
     patch('quux', [
-      at('title', set('hello')),
-      at('items', setIfMissing([])),
-      at('items', insert([1, 2, 3], 'after', 0)),
-      at('title', unset()),
-      at('count', inc(2)),
+      at(['title'], set('hello')),
+      at(['items'], setIfMissing([])),
+      at(['items'], insert([1, 2, 3], 'after', 0)),
+      at(['title'], unset()),
+      at(['count'], inc(2)),
     ]),
     del('quuz'),
     del('corge'),

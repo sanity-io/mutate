@@ -380,7 +380,9 @@ describe('local mutations', () => {
         errorPromise,
       ])
     } catch (err) {
-      expect(err).toMatchInlineSnapshot(`[Error: Document already exist]`)
+      expect(err).toMatchInlineSnapshot(
+        `[ApplyMutationFailedError: Failed to apply mutation: Document already exist]`,
+      )
     }
   })
 })

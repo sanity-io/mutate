@@ -1,11 +1,16 @@
 import {type DecOp, type IncOp} from '../../../mutations/operations/types'
+import {TypeMismatchError} from '../../errors'
 
 export function inc<O extends IncOp<number>, CurrentValue extends number>(
   op: O,
   currentValue: CurrentValue,
 ) {
   if (typeof currentValue !== 'number') {
-    throw new TypeError('Cannot apply "inc()" on non-numeric value')
+    return new TypeMismatchError({
+      operation: 'inc',
+      expectedType: 'number',
+      actualType: typeof currentValue,
+    })
   }
 
   return currentValue + op.amount
@@ -16,7 +21,11 @@ export function dec<O extends DecOp<number>, CurrentValue extends number>(
   currentValue: CurrentValue,
 ) {
   if (typeof currentValue !== 'number') {
-    throw new TypeError('Cannot apply "dec()" on non-numeric value')
+    return new TypeMismatchError({
+      operation: 'dec',
+      expectedType: 'number',
+      actualType: typeof currentValue,
+    })
   }
 
   return currentValue - op.amount

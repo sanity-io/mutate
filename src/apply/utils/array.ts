@@ -1,4 +1,5 @@
 import {isKeyedElement, type PathElement} from '../../path'
+import {InvalidPathSegmentError} from '../errors'
 import {keyOf} from './getKeyOf'
 
 export function findTargetIndex<T>(array: T[], pathSegment: PathElement) {
@@ -9,11 +10,7 @@ export function findTargetIndex<T>(array: T[], pathSegment: PathElement) {
     const idx = array.findIndex(value => keyOf(value) === pathSegment._key)
     return idx === -1 ? null : idx
   }
-  throw new Error(
-    `Expected path segment to be addressing a single array item either by numeric index or by '_key'. Instead saw ${JSON.stringify(
-      pathSegment,
-    )}`,
-  )
+  return new InvalidPathSegmentError({segment: JSON.stringify(pathSegment)})
 }
 
 export function getTargetIdx(position: 'before' | 'after', index: number) {

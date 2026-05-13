@@ -34,14 +34,14 @@ const mutationsRaw: Mutation[] = [
   },
 ]
 
-const pa = patch('foo', at('foo.bar', set('ok')))
+const pa = patch('foo', at(['foo', 'bar'], set('ok')))
 
 const s = applyPatches(
   [
-    at('foo', set('ok')),
-    at('bar', set('2')),
-    at('x', setIfMissing({_type: 'test'})),
-    at('x', setIfMissing({greeting: 'hello'})),
+    at(['foo'], set('ok')),
+    at(['bar'], set('2')),
+    at(['x'], setIfMissing({_type: 'test'})),
+    at(['x'], setIfMissing({greeting: 'hello'})),
   ],
   {
     _id: 'foo',

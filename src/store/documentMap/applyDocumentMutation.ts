@@ -10,6 +10,10 @@ import {
   type PatchMutation,
   type SanityDocumentBase,
 } from '../../mutations/types'
+import {
+  ApplyMutationFailedError,
+  type UnknownMutationTypeError,
+} from '../errors'
 
 export type MutationResult<Doc extends SanityDocumentBase> =
   | {
@@ -45,14 +49,17 @@ export type MutationResult<Doc extends SanityDocumentBase> =
 export function applyAll<Doc extends SanityDocumentBase>(
   current: Doc | undefined,
   mutation: Mutation<Doc>[],
-): Doc | undefined {
-  return mutation.reduce((doc, m) => {
+): Doc | undefined | ApplyMutationFailedError | UnknownMutationTypeError {
+  let doc: Doc | undefined = current
+  for (const m of mutation) {
     const res = applyDocumentMutation(doc, m)
     if (res.status === 'error') {
-      throw new Error(res.message)
+      return new ApplyMutationFailedError({reason: res.message})
     }
-    return res.status === 'noop' ? doc : res.after
-  }, current)
+    if (res.status === 'noop') continue
+    doc = res.after
+  }
+  return doc
 }
 
 /**
@@ -79,8 +86,11 @@ export function applyDocumentMutation<Doc extends SanityDocumentBase>(
   if (mutation.type === 'patch') {
     return patch(document, mutation)
   }
-  // @ts-expect-error all cases should be covered
-  throw new Error(`Invalid mutation type: ${mutation.type}`)
+  return {
+    status: 'error',
+    // @ts-expect-error all cases should be covered
+    message: `Invalid mutation type: ${mutation.type}`,
+  }
 }
 
 function create<Doc extends SanityDocumentBase>(
@@ -159,7 +169,10 @@ function patch<Doc extends SanityDocumentBase>(
     }
   }
   const next = applyPatchMutation(mutation, document)
+  if (next instanceof Error) {
+    return {status: 'error', message: next.message}
+  }
   return document === next
     ? {status: 'noop'}
-    : {status: 'updated', id: mutation.id, before: document, after: next}
+    : {status: 'updated', id: mutation.id, before: document, after: next as Doc}
 }

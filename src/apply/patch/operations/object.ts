@@ -3,6 +3,7 @@ import {
   type UnassignOp,
 } from '../../../mutations/operations/types'
 import {isObject} from '../../../utils/isObject'
+import {TypeMismatchError} from '../../errors'
 import {isEmpty} from '../../utils/isEmpty'
 import {omit} from '../../utils/omit'
 
@@ -11,7 +12,11 @@ export function unassign<T extends object, K extends string[]>(
   currentValue: T,
 ) {
   if (!isObject(currentValue)) {
-    throw new TypeError('Cannot apply "unassign()" on non-object value')
+    return new TypeMismatchError({
+      operation: 'unassign',
+      expectedType: 'object',
+      actualType: typeof currentValue,
+    })
   }
 
   return op.keys.length === 0
@@ -21,7 +26,11 @@ export function unassign<T extends object, K extends string[]>(
 
 export function assign<T extends object>(op: AssignOp<T>, currentValue: T) {
   if (!isObject(currentValue)) {
-    throw new TypeError('Cannot apply "assign()" on non-object value')
+    return new TypeMismatchError({
+      operation: 'assign',
+      expectedType: 'object',
+      actualType: typeof currentValue,
+    })
   }
 
   return isEmpty(op.value) ? currentValue : {...currentValue, ...op.value}

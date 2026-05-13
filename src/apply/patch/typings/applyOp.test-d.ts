@@ -54,27 +54,33 @@ test('various support types', () => {
   assertType<SplitAtPos<['a', 'b', 'c'], 2, 'after'>>([['a', 'b', 'c'], []])
 })
 
+// helper: assert applyOp succeeded and narrow off the ApplyOpError branch
+function ok<T>(value: T): Exclude<T, Error> {
+  if (value instanceof Error) throw value
+  return value as Exclude<T, Error>
+}
+
 test('applyOp function typings', () => {
   assertType<SetOp<4>>(set(4))
-  assertType<4>(applyOp(inc(2), 2))
+  assertType<4>(ok(applyOp(inc(2), 2)))
 
   //@ts-expect-error - Should be 4
-  assertType<3>(applyOp(inc(2), 2))
-  assertType<0>(applyOp(dec(2), 2))
+  assertType<3>(ok(applyOp(inc(2), 2)))
+  assertType<0>(ok(applyOp(dec(2), 2)))
 
   //@ts-expect-error - Should be 0
-  assertType<1>(applyOp(dec(2), 2))
-  assertType<{foo: 'bar'}>(applyOp(set({foo: 'bar'}), 2))
-  assertType<'new'>(applyOp(set('new'), 'current'))
-  assertType<{foo: 'bar'}>(applyOp(set({foo: 'bar'}), undefined))
-  assertType<undefined>(applyOp(unset(), 'foo'))
+  assertType<1>(ok(applyOp(dec(2), 2)))
+  assertType<{foo: 'bar'}>(ok(applyOp(set({foo: 'bar'}), 2)))
+  assertType<'new'>(ok(applyOp(set('new'), 'current')))
+  assertType<{foo: 'bar'}>(ok(applyOp(set({foo: 'bar'}), undefined)))
+  assertType<undefined>(ok(applyOp(unset(), 'foo')))
 
-  assertType<'current'>(applyOp(setIfMissing('new'), 'current'))
-  assertType<'new'>(applyOp(setIfMissing('new'), undefined))
+  assertType<'current'>(ok(applyOp(setIfMissing('new'), 'current')))
+  assertType<'new'>(ok(applyOp(setIfMissing('new'), undefined)))
 
   // Assign
   assertType(
-    <{foo: 'bar'; bar: 'ok'}>applyOp(assign({foo: 'bar'}), {bar: 'ok'}),
+    <{foo: 'bar'; bar: 'ok'}>ok(applyOp(assign({foo: 'bar'}), {bar: 'ok'})),
   )
   //@ts-expect-error can not assign to strings
   applyOp(assign({foo: 'bar'}), 'nah')
@@ -90,8 +96,8 @@ test('applyOp function typings', () => {
 
   // Unassign
 
-  assertType<Record<never, never>>(applyOp(unassign(['foo']), {foo: 'ok'}))
-  assertType<{bar: 'bar'}>(applyOp(unassign(['foo']), {bar: 'bar'}))
+  assertType<Record<never, never>>(ok(applyOp(unassign(['foo']), {foo: 'ok'})))
+  assertType<{bar: 'bar'}>(ok(applyOp(unassign(['foo']), {bar: 'bar'})))
   //@ts-expect-error cannot unassign to string
   applyOp(unassign(['foo']), 'nah')
 

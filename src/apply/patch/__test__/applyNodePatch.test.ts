@@ -24,9 +24,10 @@ describe('set', () => {
       ],
     }
 
-    const patch = at('objects[_key=="second"].title', set('Updated'))
+    const patch = at(['objects', {_key: 'second'}, 'title'], set('Updated'))
 
     const result = applyNodePatch(patch, document)
+    if (result instanceof Error) throw result
 
     assertType<{_key: string; title: string}[]>(result.objects)
   })
@@ -40,9 +41,10 @@ describe('set', () => {
       ],
     }
 
-    const patch = at('objects[_key=="second"]', unset())
+    const patch = at(['objects', {_key: 'second'}], unset())
 
     const result = applyNodePatch(patch, document)
+    if (result instanceof Error) throw result
 
     expect(result).toEqual({
       objects: [
@@ -61,9 +63,10 @@ describe('set', () => {
       baz: 'baz',
     } as const
 
-    const patch = at('bar', unset())
+    const patch = at(['bar'], unset())
 
     const result = applyNodePatch(patch, document)
+    if (result instanceof Error) throw result
 
     expect(result).toEqual({
       foo: 'foo',
@@ -84,9 +87,10 @@ describe('set', () => {
       ],
     }
 
-    const patch = at('objects[_key=="first"].title', set('first'))
+    const patch = at(['objects', {_key: 'first'}, 'title'], set('first'))
 
     const result = applyNodePatch(patch, document)
+    if (result instanceof Error) throw result
     expect(result).toEqual({
       objects: [
         {_key: 'first', title: 'first'},

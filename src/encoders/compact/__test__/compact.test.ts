@@ -10,13 +10,13 @@ test('encode', () => {
     encode([
       createIfNotExists({_id: 'cat', _type: 'cat'}),
       patch('cat', [
-        at('title', set('hello world')),
-        at('breed.name', set('common house cat')),
-        at('title', unset()),
-        at('hello', unset()),
+        at(['title'], set('hello world')),
+        at(['breed', 'name'], set('common house cat')),
+        at(['title'], unset()),
+        at(['hello'], unset()),
       ]),
-      patch('cat', [at('breed', set('forest cat'))]),
-      patch('other', [at('sound', set('meow'))], {ifRevision: 'rev004'}),
+      patch('cat', [at(['breed'], set('forest cat'))]),
+      patch('other', [at(['sound'], set('meow'))], {ifRevision: 'rev004'}),
     ]),
   ).toStrictEqual([
     ['createIfNotExists', {_id: 'cat', _type: 'cat'}],

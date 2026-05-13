@@ -8,7 +8,16 @@ import {
   type SanityDocumentBase,
 } from '../mutations/types'
 import {arrify} from '../utils/arrify'
-import {applyPatchMutation} from './applyPatchMutation'
+import {
+  applyPatchMutation,
+  type ApplyPatchMutationError,
+} from './applyPatchMutation'
+import {
+  type ApplyMutationError,
+  DocumentAlreadyExistsError,
+  DocumentNotFoundError,
+  UnsupportedMutationTypeError,
+} from './errors'
 import {splice} from './utils/array'
 
 /**
@@ -40,30 +49,30 @@ export function applyInCollection<
 >(
   collection: readonly Doc[],
   mutations: Muts,
-): readonly Exclude<
-  Doc | AddedDocument<MutationOf<Muts>>,
-  {_id: DeletedId<MutationOf<Muts>>}
->[] {
+):
+  | readonly Exclude<
+      Doc | AddedDocument<MutationOf<Muts>>,
+      {_id: DeletedId<MutationOf<Muts>>}
+    >[]
+  | ApplyMutationError {
   const a = arrify(mutations as Mutation | Mutation[]) as Mutation[]
-  return a.reduce((prev: readonly SanityDocumentBase[], mutation) => {
-    if (mutation.type === 'create') {
-      return createIn(prev, mutation)
-    }
-    if (mutation.type === 'createIfNotExists') {
-      return createIfNotExistsIn(prev, mutation)
-    }
-    if (mutation.type === 'delete') {
-      return deleteIn(prev, mutation)
-    }
-    if (mutation.type === 'createOrReplace') {
-      return createOrReplaceIn(prev, mutation)
-    }
-    if (mutation.type === 'patch') {
-      return patchIn(prev, mutation)
-    }
-    // @ts-expect-error all cases should be covered
-    throw new Error(`Invalid mutation type: ${mutation.type}`)
-  }, collection) as readonly Exclude<
+  let current: readonly SanityDocumentBase[] = collection
+  for (const mutation of a) {
+    const next: readonly SanityDocumentBase[] | ApplyMutationError = (() => {
+      if (mutation.type === 'create') return createIn(current, mutation)
+      if (mutation.type === 'createIfNotExists')
+        return createIfNotExistsIn(current, mutation)
+      if (mutation.type === 'delete') return deleteIn(current, mutation)
+      if (mutation.type === 'createOrReplace')
+        return createOrReplaceIn(current, mutation)
+      if (mutation.type === 'patch') return patchIn(current, mutation)
+      // @ts-expect-error all cases should be covered
+      return new UnsupportedMutationTypeError({type: mutation.type})
+    })()
+    if (next instanceof Error) return next
+    current = next
+  }
+  return current as readonly Exclude<
     Doc | AddedDocument<MutationOf<Muts>>,
     {_id: DeletedId<MutationOf<Muts>>}
   >[]
@@ -72,12 +81,14 @@ export function applyInCollection<
 function createIn<Doc extends SanityDocumentBase>(
   collection: readonly Doc[],
   mutation: CreateMutation<Doc>,
-) {
+): readonly Doc[] | DocumentAlreadyExistsError {
   const currentIdx = collection.findIndex(
     doc => doc._id === mutation.document._id,
   )
   if (currentIdx !== -1) {
-    throw new Error('Document already exist')
+    return new DocumentAlreadyExistsError({
+      id: mutation.document._id ?? 'undefined',
+    })
   }
   return collection.concat(mutation.document)
 }
@@ -115,14 +126,15 @@ function deleteIn<Doc extends SanityDocumentBase>(
 function patchIn<Doc extends SanityDocumentBase>(
   collection: readonly Doc[],
   mutation: PatchMutation,
-): readonly Doc[] {
+): readonly Doc[] | DocumentNotFoundError | ApplyPatchMutationError {
   const currentIdx = collection.findIndex(doc => doc._id === mutation.id)
   if (currentIdx === -1) {
-    throw new Error('Cannot apply patch on nonexistent document')
+    return new DocumentNotFoundError({operation: 'patch'})
   }
   const current = collection[currentIdx]!
 
   const next = applyPatchMutation(mutation, current)
+  if (next instanceof Error) return next
 
   return next === current
     ? collection

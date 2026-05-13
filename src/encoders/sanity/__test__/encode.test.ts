@@ -7,12 +7,12 @@ import {encodeAll} from '../encode'
 test('encode()', () => {
   const mutations = [
     patch('cat', [
-      at('title', set('hello world')),
-      at('title', unset()),
-      at('hello', unset()),
+      at(['title'], set('hello world')),
+      at(['title'], unset()),
+      at(['hello'], unset()),
     ]),
-    patch('cat', [at('breed', set('forest cat'))]),
-    patch('dog', [at('characteristics', insert(['furry'], 'after', -1))]),
+    patch('cat', [at(['breed'], set('forest cat'))]),
+    patch('dog', [at(['characteristics'], insert(['furry'], 'after', -1))]),
   ]
   expect(encodeAll(mutations)).toEqual([
     {

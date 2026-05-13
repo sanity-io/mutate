@@ -9,7 +9,17 @@ import {
   type PatchMutation,
   type SanityDocumentBase,
 } from '../mutations/types'
-import {applyPatchMutation} from './applyPatchMutation'
+import {
+  applyPatchMutation,
+  type ApplyPatchMutationError,
+} from './applyPatchMutation'
+import {
+  type ApplyMutationError,
+  DocumentAlreadyExistsError,
+  DocumentIdMissingError,
+  DocumentNotFoundError,
+  UnsupportedMutationTypeError,
+} from './errors'
 import {assignId, hasId, type RequiredSelect} from './store'
 
 export type DocumentIndex<Doc extends SanityDocumentBase> = {[id: string]: Doc}
@@ -17,26 +27,24 @@ export type DocumentIndex<Doc extends SanityDocumentBase> = {[id: string]: Doc}
 export function applyInIndex<
   Doc extends SanityDocumentBase,
   Index extends DocumentIndex<ToStored<Doc>>,
->(index: Index, mutations: Mutation<Doc>[]): Index {
-  return mutations.reduce((prev, mutation) => {
-    if (mutation.type === 'create') {
-      return createIn(prev, mutation)
-    }
-    if (mutation.type === 'createIfNotExists') {
-      return createIfNotExistsIn(prev, mutation)
-    }
-    if (mutation.type === 'delete') {
-      return deleteIn(prev, mutation)
-    }
-    if (mutation.type === 'createOrReplace') {
-      return createOrReplaceIn(prev, mutation)
-    }
-    if (mutation.type === 'patch') {
-      return patchIn(prev, mutation)
-    }
-    // @ts-expect-error all cases should be covered
-    throw new Error(`Invalid mutation type: ${mutation.type}`)
-  }, index)
+>(index: Index, mutations: Mutation<Doc>[]): Index | ApplyMutationError {
+  let current: Index = index
+  for (const mutation of mutations) {
+    const next: Index | ApplyMutationError = (() => {
+      if (mutation.type === 'create') return createIn(current, mutation)
+      if (mutation.type === 'createIfNotExists')
+        return createIfNotExistsIn(current, mutation)
+      if (mutation.type === 'delete') return deleteIn(current, mutation)
+      if (mutation.type === 'createOrReplace')
+        return createOrReplaceIn(current, mutation)
+      if (mutation.type === 'patch') return patchIn(current, mutation)
+      // @ts-expect-error all cases should be covered
+      return new UnsupportedMutationTypeError({type: mutation.type})
+    })()
+    if (next instanceof Error) return next
+    current = next
+  }
+  return current
 }
 
 export type ToStored<Doc extends SanityDocumentBase> = Doc &
@@ -52,11 +60,14 @@ export type StoredDocument = ToStored<SanityDocumentBase>
 function createIn<
   Index extends DocumentIndex<Doc>,
   Doc extends SanityDocumentBase,
->(index: Index, mutation: CreateMutation<Doc>): Index {
+>(
+  index: Index,
+  mutation: CreateMutation<Doc>,
+): Index | DocumentAlreadyExistsError {
   const document = assignId(mutation.document, nanoid)
 
   if (document._id in index) {
-    throw new Error('Document already exist')
+    return new DocumentAlreadyExistsError({id: document._id})
   }
   return {...index, [document._id]: mutation.document}
 }
@@ -64,9 +75,12 @@ function createIn<
 function createIfNotExistsIn<
   Index extends DocumentIndex<Doc>,
   Doc extends SanityDocumentBase,
->(index: Index, mutation: CreateIfNotExistsMutation<Doc>): Index {
+>(
+  index: Index,
+  mutation: CreateIfNotExistsMutation<Doc>,
+): Index | DocumentIdMissingError {
   if (!hasId(mutation.document)) {
-    throw new Error('Cannot createIfNotExists on document without _id')
+    return new DocumentIdMissingError({operation: 'createIfNotExists'})
   }
   return mutation.document._id in index
     ? index
@@ -76,9 +90,12 @@ function createIfNotExistsIn<
 function createOrReplaceIn<
   Index extends DocumentIndex<Doc>,
   Doc extends SanityDocumentBase,
->(index: Index, mutation: CreateOrReplaceMutation<Doc>): Index {
+>(
+  index: Index,
+  mutation: CreateOrReplaceMutation<Doc>,
+): Index | DocumentIdMissingError {
   if (!hasId(mutation.document)) {
-    throw new Error('Cannot createIfNotExists on document without _id')
+    return new DocumentIdMissingError({operation: 'createOrReplace'})
   }
 
   return {...index, [mutation.document._id]: mutation.document}
@@ -100,12 +117,13 @@ function deleteIn<Index extends DocumentIndex<SanityDocumentBase>>(
 function patchIn<Index extends DocumentIndex<SanityDocumentBase>>(
   index: Index,
   mutation: PatchMutation,
-): Index {
+): Index | DocumentNotFoundError | ApplyPatchMutationError {
   if (!(mutation.id in index)) {
-    throw new Error('Cannot apply patch on nonexistent document')
+    return new DocumentNotFoundError({operation: 'patch'})
   }
   const current = index[mutation.id]!
   const next = applyPatchMutation(mutation, current)
+  if (next instanceof Error) return next
 
   return next === current ? index : {...index, [mutation.id]: next}
 }

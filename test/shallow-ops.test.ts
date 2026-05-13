@@ -12,7 +12,7 @@ import {
   unassign,
   unset,
 } from '../src'
-import {applyOp} from '../src/apply'
+import {applyOp, TypeMismatchError} from '../src/apply'
 
 test('Apply operation on value', () => {
   expect(applyOp(inc(1), 1)).toBe(2)
@@ -55,11 +55,11 @@ test('typings', () => {
   // @ts-expect-error can't pass string as argument to inc()
   applyOp(inc('10'), 10)
   // @ts-expect-error can't increment a string
-  expect(() => applyOp(inc(1), '10')).toThrow(TypeError)
+  expect(applyOp(inc(1), '10')).toBeInstanceOf(TypeMismatchError)
   // @ts-expect-error can't pass string as argument to dec()
   applyOp(dec('10'), 10)
   // @ts-expect-error can't decrement a string
-  expect(() => applyOp(dec(1), '10')).toThrow(TypeError)
+  expect(applyOp(dec(1), '10')).toBeInstanceOf(TypeMismatchError)
 
   expectTypeOf<(string | number)[]>(
     applyOp(insert([1, 2, 3], 'after', 0), ['foo', 'bar']),
@@ -93,8 +93,10 @@ test('typings', () => {
   )
 
   // @ts-expect-error can not apply array operation on object
-  expect(() => applyOp(insert(['a'], 'before', 0), {})).toThrow(TypeError)
+  expect(applyOp(insert(['a'], 'before', 0), {})).toBeInstanceOf(
+    TypeMismatchError,
+  )
 
   // @ts-expect-error can not apply array operation on object
-  expect(() => applyOp(replace(['a'], 0), {})).toThrow(TypeError)
+  expect(applyOp(replace(['a'], 0), {})).toBeInstanceOf(TypeMismatchError)
 })

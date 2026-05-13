@@ -6,13 +6,27 @@ import {
   type SanityDocumentBase,
 } from '../mutations/types'
 import {type Index, type KeyedPathElement, stringify} from '../path'
+import {
+  UnsupportedFormatMutationError,
+  UnsupportedFormatOperationError,
+} from './errors'
 
 export type ItemRef = string | number
 
+export type FormatError =
+  | UnsupportedFormatMutationError
+  | UnsupportedFormatOperationError
+
 export function format<Doc extends SanityDocumentBase>(
   mutations: Mutation[],
-): string {
-  return mutations.flatMap(m => encodeMutation<Doc>(m)).join('\n')
+): string | FormatError {
+  const lines: string[] = []
+  for (const m of mutations) {
+    const encoded = encodeMutation<Doc>(m)
+    if (encoded instanceof Error) return encoded
+    lines.push(encoded)
+  }
+  return lines.join('\n')
 }
 
 function encodeItemRef(ref: Index | KeyedPathElement): ItemRef {
@@ -21,7 +35,7 @@ function encodeItemRef(ref: Index | KeyedPathElement): ItemRef {
 
 function encodeMutation<Doc extends SanityDocumentBase>(
   mutation: Mutation,
-): string {
+): string | FormatError {
   if (
     mutation.type === 'create' ||
     mutation.type === 'createIfNotExists' ||
@@ -34,23 +48,31 @@ function encodeMutation<Doc extends SanityDocumentBase>(
   }
   if (mutation.type === 'patch') {
     const ifRevision = mutation.options?.ifRevision
+    const patchLines: string[] = []
+    for (const nodePatch of mutation.patches) {
+      const encoded = formatPatchMutation(nodePatch)
+      if (encoded instanceof Error) return encoded
+      patchLines.push(`  ${encoded}`)
+    }
     return [
       'patch',
       ' ',
       `id=${mutation.id}`,
       ifRevision ? ` (if revision==${ifRevision})` : '',
       ':\n',
-      mutation.patches
-        .map(nodePatch => `  ${formatPatchMutation(nodePatch)}`)
-        .join('\n'),
+      patchLines.join('\n'),
     ].join('')
   }
 
-  //@ts-expect-error - all cases are covered
-  throw new Error(`Invalid mutation type: ${mutation.type}`)
+  return new UnsupportedFormatMutationError({
+    //@ts-expect-error - all cases are covered
+    type: mutation.type,
+  })
 }
 
-function formatPatchMutation(patch: NodePatch<any>): string {
+function formatPatchMutation(
+  patch: NodePatch<any>,
+): string | UnsupportedFormatOperationError {
   const {op} = patch
   const path = stringify(patch.path)
   if (op.type === 'unset') {
@@ -97,6 +119,8 @@ function formatPatchMutation(patch: NodePatch<any>): string {
   if (op.type === 'remove') {
     return [path, `remove(${encodeItemRef(op.referenceItem)})`].join(': ')
   }
-  // @ts-expect-error all cases are covered
-  throw new Error(`Invalid operation type: ${op.type}`)
+  return new UnsupportedFormatOperationError({
+    // @ts-expect-error all cases are covered
+    type: op.type,
+  })
 }

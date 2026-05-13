@@ -7,7 +7,13 @@ import {
   type NodePatch,
   type SanityDocumentBase,
 } from '../../mutations/types'
+import {type PathParseError} from '../../path/errors'
 import {parse as parsePath} from '../../path/parser/parse'
+import {
+  AmbiguousInsertPositionError,
+  MissingInsertPositionError,
+  UnsupportedDecodeMutationError,
+} from '../errors'
 import {
   type Insert,
   type SanityCreateIfNotExistsMutation,
@@ -95,10 +101,22 @@ function isInsertPatch(
   return 'insert' in sanityPatch
 }
 
+export type SanityDecodeError =
+  | PathParseError
+  | UnsupportedDecodeMutationError
+  | MissingInsertPositionError
+  | AmbiguousInsertPositionError
+
 export function decodeAll<Doc extends SanityDocumentBase>(
   sanityMutations: SanityMutation<Doc>[],
-) {
-  return sanityMutations.map(decodeMutation)
+): Mutation[] | SanityDecodeError {
+  const result: Mutation[] = []
+  for (const m of sanityMutations) {
+    const decoded = decodeMutation(m)
+    if (decoded instanceof Error) return decoded
+    result.push(decoded)
+  }
+  return result
 }
 
 export function decode<Doc extends SanityDocumentBase>(
@@ -109,7 +127,7 @@ export function decode<Doc extends SanityDocumentBase>(
 
 function decodeMutation<Doc extends SanityDocumentBase>(
   encodedMutation: SanityMutation<Doc>,
-): Mutation {
+): Mutation | SanityDecodeError {
   if (isCreateIfNotExistsMutation(encodedMutation)) {
     return {
       type: 'createIfNotExists',
@@ -129,98 +147,137 @@ function decodeMutation<Doc extends SanityDocumentBase>(
     return {id: encodedMutation.delete.id, type: 'delete'}
   }
   if (isPatchMutation(encodedMutation)) {
+    const patches = decodeNodePatches(encodedMutation.patch)
+    if (patches instanceof Error) return patches
     return {
       type: 'patch',
       id: encodedMutation.patch.id,
-      patches: decodeNodePatches(encodedMutation.patch),
+      patches,
     }
   }
-  throw new Error(`Unknown mutation: ${JSON.stringify(encodedMutation)}`)
+  return new UnsupportedDecodeMutationError({
+    reason: `unknown mutation: ${JSON.stringify(encodedMutation)}`,
+  })
 }
 
 const POSITION_KEYS = ['before', 'replace', 'after'] as const
 
-function getInsertPosition(insert: Insert) {
+function getInsertPosition(
+  insert: Insert,
+): (typeof POSITION_KEYS)[number] | AmbiguousInsertPositionError | undefined {
   const positions = POSITION_KEYS.filter(k => k in insert)
   if (positions.length > 1) {
-    throw new Error(
-      `Insert patch is ambiguous. Should only contain one of: ${POSITION_KEYS.join(
-        ', ',
-      )}, instead found ${positions.join(', ')}`,
-    )
+    return new AmbiguousInsertPositionError({found: positions.join(', ')})
   }
   return positions[0]
 }
 
-function decodeNodePatches<T>(patch: SanityPatch): NodePatch<any, any>[] {
+function decodeNodePatches<T>(
+  patch: SanityPatch,
+): NodePatch<any, any>[] | SanityDecodeError {
   // If multiple patches are included, then the order of execution is as follows
   // set, setIfMissing, unset, inc, dec, insert.
   // order is defined here: https://www.sanity.io/docs/http-mutations#2f480b2baca5
-  return [
-    ...getSetPatches(patch),
-    ...getSetIfMissingPatches(patch),
-    ...getUnsetPatches(patch),
-    ...getIncPatches(patch),
-    ...getDecPatches(patch),
-    ...getInsertPatches(patch),
-    ...getDiffMatchPatchPatches(patch),
+  const groups = [
+    getSetPatches(patch),
+    getSetIfMissingPatches(patch),
+    getUnsetPatches(patch),
+    getIncPatches(patch),
+    getDecPatches(patch),
+    getInsertPatches(patch),
+    getDiffMatchPatchPatches(patch),
   ]
+  const result: NodePatch<any, any>[] = []
+  for (const group of groups) {
+    if (group instanceof Error) return group
+    result.push(...group)
+  }
+  return result
 }
 
-function getSetPatches(patch: PatchOperations): NodePatch<any[], SetOp<any>>[] {
-  return isSetPatch(patch)
-    ? Object.keys(patch.set).map(path => ({
-        path: parsePath(path),
-        op: {type: 'set', value: patch.set[path]},
-      }))
-    : []
+function getSetPatches(
+  patch: PatchOperations,
+): NodePatch<any[], SetOp<any>>[] | PathParseError {
+  if (!isSetPatch(patch)) return []
+  const result: NodePatch<any[], SetOp<any>>[] = []
+  for (const path of Object.keys(patch.set)) {
+    const parsed = parsePath(path)
+    if (parsed instanceof Error) return parsed
+    result.push({
+      path: parsed as any[],
+      op: {type: 'set', value: patch.set[path]},
+    })
+  }
+  return result
 }
 
 function getSetIfMissingPatches(
   patch: SanityPatch,
-): NodePatch<any[], SetIfMissingOp<any>>[] {
-  return isSetIfMissingPatch(patch)
-    ? Object.keys(patch.setIfMissing).map(path => ({
-        path: parsePath(path),
-        op: {type: 'setIfMissing', value: patch.setIfMissing[path]},
-      }))
-    : []
+): NodePatch<any[], SetIfMissingOp<any>>[] | PathParseError {
+  if (!isSetIfMissingPatch(patch)) return []
+  const result: NodePatch<any[], SetIfMissingOp<any>>[] = []
+  for (const path of Object.keys(patch.setIfMissing)) {
+    const parsed = parsePath(path)
+    if (parsed instanceof Error) return parsed
+    result.push({
+      path: parsed as any[],
+      op: {type: 'setIfMissing', value: patch.setIfMissing[path]},
+    })
+  }
+  return result
 }
 
 function getDiffMatchPatchPatches(patch: SanityPatch) {
-  return isDiffMatchPatch(patch)
-    ? Object.keys(patch.diffMatchPatch).map(path => ({
-        path: parsePath(path),
-        op: {type: 'diffMatchPatch', value: patch.diffMatchPatch[path]},
-      }))
-    : []
+  if (!isDiffMatchPatch(patch)) return []
+  const result: NodePatch<any, any>[] = []
+  for (const path of Object.keys(patch.diffMatchPatch)) {
+    const parsed = parsePath(path)
+    if (parsed instanceof Error) return parsed
+    result.push({
+      path: parsed as any[],
+      op: {type: 'diffMatchPatch', value: patch.diffMatchPatch[path]},
+    })
+  }
+  return result
 }
 
 function getUnsetPatches(patch: SanityPatch) {
-  return isUnsetPatch(patch)
-    ? patch.unset.map(path => ({
-        path: parsePath(path),
-        op: {type: 'unset'},
-      }))
-    : []
+  if (!isUnsetPatch(patch)) return []
+  const result: NodePatch<any, any>[] = []
+  for (const path of patch.unset) {
+    const parsed = parsePath(path)
+    if (parsed instanceof Error) return parsed
+    result.push({path: parsed as any[], op: {type: 'unset'}})
+  }
+  return result
 }
 
 function getIncPatches(patch: SanityPatch) {
-  return isIncPatch(patch)
-    ? Object.keys(patch.inc).map(path => ({
-        path: parsePath(path),
-        op: {type: 'inc', amount: patch.inc[path]},
-      }))
-    : []
+  if (!isIncPatch(patch)) return []
+  const result: NodePatch<any, any>[] = []
+  for (const path of Object.keys(patch.inc)) {
+    const parsed = parsePath(path)
+    if (parsed instanceof Error) return parsed
+    result.push({
+      path: parsed as any[],
+      op: {type: 'inc', amount: patch.inc[path]},
+    })
+  }
+  return result
 }
 
 function getDecPatches(patch: SanityPatch) {
-  return isDecPatch(patch)
-    ? Object.keys(patch.dec).map(path => ({
-        path: parsePath(path),
-        op: {type: 'dec', amount: patch.dec[path]},
-      }))
-    : []
+  if (!isDecPatch(patch)) return []
+  const result: NodePatch<any, any>[] = []
+  for (const path of Object.keys(patch.dec)) {
+    const parsed = parsePath(path)
+    if (parsed instanceof Error) return parsed
+    result.push({
+      path: parsed as any[],
+      op: {type: 'dec', amount: patch.dec[path]},
+    })
+  }
+  return result
 }
 
 function getInsertPatches(patch: SanityPatch) {
@@ -228,11 +285,14 @@ function getInsertPatches(patch: SanityPatch) {
     return []
   }
   const position = getInsertPosition(patch.insert)
+  if (position instanceof Error) return position
   if (!position) {
-    throw new Error('Insert patch missing position')
+    return new MissingInsertPositionError()
   }
 
-  const path: string[] = parsePath((patch.insert as any)[position]!)
+  const parsed = parsePath((patch.insert as any)[position]!)
+  if (parsed instanceof Error) return parsed
+  const path = parsed as string[]
   const referenceItem = path.pop()
 
   const op =

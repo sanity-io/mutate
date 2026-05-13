@@ -1,4 +1,9 @@
 import {type Mutation, type SanityDocumentBase} from '../../mutations/types'
+import {
+  ApplyMutationFailedError,
+  DocumentIdMissingFromMutationError,
+  type UnknownMutationTypeError,
+} from '../errors'
 import {type DocumentMap} from '../types'
 import {getMutationDocumentId} from '../utils/getMutationDocumentId'
 import {applyDocumentMutation} from './applyDocumentMutation'
@@ -11,6 +16,11 @@ export interface UpdateResult<T extends SanityDocumentBase> {
   mutations: Mutation[]
 }
 
+export type ApplyMutationsError =
+  | DocumentIdMissingFromMutationError
+  | ApplyMutationFailedError
+  | UnknownMutationTypeError
+
 /**
  * Takes a list of mutations and applies them to documents in a documentMap
  */
@@ -21,7 +31,7 @@ export function applyMutations<T extends SanityDocumentBase>(
    * note: should never be set client side – only for test purposes
    */
   transactionId?: never,
-): UpdateResult<T>[] {
+): UpdateResult<T>[] | ApplyMutationsError {
   const updatedDocs: Record<
     string,
     {
@@ -33,14 +43,15 @@ export function applyMutations<T extends SanityDocumentBase>(
 
   for (const mutation of mutations) {
     const documentId = getMutationDocumentId(mutation)
+    if (documentId instanceof Error) return documentId
     if (!documentId) {
-      throw new Error('Unable to get document id from mutation')
+      return new DocumentIdMissingFromMutationError()
     }
 
     const before = updatedDocs[documentId]?.after || documentMap.get(documentId)
     const res = applyDocumentMutation(before, mutation)
     if (res.status === 'error') {
-      throw new Error(res.message)
+      return new ApplyMutationFailedError({reason: res.message})
     }
     if (res.status === 'noop') {
       continue

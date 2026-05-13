@@ -1,3 +1,5 @@
+import {UnknownMutationTypeError} from '../errors'
+
 type MutationLike =
   | {type: 'patch'; id: string}
   | {type: 'create'; document: {_id: string}}
@@ -5,7 +7,9 @@ type MutationLike =
   | {type: 'createIfNotExists'; document: {_id: string}}
   | {type: 'createOrReplace'; document: {_id: string}}
 
-export function getMutationDocumentId(mutation: MutationLike): string {
+export function getMutationDocumentId(
+  mutation: MutationLike,
+): string | UnknownMutationTypeError {
   if (mutation.type === 'patch') {
     return mutation.id
   }
@@ -21,5 +25,5 @@ export function getMutationDocumentId(mutation: MutationLike): string {
   if (mutation.type === 'createOrReplace') {
     return mutation.document._id
   }
-  throw new Error('Invalid mutation type')
+  return new UnknownMutationTypeError({type: (mutation as any).type})
 }

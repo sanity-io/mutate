@@ -65,7 +65,7 @@ test('patch set', () => {
 
 test('patch unset', () => {
   const current = [{_id: 'foo', _type: 'test', hello: 'hi'}]
-  const mutations = [patch('foo', at('hello', unset()))]
+  const mutations = [patch('foo', at(['hello'], unset()))]
   expect(applyInCollection(current, mutations)).toEqual([
     {
       _id: 'foo',

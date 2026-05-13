@@ -13,12 +13,15 @@ const result = applyInCollection(
   [
     patch(
       'some-document',
-      at('array', upsert([{_key: 'existing', value: 'updated'}], 'after', -1)),
+      at(
+        ['array'],
+        upsert([{_key: 'existing', value: 'updated'}], 'after', -1),
+      ),
     ),
     patch(
       'some-document',
       at(
-        'array',
+        ['array'],
         upsert([{_key: 'nonexisting', value: 'not exists'}], 'after', {
           _key: 'existing',
         }),
@@ -26,5 +29,6 @@ const result = applyInCollection(
     ),
   ],
 )
+if (result instanceof Error) throw result
 
 console.log(result[0])

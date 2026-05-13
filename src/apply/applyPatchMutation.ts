@@ -1,5 +1,10 @@
 import {type PatchMutation, type SanityDocumentBase} from '../mutations/types'
 import {type NormalizeReadOnlyArray} from '../utils/typeUtils'
+import {
+  type ApplyPatchError,
+  DocumentIdMismatchError,
+  RevisionMismatchError,
+} from './errors'
 import {applyPatches} from './patch/applyNodePatch'
 import {type ApplyPatches} from './patch/typings/applyNodePatch'
 
@@ -11,20 +16,32 @@ export type ApplyPatchMutation<
     ? ApplyPatches<NormalizeReadOnlyArray<Patches>, Doc>
     : Doc
 
+export type ApplyPatchMutationError =
+  | RevisionMismatchError
+  | DocumentIdMismatchError
+  | ApplyPatchError
+
 export function applyPatchMutation<
   const Mutation extends PatchMutation,
   const Doc extends SanityDocumentBase,
->(mutation: Mutation, document: Doc): ApplyPatchMutation<Mutation, Doc> {
+>(
+  mutation: Mutation,
+  document: Doc,
+): ApplyPatchMutation<Mutation, Doc> | ApplyPatchMutationError {
   if (
     mutation.options?.ifRevision &&
     document._rev !== mutation.options.ifRevision
   ) {
-    throw new Error('Revision mismatch')
+    return new RevisionMismatchError({
+      expected: mutation.options.ifRevision,
+      actual: document._rev ?? 'undefined',
+    })
   }
   if (mutation.id !== document._id) {
-    throw new Error(
-      `Document id mismatch. Refusing to apply mutation for document with id="${mutation.id}" on the given document with id="${document._id}"`,
-    )
+    return new DocumentIdMismatchError({
+      mutationId: mutation.id,
+      documentId: document._id ?? 'undefined',
+    })
   }
   return applyPatches(mutation.patches, document) as any
 }

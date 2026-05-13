@@ -13,18 +13,19 @@ const document = {
 } as const
 
 const patches = [
-  at('arr', insert([2], 'before', 1)),
-  at('arr', insert([5], 'after', -1)),
-  at('objects', insert([{_key: 'second', title: 'second'}], 'after', 0)),
-  at('foo', set('ok')),
-  at('bar', set('something')),
-  at('counter', inc(1)),
-  at('x', setIfMissing({_type: 'test'})),
-  at('x.foo', setIfMissing('bar')),
-  at('objects[_key=="second"].title', set('Updated')),
+  at(['arr'], insert([2], 'before', 1)),
+  at(['arr'], insert([5], 'after', -1)),
+  at(['objects'], insert([{_key: 'second', title: 'second'}], 'after', 0)),
+  at(['foo'], set('ok')),
+  at(['bar'], set('something')),
+  at(['counter'], inc(1)),
+  at(['x'], setIfMissing({_type: 'test'})),
+  at(['x', 'foo'], setIfMissing('bar')),
+  at(['objects', {_key: 'second'}, 'title'], set('Updated')),
 ] as const
 
 const result = applyPatches(patches, document)
+if (result instanceof Error) throw result
 
 const third = result.objects[2]
 // console.log(third)

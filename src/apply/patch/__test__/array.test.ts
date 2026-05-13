@@ -1,6 +1,7 @@
 import {expect, test} from 'vitest'
 
 import {insert, remove, replace} from '../../../mutations/operations/creators'
+import {MissingArrayItemError} from '../../errors'
 import {applyOp} from '../applyOp'
 
 test('replace on item', () => {
@@ -18,7 +19,9 @@ test('replace on index 0 and -1 of empty array', () => {
 })
 
 test('replace out of range', () => {
-  expect(() => applyOp(replace('three', 2), ['one', 'two'])).toThrow()
+  expect(applyOp(replace('three', 2), ['one', 'two'])).toBeInstanceOf(
+    MissingArrayItemError,
+  )
 })
 
 test('replace with multiple values', () => {
@@ -74,8 +77,12 @@ test('insert into empty arrays and arrays with a single item', () => {
   ])
 
   // out of bounds on empty arrays
-  expect(() => applyOp(insert(['one', 'two'], 'before', -2), [])).toThrow()
-  expect(() => applyOp(insert(['one', 'two'], 'before', 1), [])).toThrow()
+  expect(applyOp(insert(['one', 'two'], 'before', -2), [])).toBeInstanceOf(
+    MissingArrayItemError,
+  )
+  expect(applyOp(insert(['one', 'two'], 'before', 1), [])).toBeInstanceOf(
+    MissingArrayItemError,
+  )
 
   // insert before first element
   expect(
@@ -121,12 +128,24 @@ test('insert out of bounds', () => {
   expect(applyOp(insert(['INSERT!'], 'before', 0), [])).toEqual(['INSERT!'])
   expect(applyOp(insert(['INSERT!'], 'before', -1), [])).toEqual(['INSERT!'])
 
-  expect(() => applyOp(insert(['INSERT!'], 'after', 1), [])).toThrow()
-  expect(() => applyOp(insert(['INSERT!'], 'before', 1), [])).toThrow()
-  expect(() => applyOp(insert(['INSERT!'], 'after', -2), [])).toThrow()
-  expect(() => applyOp(insert(['INSERT!'], 'before', -2), [])).toThrow()
-  expect(() => applyOp(insert(['INSERT!'], 'before', 2), [])).toThrow()
-  expect(() => applyOp(insert(['INSERT!'], 'after', 2), [])).toThrow()
+  expect(applyOp(insert(['INSERT!'], 'after', 1), [])).toBeInstanceOf(
+    MissingArrayItemError,
+  )
+  expect(applyOp(insert(['INSERT!'], 'before', 1), [])).toBeInstanceOf(
+    MissingArrayItemError,
+  )
+  expect(applyOp(insert(['INSERT!'], 'after', -2), [])).toBeInstanceOf(
+    MissingArrayItemError,
+  )
+  expect(applyOp(insert(['INSERT!'], 'before', -2), [])).toBeInstanceOf(
+    MissingArrayItemError,
+  )
+  expect(applyOp(insert(['INSERT!'], 'before', 2), [])).toBeInstanceOf(
+    MissingArrayItemError,
+  )
+  expect(applyOp(insert(['INSERT!'], 'after', 2), [])).toBeInstanceOf(
+    MissingArrayItemError,
+  )
 })
 
 // // arrays with single items
@@ -147,9 +166,9 @@ test('insert relative to keyed path elements', () => {
 })
 
 test('insert relative to nonexisting keyed path elements', () => {
-  expect(() =>
+  expect(
     applyOp(insert(['INSERT!'], 'after', {_key: 'foo'}), []),
-  ).toThrow()
+  ).toBeInstanceOf(MissingArrayItemError)
 })
 
 test('remove item at key', () => {

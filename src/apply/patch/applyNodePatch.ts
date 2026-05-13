@@ -4,6 +4,7 @@ import {isArrayElement, isPropertyElement, stringify} from '../../path'
 import {isObject} from '../../utils/isObject'
 import {type NormalizeReadOnlyArray} from '../../utils/typeUtils'
 import {type KeyedPathElement, type Path} from '../'
+import {type ApplyPatchError, InvalidPathError} from '../errors'
 import {findTargetIndex, splice} from '../utils/array'
 import {omit} from '../utils/omit'
 import {applyOp} from './applyOp'
@@ -16,17 +17,19 @@ import {
 export function applyPatches<Patches extends NodePatchList, const Doc>(
   patches: Patches,
   document: Doc,
-): ApplyPatches<NormalizeReadOnlyArray<Patches>, Doc> {
-  return (patches as NodePatch[]).reduce(
-    (prev, patch) => applyNodePatch(patch, prev) as any,
-    document,
-  ) as any
+): ApplyPatches<NormalizeReadOnlyArray<Patches>, Doc> | ApplyPatchError {
+  let result: any = document
+  for (const patch of patches as NodePatch[]) {
+    result = applyNodePatch(patch, result)
+    if (result instanceof Error) return result as ApplyPatchError
+  }
+  return result
 }
 
 export function applyNodePatch<const Patch extends NodePatch, const Doc>(
   patch: Patch,
   document: Doc,
-): ApplyNodePatch<Patch, Doc> {
+): ApplyNodePatch<Patch, Doc> | ApplyPatchError {
   return applyAtPath(patch.path, patch.op, document) as any
 }
 
@@ -34,7 +37,7 @@ function applyAtPath<P extends Path, O extends Operation, T>(
   path: P,
   op: O,
   value: T,
-): ApplyAtPath<P, O, T> {
+): ApplyAtPath<P, O, T> | ApplyPatchError {
   if (!isNonEmptyArray(path)) {
     return applyOp(op as any, value) as any
   }
@@ -49,11 +52,11 @@ function applyAtPath<P extends Path, O extends Operation, T>(
     return applyInObject(head, tail, op, value) as any
   }
 
-  throw new Error(
-    `Cannot apply operation of type "${op.type}" to path ${stringify(
-      path,
-    )} on ${typeof value} value`,
-  )
+  return new InvalidPathError({
+    operation: op.type,
+    path: stringify(path),
+    valueType: typeof value,
+  })
 }
 
 function applyInObject<Key extends keyof any, T extends {[key in Key]?: any}>(
@@ -71,6 +74,7 @@ function applyInObject<Key extends keyof any, T extends {[key in Key]?: any}>(
   // The patch targets the item at the index specified by "head"
   // so forward it to the item
   const patchedValue = applyAtPath(tail, op, current)
+  if (patchedValue instanceof Error) return patchedValue
 
   if (patchedValue === undefined) {
     // unset op on an object field should not leave the field undefined
@@ -92,6 +96,7 @@ function applyInArray<T>(
   value: T[],
 ) {
   const index = findTargetIndex(value, head!)
+  if (index instanceof Error) return index
 
   if (index === null) {
     // partial is default behavior for arrays
@@ -109,6 +114,7 @@ function applyInArray<T>(
   // The patch targets the item at the index specified by "head"
   // so forward it to the item
   const patchedItem = applyAtPath(tail, op, current)
+  if (patchedItem instanceof Error) return patchedItem
 
   // If the result of applying it to the item yields the item back we assume it was
   // a noop and don't modify our value. If we get a new value back, we return a

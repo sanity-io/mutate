@@ -1,3 +1,4 @@
+import {type ApplyPatchError} from '../../../apply'
 import {
   type Mutation,
   type NodePatch,
@@ -13,32 +14,46 @@ export interface DataStore {
 export function squashDMPStrings(
   base: DataStore,
   mutationGroups: MutationGroup[],
-): MutationGroup[] {
-  return mutationGroups.map(mutationGroup => ({
-    ...mutationGroup,
-    mutations: dmpIfyMutations(base, mutationGroup.mutations),
-  }))
+): MutationGroup[] | ApplyPatchError {
+  const result: MutationGroup[] = []
+  for (const mutationGroup of mutationGroups) {
+    const mutations = dmpIfyMutations(base, mutationGroup.mutations)
+    if (mutations instanceof Error) return mutations
+    result.push({...mutationGroup, mutations})
+  }
+  return result
 }
 
 export function dmpIfyMutations(
   store: DataStore,
   mutations: Mutation[],
-): Mutation[] {
-  return mutations.map((mutation, i) => {
+): Mutation[] | ApplyPatchError {
+  const result: Mutation[] = []
+  for (const mutation of mutations) {
     if (mutation.type !== 'patch') {
-      return mutation
+      result.push(mutation)
+      continue
     }
     const base = store.get(mutation.id)
-    return base ? dmpifyPatchMutation(base, mutation) : mutation
-  })
+    if (!base) {
+      result.push(mutation)
+      continue
+    }
+    const dmp = dmpifyPatchMutation(base, mutation)
+    if (dmp instanceof Error) return dmp
+    result.push(dmp)
+  }
+  return result
 }
 
 export function dmpifyPatchMutation(
   base: SanityDocumentBase,
   mutation: PatchMutation,
-): PatchMutation {
+): PatchMutation | ApplyPatchError {
+  const patches = compactDMPSetPatches(base, mutation.patches as NodePatch[])
+  if (patches instanceof Error) return patches
   return {
     ...mutation,
-    patches: compactDMPSetPatches(base, mutation.patches as NodePatch[]),
+    patches,
   }
 }

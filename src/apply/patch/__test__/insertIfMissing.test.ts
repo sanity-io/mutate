@@ -96,14 +96,13 @@ test('insertIfMissing when items exist', () => {
 
 test('insert relative to nonexisting keyed path elements', () => {
   const arr = [{_key: 'foo', value: 'foo'}]
-  expect(() =>
-    applyOp(
-      insertIfMissing([{_key: 'hello', value: 'bar'}], 'before', {
-        _key: 'doesntexist',
-      }),
-      arr,
-    ),
-  ).toThrowErrorMatchingInlineSnapshot(
-    `[Error: Found no matching array element to insert before]`,
+  const result = applyOp(
+    insertIfMissing([{_key: 'hello', value: 'bar'}], 'before', {
+      _key: 'doesntexist',
+    }),
+    arr,
+  )
+  expect(result).toMatchInlineSnapshot(
+    `[MissingArrayItemError: Found no matching array element to insert before]`,
   )
 })

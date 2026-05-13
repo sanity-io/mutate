@@ -74,3 +74,24 @@ The package exports four distinct entry points, each backed by a `src/_*.ts` shi
 - Test files live next to source under `__test__/` or `__tests__/` directories (both naming styles exist; match the surrounding directory).
 - Releases are managed by **release-please** (`.release-please-manifest.json`, `release-please-config.json`); don't hand-edit `CHANGELOG.md` or bump `version` in `package.json`.
 - The `pnpm-workspace.yaml` sets a `minimumReleaseAge` for dependencies (with `@sanity/*`, `groq-js`, and `react-multiplayer-input` excluded as first-party / owned packages) — fresh third-party dependency versions will be rejected by pnpm install until they age. Never add to `minimumReleaseAgeExclude` without explicit approval.
+
+### Error handling
+
+This codebase uses the [**errore**](https://github.com/remorses/errore) convention: errors are values, not exceptions. Read `node_modules/errore/skills/errore/SKILL.md` before writing or reviewing any code that handles errors — it is the authoritative spec.
+
+Core rules (the ones most easily violated):
+
+- **Bare `Error | T` unions, no `Result<T, E>` wrapper.** Discriminate with `instanceof Error`.
+- **`import * as errore from 'errore'`** — namespace import only, never destructure.
+- **Never `throw` for expected failures.** Throws are reserved for invariant violations and exhaustiveness defaults — i.e. panics. Operational failures return tagged errors.
+- **Never reject Promises.** Functions return `Promise<Error | T>`. `.catch((e) => new MyError({cause: e}))` lives only at the lowest boundary with third-party throwing code.
+- **Define tagged errors with `errore.createTaggedError`** — gives `_tag`, `$variable` message interpolation, `cause`, `findCause`, `toJSON`, fingerprinting, and a static `.is()` guard.
+- **Success types must never extend `Error`.** If they do, `Error | T` collapses and `instanceof Error` matches both sides. This is the single biggest trap. Listener events are emitted as `MutationEvent | DisconnectError | ChannelError | …` — none of the event types extend `Error`.
+- **Co-locate error classes per domain** — `src/path/errors.ts`, `src/apply/errors.ts`, `src/store/listeners/errors.ts`, etc. No central taxonomy module.
+
+#### RxJS extension (project-specific — errore's skill doesn't cover Observables)
+
+- **The RxJS `error` channel is reserved for panics** — same rule as `throw`. An Observable that errors operationally is a bug.
+- **Translate at the boundary.** Adapt throwing sources with `catchError(e => of(new SomeError({cause: e})))` at the lowest operator chain. After that, every downstream operator handles `T | E`. Inline `instanceof Error` checks in `map`/`filter` are fine for one-offs; lift to internal helpers in `src/store/utils/rxOk.ts` only when duplication is real.
+- **Never use RxJS `retry`/`retryWhen`.** They operate on the error channel, which we've reserved for panics. When retry is genuinely needed, implement it as `retryWhile(predicate)` over `T | E` values. Don't build it speculatively — wait for a real call site.
+- **xstate machine** already represents errors as context + state transitions; preserve that. Promise actors must return errore values, not throw; the machine transitions on the value.

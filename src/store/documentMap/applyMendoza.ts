@@ -1,6 +1,10 @@
 import {applyPatch, type RawPatch} from 'mendoza'
 
 import {type SanityDocumentBase} from '../../mutations/types'
+import {
+  MendozaMissingEffectsError,
+  MendozaRevisionMismatchError,
+} from '../errors'
 
 function omitRev(document: SanityDocumentBase | undefined) {
   if (document === undefined) {
@@ -14,11 +18,9 @@ export function applyMendozaPatch(
   document: SanityDocumentBase | undefined,
   patch: RawPatch,
   patchBaseRev?: string,
-): SanityDocumentBase | undefined {
+): SanityDocumentBase | undefined | MendozaRevisionMismatchError {
   if (patchBaseRev !== document?._rev) {
-    throw new Error(
-      'Invalid document revision. The provided patch is calculated from a different revision than the current document',
-    )
+    return new MendozaRevisionMismatchError()
   }
   const next = applyPatch(omitRev(document), patch)
   return next === null ? undefined : next
@@ -27,17 +29,20 @@ export function applyMendozaPatch(
 export function applyMutationEventEffects(
   document: SanityDocumentBase | undefined,
   event: {effects: {apply: RawPatch}; previousRev?: string; resultRev?: string},
-) {
+):
+  | SanityDocumentBase
+  | undefined
+  | MendozaMissingEffectsError
+  | MendozaRevisionMismatchError {
   if (!event.effects) {
-    throw new Error(
-      'Mutation event is missing effects. Is the listener set up with effectFormat=mendoza?',
-    )
+    return new MendozaMissingEffectsError()
   }
   const next = applyMendozaPatch(
     document,
     event.effects.apply,
     event.previousRev,
   )
+  if (next instanceof Error) return next
   // next will be undefined in case of deletion
   return next ? {...next, _rev: event.resultRev} : undefined
 }

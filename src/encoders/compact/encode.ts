@@ -7,15 +7,29 @@ import {
 import {type Index, type KeyedPathElement} from '../../path'
 import {stringify as stringifyPath} from '../../path/parser/stringify'
 import {
+  UnsupportedEncodeMutationError,
+  UnsupportedEncodeOperationError,
+} from '../errors'
+import {
   type CompactMutation,
   type CompactPatchMutation,
   type ItemRef,
 } from './types'
 
+export type CompactEncodeError =
+  | UnsupportedEncodeMutationError
+  | UnsupportedEncodeOperationError
+
 export function encode<Doc extends SanityDocumentBase>(
   mutations: Mutation[],
-): CompactMutation<Doc>[] {
-  return mutations.flatMap(m => encodeMutation<Doc>(m))
+): CompactMutation<Doc>[] | CompactEncodeError {
+  const result: CompactMutation<Doc>[] = []
+  for (const m of mutations) {
+    const encoded = encodeMutation<Doc>(m)
+    if (encoded instanceof Error) return encoded
+    result.push(...encoded)
+  }
+  return result
 }
 
 function encodeItemRef(ref: Index | KeyedPathElement): ItemRef {
@@ -24,7 +38,7 @@ function encodeItemRef(ref: Index | KeyedPathElement): ItemRef {
 
 function encodeMutation<Doc extends SanityDocumentBase>(
   mutation: Mutation,
-): CompactMutation<Doc>[] {
+): CompactMutation<Doc>[] | CompactEncodeError {
   if (
     mutation.type === 'create' ||
     mutation.type === 'createIfNotExists' ||
@@ -36,22 +50,25 @@ function encodeMutation<Doc extends SanityDocumentBase>(
     return [['delete', mutation.id]]
   }
   if (mutation.type === 'patch') {
-    return mutation.patches.map(patch =>
-      maybeAddRevision(
-        mutation.options?.ifRevision,
-        encodePatchMutation(mutation.id, patch),
-      ),
-    )
+    const result: CompactMutation<Doc>[] = []
+    for (const patch of mutation.patches) {
+      const encoded = encodePatchMutation(mutation.id, patch)
+      if (encoded instanceof Error) return encoded
+      result.push(maybeAddRevision(mutation.options?.ifRevision, encoded))
+    }
+    return result
   }
 
-  //@ts-expect-error - all cases are covered
-  throw new Error(`Invalid mutation type: ${mutation.type}`)
+  return new UnsupportedEncodeMutationError({
+    //@ts-expect-error - all cases are covered
+    type: mutation.type,
+  })
 }
 
 function encodePatchMutation(
   id: string,
   patch: NodePatch<any>,
-): CompactPatchMutation {
+): CompactPatchMutation | UnsupportedEncodeOperationError {
   const {op} = patch
   const path = stringifyPath(patch.path)
   if (op.type === 'unset') {
@@ -117,8 +134,10 @@ function encodePatchMutation(
   if (op.type === 'remove') {
     return ['patch', 'remove', id, path, [encodeItemRef(op.referenceItem)]]
   }
-  // @ts-expect-error all cases are covered
-  throw new Error(`Invalid operation type: ${op.type}`)
+  return new UnsupportedEncodeOperationError({
+    // @ts-expect-error all cases are covered
+    type: op.type,
+  })
 }
 
 function maybeAddRevision<T extends CompactPatchMutation>(

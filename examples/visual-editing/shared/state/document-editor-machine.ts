@@ -112,6 +112,7 @@ export function defineDocumentEditorMachine<
           localDataset.set(context.documentId, context.local)
           // Apply mutations to local dataset (note: this is immutable, and doesn't change the dataset)
           const results = applyMutations(mutations, localDataset)
+          if (results instanceof Error) throw results
           // Write the updated results back to the "local" dataset
           commit(results, localDataset)
           return localDataset.get(context.documentId) || null
@@ -241,7 +242,7 @@ export function defineDocumentEditorMachine<
                 )
               }
 
-              const [stagedChanges, local] = rebase(
+              const rebased = rebase(
                 context.documentId,
                 // It's annoying to convert between null and undefined, reach consensus
                 previousRemote === null ? undefined : previousRemote,
@@ -250,6 +251,8 @@ export function defineDocumentEditorMachine<
                   : (nextRemote as unknown as any),
                 context.stagedChanges,
               )
+              if (rebased instanceof Error) throw rebased
+              const [stagedChanges, local] = rebased
 
               return {
                 remote: nextRemote as unknown as any,
@@ -316,7 +319,7 @@ export function defineDocumentEditorMachine<
                   )
                 : context.remote
 
-              const [stagedChanges, local] = rebase(
+              const rebased = rebase(
                 context.documentId,
                 // It's annoying to convert between null and undefined, reach consensus
                 previousRemote === null ? undefined : previousRemote,
@@ -325,6 +328,8 @@ export function defineDocumentEditorMachine<
                   : (nextRemote as unknown as any),
                 context.stagedChanges,
               )
+              if (rebased instanceof Error) throw rebased
+              const [stagedChanges, local] = rebased
 
               return {
                 remote: nextRemote as unknown as any,
@@ -361,14 +366,14 @@ export function defineDocumentEditorMachine<
                 // @TODO perhaps separate utils to be lower level and operate on single documents at a time instead of expecting a local dataset
                 const remoteDataset = new Map()
                 remoteDataset.set(context.documentId, context.remote)
+                // Squashing DMP strings is the last thing we do before submitting
+                const squashed = squashDMPStrings(
+                  remoteDataset,
+                  squashMutationGroups(context.stagedChanges),
+                )
+                if (squashed instanceof Error) throw squashed
                 return {
-                  transactions: toTransactions(
-                    // Squashing DMP strings is the last thing we do before submitting
-                    squashDMPStrings(
-                      remoteDataset,
-                      squashMutationGroups(context.stagedChanges),
-                    ),
-                  ),
+                  transactions: toTransactions(squashed),
                 }
               },
 

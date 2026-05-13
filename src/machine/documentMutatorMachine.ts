@@ -172,13 +172,16 @@ export const documentMutatorMachine = setup({
           context.cache.set(context.id, nextRemote as unknown as any)
         }
 
-        const [stagedChanges, local] = rebase(
+        // TODO Phase 5: surface rebase error as a machine event/state
+        const rebased = rebase(
           context.id,
           // It's annoying to convert between null and undefined, reach consensus
           previousRemote === null ? undefined : previousRemote,
           nextRemote === null ? undefined : (nextRemote as unknown as any),
           context.stagedChanges,
         )
+        if (rebased instanceof Error) throw rebased
+        const [stagedChanges, local] = rebased
 
         return {
           remote: nextRemote as unknown as any,
@@ -221,13 +224,16 @@ export const documentMutatorMachine = setup({
         context.cache.set(context.id, nextRemote as unknown as any)
       }
 
-      const [stagedChanges, local] = rebase(
+      // TODO Phase 5: surface rebase error as a machine event/state
+      const rebased = rebase(
         context.id,
         // It's annoying to convert between null and undefined, reach consensus
         previousRemote === null ? undefined : previousRemote,
         nextRemote === null ? undefined : (nextRemote as unknown as any),
         context.stagedChanges,
       )
+      if (rebased instanceof Error) throw rebased
+      const [stagedChanges, local] = rebased
 
       return {
         remote: nextRemote as unknown as any,
@@ -278,6 +284,8 @@ export const documentMutatorMachine = setup({
           }
           // Apply mutations to local dataset (note: this is immutable, and doesn't change the dataset)
           const results = applyMutations(event.mutations, localDataset)
+          // TODO Phase 5: surface applyMutations error as a machine event/state
+          if (results instanceof Error) throw results
           // Write the updated results back to the "local" dataset
           commit(results, localDataset)
           // Read the result from the local dataset again
@@ -534,15 +542,15 @@ export const documentMutatorMachine = setup({
                   // @TODO perhaps separate utils to be lower level and operate on single documents at a time instead of expecting a local dataset
                   const remoteDataset = new Map()
                   remoteDataset.set(context.id, context.remote)
+                  // TODO Phase 5: surface squashDMPStrings error as a machine event/state
+                  const squashed = squashDMPStrings(
+                    remoteDataset,
+                    squashMutationGroups(context.stagedChanges),
+                  )
+                  if (squashed instanceof Error) throw squashed
                   return {
                     client: context.client,
-                    transactions: toTransactions(
-                      // Squashing DMP strings is the last thing we do before submitting
-                      squashDMPStrings(
-                        remoteDataset,
-                        squashMutationGroups(context.stagedChanges),
-                      ),
-                    ),
+                    transactions: toTransactions(squashed),
                   }
                 },
                 onError: {

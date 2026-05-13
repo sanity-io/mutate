@@ -46,10 +46,10 @@ test('decode()', () => {
     },
   ]
   expect(decodeAll(encoded)).toEqual([
-    patch('cat', [at('title', set('hello world'))]),
-    patch('cat', [at('title', unset())]),
-    patch('cat', [at('hello', unset())]),
-    patch('cat', [at('breed', set('forest cat'))]),
-    patch('dog', [at('characteristics', insert(['furry'], 'after', -1))]),
+    patch('cat', [at(['title'], set('hello world'))]),
+    patch('cat', [at(['title'], unset())]),
+    patch('cat', [at(['hello'], unset())]),
+    patch('cat', [at(['breed'], set('forest cat'))]),
+    patch('dog', [at(['characteristics'], insert(['furry'], 'after', -1))]),
   ])
 })

@@ -1,6 +1,7 @@
 export * from './applyInCollection'
 export * from './applyInIndex'
 export * from './applyPatchMutation'
+export * from './errors'
 export * from './patch/applyNodePatch'
 export * from './patch/applyOp'
 export * from './store'

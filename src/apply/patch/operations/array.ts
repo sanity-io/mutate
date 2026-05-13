@@ -8,6 +8,7 @@ import {
   type TruncateOp,
   type UpsertOp,
 } from '../../../mutations/operations/types'
+import {MissingArrayItemError, TypeMismatchError} from '../../errors'
 import {findTargetIndex, getTargetIdx, splice} from '../../utils/array'
 
 export function insert<
@@ -15,12 +16,17 @@ export function insert<
   CurrentValue extends unknown[],
 >(op: O, currentValue: CurrentValue) {
   if (!Array.isArray(currentValue)) {
-    throw new TypeError('Cannot apply "insert()" on non-array value')
+    return new TypeMismatchError({
+      operation: 'insert',
+      expectedType: 'array',
+      actualType: typeof currentValue,
+    })
   }
 
   const index = findTargetIndex(currentValue, op.referenceItem)
+  if (index instanceof Error) return index
   if (index === null) {
-    throw new Error(`Found no matching array element to insert ${op.position}`)
+    return new MissingArrayItemError({operation: `insert ${op.position}`})
   }
   // special case for empty arrays
   if (currentValue.length === 0) {
@@ -34,7 +40,11 @@ export function upsert<
   CurrentValue extends unknown[],
 >(op: O, currentValue: CurrentValue) {
   if (!Array.isArray(currentValue)) {
-    throw new TypeError('Cannot apply "upsert()" on non-array value')
+    return new TypeMismatchError({
+      operation: 'upsert',
+      expectedType: 'array',
+      actualType: typeof currentValue,
+    })
   }
 
   if (op.items.length === 0) {
@@ -85,7 +95,11 @@ export function insertIfMissing<
   CurrentValue extends unknown[],
 >(op: O, currentValue: CurrentValue) {
   if (!Array.isArray(currentValue)) {
-    throw new TypeError('Cannot apply "insertIfMissing()" on non-array value')
+    return new TypeMismatchError({
+      operation: 'insertIfMissing',
+      expectedType: 'array',
+      actualType: typeof currentValue,
+    })
   }
 
   if (op.items.length === 0) {
@@ -117,12 +131,17 @@ export function replace<
   CurrentValue extends unknown[],
 >(op: O, currentValue: CurrentValue) {
   if (!Array.isArray(currentValue)) {
-    throw new TypeError('Cannot apply "replace()" on non-array value')
+    return new TypeMismatchError({
+      operation: 'replace',
+      expectedType: 'array',
+      actualType: typeof currentValue,
+    })
   }
 
   const index = findTargetIndex(currentValue, op.referenceItem)
+  if (index instanceof Error) return index
   if (index === null) {
-    throw new Error(`Found no matching array element to replace`)
+    return new MissingArrayItemError({operation: 'replace'})
   }
   return splice(currentValue, index, op.items.length, op.items)
 }
@@ -131,12 +150,17 @@ export function remove<
   CurrentValue extends unknown[],
 >(op: O, currentValue: CurrentValue) {
   if (!Array.isArray(currentValue)) {
-    throw new TypeError('Cannot apply "remove()" on non-array value')
+    return new TypeMismatchError({
+      operation: 'remove',
+      expectedType: 'array',
+      actualType: typeof currentValue,
+    })
   }
 
   const index = findTargetIndex(currentValue, op.referenceItem)
+  if (index instanceof Error) return index
   if (index === null) {
-    throw new Error(`Found no matching array element to replace`)
+    return new MissingArrayItemError({operation: 'remove'})
   }
   return splice(currentValue, index, 1, [])
 }
@@ -146,7 +170,11 @@ export function truncate<O extends TruncateOp, CurrentValue extends unknown[]>(
   currentValue: CurrentValue,
 ) {
   if (!Array.isArray(currentValue)) {
-    throw new TypeError('Cannot apply "truncate()" on non-array value')
+    return new TypeMismatchError({
+      operation: 'truncate',
+      expectedType: 'array',
+      actualType: typeof currentValue,
+    })
   }
 
   return typeof op.endIndex === 'number'

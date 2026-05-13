@@ -303,7 +303,13 @@ describe('local mutations', () => {
           type: 'optimistic',
         },
       },
-      {kind: 'ERROR', error: {message: 'Document already exist'}},
+      {
+        kind: 'ERROR',
+        error: {
+          _tag: 'ApplyMutationFailedError',
+          reason: 'Document already exist',
+        },
+      },
     ])
 
     unsubscribe()
@@ -336,7 +342,7 @@ describe('local mutations', () => {
 
     // Now mutate - this should hit the "else if (state.hasSynced)" branch
     // because there's no pending sync emit
-    store.mutate([patch('foo', at('title', set('updated')))])
+    store.mutate([patch('foo', at(['title'], set('updated')))])
 
     // Should have 3 notifications now: initial sync, new sync with mutation, and optimistic
     expect(notifications).toHaveLength(3)
@@ -421,7 +427,7 @@ describe('listenEvents() rebase semantics', () => {
     await sleep(10)
 
     // Local edit (still pending — no submit)
-    store.mutate([patch('foo', at('title', set('local-edit')))])
+    store.mutate([patch('foo', at(['title'], set('local-edit')))])
 
     // A new remote sync arrives — simulating that someone else updated the
     // counter field. The local edit should be rebased onto the new remote.
@@ -473,7 +479,7 @@ describe('listenEvents() rebase semantics', () => {
     await sleep(10)
 
     // Mutate a different document
-    store.mutate([patch('bar', at('x', set(1)))])
+    store.mutate([patch('bar', at(['x'], set(1)))])
     await sleep(10)
 
     // listenEvents on 'foo' still emits the local mutation event with
@@ -509,7 +515,7 @@ describe('multiple listen() subscribers share the same backing state', () => {
     const subB = collectNotifications(store.listen('foo'))
     await sleep(20)
 
-    store.mutate([patch('foo', at('title', set('mutated')))])
+    store.mutate([patch('foo', at(['title'], set('mutated')))])
     await sleep(20)
 
     const aLast = subA.notifications.at(-1)

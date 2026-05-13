@@ -80,13 +80,13 @@ export function createDocumentUpdateListener(options: {
               }
             }
             if (hasProperty(event, 'mutations')) {
+              // TODO Phase 4: surface PathParseError as a value event
+              const decoded = decodeAll(event.mutations)
+              if (decoded instanceof Error) throw decoded
               return {
                 event,
                 documentId,
-                snapshot: applyAll(
-                  prev.snapshot,
-                  decodeAll(event.mutations),
-                ) as Doc,
+                snapshot: applyAll(prev.snapshot, decoded) as Doc,
               }
             }
             throw new Error(

@@ -44,11 +44,16 @@ export function createInMemoryBackend() {
         store,
         transaction.id as never,
       )
+      // TODO Phase 4c: surface applyMutations error as a value
+      if (result instanceof Error) throw result
       result.forEach(res => {
+        // TODO Phase 4: surface encoder errors as values
+        const encodedMutations = encodeAll(res.mutations)
+        if (encodedMutations instanceof Error) throw encodedMutations
         listenerEvents.next({
           type: 'mutation',
           documentId: res.id,
-          mutations: encodeAll(res.mutations),
+          mutations: encodedMutations,
           transactionId: transaction.id || createTransactionId(),
           previousRev: res.before?._rev,
           resultRev: res.after?._rev,
