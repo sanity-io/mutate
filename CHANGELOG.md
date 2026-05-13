@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.17.0](https://github.com/sanity-io/mutate/compare/mutate-v0.16.1...mutate-v0.17.0) (2026-05-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* **store:** OptimisticStore public surface simplified. mutate(), transaction() and submit() are now fire-and-forget (return void); optimize() removed (squashing happens automatically at submit); meta streams (events, stage, conflicts) removed in favor of listen()/listenEvents(); createMockBackendAPI removed and createOptimisticStoreMockBackend renamed to createOptimisticStoreInMemoryBackend; createOptimisticStoreClientBackend now accepts SanityClientLike; submit() requires an active listen(id) subscriber to flush.
+* drop commonjs ([#85](https://github.com/sanity-io/mutate/issues/85))
+
+### Features
+
+* **store:** re-announce optimistic store breaking change for release-please ([#112](https://github.com/sanity-io/mutate/issues/112)) ([2ee9209](https://github.com/sanity-io/mutate/commit/2ee9209fa4b3a66940d70ff3701530da4727e4de))
+
+
+### Bug Fixes
+
+* **deps:** bring all deps to latest ([#92](https://github.com/sanity-io/mutate/issues/92)) ([7c4eb04](https://github.com/sanity-io/mutate/commit/7c4eb043cc9156807962f43420271d142df46fc3))
+
+
+### Code Refactoring
+
+* drop commonjs ([#85](https://github.com/sanity-io/mutate/issues/85)) ([25ea658](https://github.com/sanity-io/mutate/commit/25ea6587975e352315cd0c79d810c7670ff55ce8))
+
 ## [0.16.1](https://github.com/sanity-io/mutate/compare/mutate-v0.16.0...mutate-v0.16.1) (2026-01-23)
 
 
