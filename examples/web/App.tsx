@@ -1,5 +1,5 @@
 import {createClient} from '@sanity/client'
-import {CollapseIcon, ExpandIcon, PauseIcon, PlayIcon} from '@sanity/icons'
+import {PauseIcon, PlayIcon} from '@sanity/icons'
 import {createIfNotExists, del, type Mutation, type Path} from '@sanity/mutate'
 import {
   createOptimisticStore,
@@ -53,7 +53,6 @@ import {tap} from 'rxjs'
 import styled from 'styled-components'
 import {useThrottledCallback} from 'use-debounce'
 
-import {DocumentView} from './DocumentView'
 import {textsDemoForm} from './forms/person'
 import {
   BooleanInput,
@@ -324,29 +323,6 @@ function App() {
                           form={textsDemoForm}
                           onMutation={handleMutation}
                           renderInput={inputProps => {
-                            const hasAttention =
-                              attention.path === inputProps.path
-
-                            const attentionButton = !isStringInputProps(
-                              inputProps,
-                            ) ? null : (
-                              <Button
-                                onClick={() => {
-                                  setAttention(ap => {
-                                    return {
-                                      id: documentId,
-                                      path:
-                                        ap.path === inputProps.path
-                                          ? []
-                                          : inputProps.path,
-                                    }
-                                  })
-                                }}
-                                mode="bleed"
-                                selected={hasAttention}
-                                icon={hasAttention ? CollapseIcon : ExpandIcon}
-                              />
-                            )
                             const isTyping =
                               documentId === id &&
                               isEqual(typing?.path, inputProps.path)
@@ -383,10 +359,6 @@ function App() {
                                           }}
                                         />
                                       ) : null}
-                                      {/* eslint-disable-next-line no-constant-condition, no-constant-binary-expression */}
-                                      {false && attentionButton
-                                        ? attentionButton
-                                        : null}
                                     </Flex>
                                   </Box>
                                 </Flex>
@@ -407,15 +379,6 @@ function App() {
                 ))}
               </Stack>
             </Card>
-            {/* eslint-disable-next-line no-constant-binary-expression */}
-            {false && (
-              <Box flex={2}>
-                <DocumentView
-                  local={documentState.local}
-                  remote={documentState.remote}
-                />
-              </Box>
-            )}
           </Flex>
           <Flex size={2} gap={2}>
             <Card flex={1} shadow={2} radius={2} height="fill" overflow="auto">
