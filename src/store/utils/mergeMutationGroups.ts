@@ -5,7 +5,7 @@ import {type MutationGroup} from '../types'
  * @param mutationGroups
  */
 export function mergeMutationGroups(
-  mutationGroups: MutationGroup[],
+  mutationGroups: readonly MutationGroup[],
 ): MutationGroup[] {
   return chunkWhile(mutationGroups, group => !group.transaction).flatMap(
     chunk => ({
@@ -21,9 +21,9 @@ export function mergeMutationGroups(
  * @param predicate
  */
 export function chunkWhile<T>(
-  arr: T[],
+  arr: readonly T[],
   predicate: (item: T) => boolean,
-): T[][] {
+): readonly T[][] {
   const res: T[][] = []
   let currentChunk: T[] = []
   arr.forEach(item => {

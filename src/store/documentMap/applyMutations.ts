@@ -27,7 +27,7 @@ export function applyMutations<T extends SanityDocumentBase>(
     {
       before: T | undefined
       after: T | undefined
-      mutations: Mutation[]
+      muts: Mutation[]
     }
   > = Object.create(null)
 
@@ -42,35 +42,35 @@ export function applyMutations<T extends SanityDocumentBase>(
     if (res.status === 'error') {
       throw new Error(res.message)
     }
-
-    let entry = updatedDocs[documentId]
-    if (!entry) {
-      entry = {before, after: before, mutations: []}
-      updatedDocs[documentId] = entry
+    if (res.status === 'noop') {
+      continue
     }
+    if (
+      res.status === 'updated' ||
+      res.status === 'created' ||
+      res.status === 'deleted'
+    ) {
+      if (!(documentId in updatedDocs)) {
+        updatedDocs[documentId] = {before, after: undefined, muts: []}
+      }
+      if (transactionId) {
+        // Note: should never be set client side. Only for test purposes
+        res.after._rev = transactionId
+      }
+      documentMap.set(documentId, res.after)
 
-    // Note: transactionId should never be set client side. Only for test purposes
-    // if a transaction id is passed, set it as a new _rev
-    const after = transactionId
-      ? {...(res.status === 'noop' ? before : res.after), _rev: transactionId}
-      : res.status === 'noop'
-        ? before
-        : res.after
-
-    documentMap.set(documentId, after)
-    entry.after = after
-    entry.mutations.push(mutation)
+      updatedDocs[documentId]!.after = res.after
+      updatedDocs[documentId]!.muts.push(mutation)
+    }
   }
 
-  return Object.entries(updatedDocs).map(
-    ([id, {before, after, mutations: muts}]) => {
-      return {
-        id,
-        status: after ? (before ? 'updated' : 'created') : 'deleted',
-        mutations: muts,
-        before,
-        after,
-      }
-    },
-  )
+  return Object.entries(updatedDocs).map(([id, {before, after, muts}]) => {
+    return {
+      id,
+      status: after ? (before ? 'updated' : 'created') : 'deleted',
+      mutations: muts,
+      before,
+      after,
+    }
+  })
 }

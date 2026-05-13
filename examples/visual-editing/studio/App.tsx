@@ -269,11 +269,6 @@ function App(props: {inspect: InspectType}) {
     return () => sub.unsubscribe()
   }, [datasetMutatorActorRef])
   useEffect(() => {
-    const staged$ = datastore.meta.stage.pipe(tap(next => setStaged(next)))
-    const sub = staged$.subscribe()
-    return () => sub.unsubscribe()
-  }, [])
-  useEffect(() => {
     if (!documentId) return
     const sub = datastore
       .listenEvents(documentId)
@@ -295,7 +290,6 @@ function App(props: {inspect: InspectType}) {
   const handleMutate = useCallback(
     (mutations: Mutation[]) => {
       datastore.mutate(mutations)
-      if (autoOptimize) datastore.optimize()
     },
     [autoOptimize],
   )
@@ -530,13 +524,6 @@ function StagedMutations(props: {
                 <Text size={1}>Auto optimize</Text>
               </Flex>
             </Card>
-            <Button
-              onClick={() => {
-                datastore.optimize()
-              }}
-              mode="ghost"
-              text="Optimize pending"
-            />
             <Button
               onClick={() => {
                 datastore.submit()

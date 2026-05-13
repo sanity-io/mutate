@@ -2,7 +2,6 @@ import {type RawPatch} from 'mendoza'
 import {type Observable} from 'rxjs'
 
 import {type Mutation, type SanityDocumentBase} from '../mutations/types'
-import {type Path} from '../path'
 import {type SanityMutation} from './sanityMutationTypes'
 
 export interface ListenerSyncEvent<
@@ -131,65 +130,75 @@ export type MutationGroup =
   | NonTransactionalMutationGroup
   | TransactionalMutationGroup
 
-// todo: needs more work
-export type Conflict = {
-  path: Path
-  error: Error
-  base: SanityDocumentBase | undefined
-  local: SanityDocumentBase | undefined
-}
-
+/**
+ * # Subscription requirement
+ *
+ * `mutate`, `transaction` and `submit` only do useful work while at least one
+ * subscriber to `listen(id)` is active. `listen(id)` is what wires the rebase
+ * pipeline (remote events ↔ inflight ↔ local mutations) for a document; with
+ * no subscriber, the pipeline is torn down and calls to `submit()` are
+ * silently dropped.
+ *
+ * In practice this means: keep a `listen(id)` subscription open for every
+ * document you intend to read or write. `listenEvents(id)` alone is not
+ * enough — it provides a richer event stream but does not activate the submit
+ * pipeline.
+ *
+ * In development builds the store will emit a `console.warn` if `submit()` is
+ * called without an active `listen()` subscriber, to make this contract
+ * observable.
+ */
 export interface OptimisticStore {
-  meta: {
-    // just some ideas…
-    /**
-     * A stream of events for anything that happens in the store
-     */
-    events: Observable<OptimisticDocumentEvent | RemoteDocumentEvent>
-
-    /**
-     * A stream of current staged changes
-     */
-    stage: Observable<MutationGroup[]>
-
-    /**
-     * A stream of current conflicts. TODO: Needs more work
-     */
-    conflicts: Observable<Conflict[]>
-  }
-
   /**
-   * Applies the given mutations. Mutations are not guaranteed to be submitted in the same transaction
-   * Can this mutate both local and remote documents at the same time
+   * Subscribe to a stream of rich events for a document (sync, optimistic,
+   * remote mutation). Useful for inspecting rebase behaviour and staged
+   * changes.
+   *
+   * Note: subscribing to `listenEvents` alone is not sufficient to activate
+   * the submit pipeline. Use `listen(id)` for that.
    */
-  mutate(mutation: Mutation[]): MutationResult
+  listenEvents: (
+    id: string,
+  ) => Observable<RemoteDocumentEvent | OptimisticDocumentEvent>
 
   /**
-   * Makes sure the given mutations are posted in a single transaction
+   * Stages mutations to be applied optimistically and later submitted to the
+   * backend. Mutations are not guaranteed to be submitted in the same
+   * transaction.
+   *
+   * Requires at least one active `listen(id)` subscriber covering the
+   * affected document(s) before `submit()` is called; otherwise the staged
+   * mutations are dropped when the pipeline tears down.
+   */
+  mutate(mutation: Mutation[]): void
+
+  /**
+   * Stages mutations to be applied optimistically and submitted as a single
+   * transaction.
+   *
+   * Requires at least one active `listen(id)` subscriber covering the
+   * affected document(s) before `submit()` is called; otherwise the staged
+   * mutations are dropped when the pipeline tears down.
    */
   transaction(
     transaction: {id?: string; mutations: Mutation[]} | Mutation[],
-  ): MutationResult
+  ): void
 
   /**
-   * Checkout a document for editing. This is required to be able to see optimistic changes
+   * Checkout a document for editing. This is required to be able to see
+   * optimistic changes and to flush mutations with `submit()`. Subscribing
+   * keeps the store's rebase pipeline alive for `id`; unsubscribing releases
+   * it.
    */
   listen(id: string): Observable<SanityDocumentBase | undefined>
 
   /**
-   * Listen for events for a given document id
+   * Submit pending mutations to the backend.
+   *
+   * Only takes effect while at least one `listen(id)` subscriber is active
+   * for an affected document. If called with no active subscriber, the
+   * pending mutations remain staged (and a `console.warn` is emitted in
+   * development).
    */
-  listenEvents(
-    id: string,
-  ): Observable<RemoteDocumentEvent | OptimisticDocumentEvent>
-
-  /**
-   * Optimize list of pending mutations
-   */
-  optimize(): void
-
-  /**
-   * Submit pending mutations
-   */
-  submit(): Promise<SubmitResult[]>
+  submit(): void
 }

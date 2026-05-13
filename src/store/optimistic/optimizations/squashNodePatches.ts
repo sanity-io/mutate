@@ -93,39 +93,33 @@ export function compactDMPSetPatches(
   patches: NodePatch[],
 ) {
   let edge = base
-  return patches.reduce(
-    (earlierPatches: NodePatch[], laterPatch: NodePatch) => {
-      const before = edge
-      edge = applyNodePatch(laterPatch, edge)
-      if (
-        laterPatch.op.type === 'set' &&
-        typeof laterPatch.op.value === 'string'
-      ) {
-        const current = getAtPath(laterPatch.path, before)
-        if (typeof current === 'string') {
-          // we can replace the earlier diffMatchPatches with a new one
-          const replaced: NodePatch = {
-            ...laterPatch,
-            op: {
-              type: 'diffMatchPatch',
-              value: stringifyPatches(
-                makePatches(current, laterPatch.op.value),
-              ),
-            },
-          }
-          return earlierPatches
-            .flatMap(ep => {
-              return isEqualPath(ep.path, laterPatch.path) &&
-                ep.op.type === 'diffMatchPatch'
-                ? []
-                : ep
-            })
-            .concat(replaced)
+  return patches.reduce((previousPatches: NodePatch[], patch: NodePatch) => {
+    const before = edge
+    edge = applyNodePatch(patch, edge)
+    if (patch.op.type === 'set' && typeof patch.op.value === 'string') {
+      const current = getAtPath(patch.path, before)
+      if (typeof current === 'string') {
+        // we have a set patch that targets a string node
+        // we can replace the set patch with a diffMatchPatch going from the
+        // current value to the set patch value
+        const replaced: NodePatch = {
+          ...patch,
+          op: {
+            type: 'diffMatchPatch',
+            value: stringifyPatches(makePatches(current, patch.op.value)),
+          },
         }
+        return previousPatches
+          .flatMap(ep => {
+            return isEqualPath(ep.path, patch.path) &&
+              ep.op.type === 'diffMatchPatch'
+              ? []
+              : ep
+          })
+          .concat(replaced)
       }
-      earlierPatches.push(laterPatch)
-      return earlierPatches
-    },
-    [],
-  )
+    }
+    previousPatches.push(patch)
+    return previousPatches
+  }, [])
 }

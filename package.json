@@ -55,6 +55,9 @@
     "check": "run-s typecheck typecheck:examples pkg:build test",
     "coverage": "vitest run --coverage",
     "dev": "run-p pkg:watch",
+    "docs:dev": "pnpm --filter @sanity/mutate-docs run dev",
+    "docs:build": "pnpm --filter @sanity/mutate-docs run build",
+    "docs:preview": "pnpm --filter @sanity/mutate-docs run preview",
     "example:visual-editing": "pnpm --filter example-visual-editing run dev",
     "example:web": "pnpm --filter example-web run dev",
     "format": "prettier --write --cache --ignore-unknown .",
@@ -73,6 +76,7 @@
   },
   "browserslist": "extends @sanity/browserslist-config",
   "dependencies": {
+    "@isaacs/ttlcache": "^2.1.4",
     "@sanity/client": "^7.22.0",
     "@sanity/diff-match-patch": "^3.2.0",
     "@sanity/uuid": "^3.0.2",

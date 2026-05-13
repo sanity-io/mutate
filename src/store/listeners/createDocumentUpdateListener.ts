@@ -1,7 +1,7 @@
 import {filter, type Observable} from 'rxjs'
 import {scan} from 'rxjs/operators'
 
-import {decodeAll} from '../../encoders/sanity'
+import {decodeAll} from '../../encoders/sanity/decode'
 import {type SanityDocumentBase} from '../../mutations/types'
 import {applyAll} from '../documentMap/applyDocumentMutation'
 import {applyMutationEventEffects} from '../documentMap/applyMendoza'

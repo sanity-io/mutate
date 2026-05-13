@@ -1,45 +1,17 @@
 import {applyPatches} from '../../apply'
-import {
-  type Mutation,
-  type NodePatch,
-  type PatchMutation,
-  type SanityDocumentBase,
-} from '../../mutations/types'
+import {type NodePatch, type SanityDocumentBase} from '../../mutations/types'
 import {getAtPath} from '../../path'
 import {applyAll} from '../documentMap/applyDocumentMutation'
 import {type MutationGroup} from '../types'
 import {getMutationDocumentId} from '../utils/getMutationDocumentId'
 import {compactDMPSetPatches} from './optimizations/squashNodePatches'
 
-type RebaseTransaction = {
-  mutations: Mutation[]
-}
-
-type FlatMutation = Exclude<Mutation, PatchMutation>
-
-function flattenMutations(mutations: Mutation[]) {
-  return mutations.flatMap((mut): Mutation | Mutation[] => {
-    if (mut.type === 'patch') {
-      return mut.patches.map(
-        (patch): PatchMutation => ({
-          type: 'patch',
-          id: mut.id,
-          patches: [patch],
-        }),
-      )
-    }
-    return mut
-  })
-}
-
 export function rebase(
   documentId: string,
   oldBase: SanityDocumentBase | undefined,
   newBase: SanityDocumentBase | undefined,
-  localMutations: MutationGroup[],
+  localMutations: readonly MutationGroup[],
 ): [newLocal: MutationGroup[], rebased: SanityDocumentBase | undefined] {
-  // const flattened = flattenMutations(newStage.flatMap(t => t.mutations))
-
   // 1. get the dmpified mutations from the newStage based on the old base
   // 2. apply those to the new base
   // 3. convert those back into set patches based on the new base and return as a new newStage

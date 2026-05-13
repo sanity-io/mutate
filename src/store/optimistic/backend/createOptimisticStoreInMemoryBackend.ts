@@ -1,19 +1,19 @@
+import {createInMemoryBackend} from '../../in-memory/createInMemoryBackend'
 import {createDocumentEventListener} from '../../listeners/createDocumentEventListener'
 import {createDocumentLoader} from '../../listeners/createDocumentLoader'
 import {createSharedListener} from '../../listeners/createSharedListener'
-import {type MockBackendAPI} from '../../mock/createMockBackendAPI'
 import {type OptimisticStoreBackend} from '../createOptimisticStore'
 
-export function createOptimisticStoreMockBackend(
-  backendAPI: MockBackendAPI,
-): OptimisticStoreBackend {
+export function createOptimisticStoreInMemoryBackend(): OptimisticStoreBackend {
+  const backend = createInMemoryBackend()
+
   const sharedListener = createSharedListener((query: string, options) =>
-    backendAPI.listen(query),
+    backend.listen(query),
   )
-  const loadDocument = createDocumentLoader(ids => backendAPI.getDocuments(ids))
+  const loadDocument = createDocumentLoader(ids => backend.getDocuments(ids))
   const listenDocument = createDocumentEventListener({
     loadDocument,
     listenerEvents: sharedListener,
   })
-  return {listen: listenDocument, submit: backendAPI.submit}
+  return {listen: listenDocument, submit: backend.submit}
 }

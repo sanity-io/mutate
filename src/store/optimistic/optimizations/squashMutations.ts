@@ -7,7 +7,9 @@ import {getMutationDocumentId} from '../../utils/getMutationDocumentId'
 import {mergeMutationGroups} from '../../utils/mergeMutationGroups'
 import {squashNodePatches} from './squashNodePatches'
 
-export function squashMutationGroups(staged: MutationGroup[]): MutationGroup[] {
+export function squashMutationGroups(
+  staged: readonly MutationGroup[],
+): MutationGroup[] {
   return mergeMutationGroups(staged)
     .map(transaction => ({
       ...transaction,
