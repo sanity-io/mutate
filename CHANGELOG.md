@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.17.0](https://github.com/sanity-io/mutate/compare/mutate-v0.16.1...mutate-v0.17.0) (2026-05-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* drop commonjs ([#85](https://github.com/sanity-io/mutate/issues/85))
+
+### Bug Fixes
+
+* **deps:** bring all deps to latest ([#92](https://github.com/sanity-io/mutate/issues/92)) ([7c4eb04](https://github.com/sanity-io/mutate/commit/7c4eb043cc9156807962f43420271d142df46fc3))
+
+
+### Code Refactoring
+
+* drop commonjs ([#85](https://github.com/sanity-io/mutate/issues/85)) ([25ea658](https://github.com/sanity-io/mutate/commit/25ea6587975e352315cd0c79d810c7670ff55ce8))
+
 ## [0.16.1](https://github.com/sanity-io/mutate/compare/mutate-v0.16.0...mutate-v0.16.1) (2026-01-23)
 
 
