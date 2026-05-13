@@ -20,6 +20,9 @@ importers:
       '@sanity/uuid':
         specifier: ^3.0.2
         version: 3.0.2
+      errore:
+        specifier: ^0.14.1
+        version: 0.14.1
       hotscript:
         specifier: ^1.0.13
         version: 1.0.13
@@ -2457,6 +2460,10 @@ packages:
   entities@7.0.1:
     resolution: {integrity: sha512-TWrgLOFUQTH994YUyl1yT4uyavY5nNB5muff+RtWaqNVCAK408b5ZnnbNAUEWLTCpum9w6arT70i1XdQ4UeOPA==}
     engines: {node: '>=0.12'}
+
+  errore@0.14.1:
+    resolution: {integrity: sha512-YCRAEH21ChhJYlzJkZJqfn5pwOB9B9HL5hROdTSm8KEQMiVUOiipJftwwBpfhwQsCAdVEvqAwsBeUBZQZ+ePTg==}
+    hasBin: true
 
   es-abstract@1.24.2:
     resolution: {integrity: sha512-2FpH9Q5i2RRwyEP1AylXe6nYLR5OhaJTZwmlcP0dL/+JCbgg7yyEo/sEK6HeGZRf3dFpWwThaRHVApXSkW3xeg==}
@@ -6802,6 +6809,8 @@ snapshots:
   entities@4.5.0: {}
 
   entities@7.0.1: {}
+
+  errore@0.14.1: {}
 
   es-abstract@1.24.2:
     dependencies:
