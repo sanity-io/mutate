@@ -172,7 +172,10 @@ export const documentMutatorMachine = setup({
           context.cache.set(context.id, nextRemote as unknown as any)
         }
 
-        // TODO Phase 5: surface rebase error as a machine event/state
+        // Errors from rebase() are thrown here so xstate's onError wiring
+        // routes them to context.error + the matching failure state. This is
+        // the xstate-boundary exception to the @sanity/mutate errors-as-values
+        // convention (see CLAUDE.md "Error handling").
         const rebased = rebase(
           context.id,
           // It's annoying to convert between null and undefined, reach consensus
@@ -224,7 +227,8 @@ export const documentMutatorMachine = setup({
         context.cache.set(context.id, nextRemote as unknown as any)
       }
 
-      // TODO Phase 5: surface rebase error as a machine event/state
+      // xstate-boundary: throwing routes through onError. See the comment on
+      // the sibling rebase call earlier in this file.
       const rebased = rebase(
         context.id,
         // It's annoying to convert between null and undefined, reach consensus
@@ -284,7 +288,7 @@ export const documentMutatorMachine = setup({
           }
           // Apply mutations to local dataset (note: this is immutable, and doesn't change the dataset)
           const results = applyMutations(event.mutations, localDataset)
-          // TODO Phase 5: surface applyMutations error as a machine event/state
+          // xstate-boundary: throwing routes through onError. See CLAUDE.md.
           if (results instanceof Error) throw results
           // Write the updated results back to the "local" dataset
           commit(results, localDataset)
@@ -542,7 +546,7 @@ export const documentMutatorMachine = setup({
                   // @TODO perhaps separate utils to be lower level and operate on single documents at a time instead of expecting a local dataset
                   const remoteDataset = new Map()
                   remoteDataset.set(context.id, context.remote)
-                  // TODO Phase 5: surface squashDMPStrings error as a machine event/state
+                  // xstate-boundary: throwing routes through onError. See CLAUDE.md.
                   const squashed = squashDMPStrings(
                     remoteDataset,
                     squashMutationGroups(context.stagedChanges),
