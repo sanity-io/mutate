@@ -2,17 +2,11 @@ import {transformerTwoslash} from '@shikijs/vitepress-twoslash'
 import ts from 'typescript'
 import {defineConfig} from 'vitepress'
 
-// Repo-scoped GitHub Pages site lives at sanity-io.github.io/mutate/.
-// Override with DOCS_BASE=/ for a root-served preview if needed.
-const base = process.env.DOCS_BASE ?? '/mutate/'
-
 export default defineConfig({
   title: '@sanity/mutate',
   description:
     'Experimental toolkit for working with Sanity mutations in JavaScript & TypeScript',
   appearance: 'dark',
-
-  base,
 
   head: [
     [
@@ -20,7 +14,7 @@ export default defineConfig({
       {
         rel: 'icon',
         type: 'image/svg+xml',
-        href: `${base}mutate-logo-light.svg`,
+        href: '/mutate-logo-light.svg',
         media: '(prefers-color-scheme: light)',
       },
     ],
@@ -29,7 +23,7 @@ export default defineConfig({
       {
         rel: 'icon',
         type: 'image/svg+xml',
-        href: `${base}mutate-logo-dark.svg`,
+        href: '/mutate-logo-dark.svg',
         media: '(prefers-color-scheme: dark)',
       },
     ],
