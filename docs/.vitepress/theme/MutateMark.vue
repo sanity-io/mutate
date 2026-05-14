@@ -27,12 +27,18 @@ const {isDark} = useData()
           <rect x="-79" y="13" width="32" height="32" />
           <rect x="-38" y="13" width="32" height="32" />
         </g>
-        <g class="mutate-mark__stack mutate-mark__stack--back" transform="translate(24 -24)">
+        <g
+          class="mutate-mark__stack mutate-mark__stack--back"
+          transform="translate(24 -24)"
+        >
           <rect x="-120" y="-69" width="32" height="32" />
           <rect x="-120" y="13" width="32" height="32" />
           <rect x="-38" y="13" width="32" height="32" />
         </g>
-        <g class="mutate-mark__stack mutate-mark__stack--mid" transform="translate(12 -12)">
+        <g
+          class="mutate-mark__stack mutate-mark__stack--mid"
+          transform="translate(12 -12)"
+        >
           <rect x="-120" y="-69" width="32" height="32" />
           <rect x="-120" y="13" width="32" height="32" />
           <rect x="-38" y="13" width="32" height="32" />
@@ -43,12 +49,48 @@ const {isDark} = useData()
           <rect x="-38" y="13" width="32" height="32" />
         </g>
         <g class="mutate-mark__pending">
-          <rect x="-79" y="-69" width="32" height="32" stroke-dasharray="5.5 4.5" />
-          <rect x="-38" y="-69" width="32" height="32" stroke-dasharray="5.5 4.5" />
-          <rect x="-120" y="-28" width="32" height="32" stroke-dasharray="5.5 4.5" />
-          <rect x="-79" y="-28" width="32" height="32" stroke-dasharray="5.5 4.5" />
-          <rect x="-38" y="-28" width="32" height="32" stroke-dasharray="5.5 4.5" />
-          <rect x="-79" y="13" width="32" height="32" stroke-dasharray="5.5 4.5" />
+          <rect
+            x="-79"
+            y="-69"
+            width="32"
+            height="32"
+            stroke-dasharray="5.5 4.5"
+          />
+          <rect
+            x="-38"
+            y="-69"
+            width="32"
+            height="32"
+            stroke-dasharray="5.5 4.5"
+          />
+          <rect
+            x="-120"
+            y="-28"
+            width="32"
+            height="32"
+            stroke-dasharray="5.5 4.5"
+          />
+          <rect
+            x="-79"
+            y="-28"
+            width="32"
+            height="32"
+            stroke-dasharray="5.5 4.5"
+          />
+          <rect
+            x="-38"
+            y="-28"
+            width="32"
+            height="32"
+            stroke-dasharray="5.5 4.5"
+          />
+          <rect
+            x="-79"
+            y="13"
+            width="32"
+            height="32"
+            stroke-dasharray="5.5 4.5"
+          />
         </g>
       </g>
     </g>

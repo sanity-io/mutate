@@ -46,7 +46,7 @@ const patches = [
 ]
 
 const documentIds = ['document-1', 'document-2', 'document-3']
-const mutations = documentIds.map((id) => patch(id, patches))
+const mutations = documentIds.map(id => patch(id, patches))
 ```
 
 Submit `mutations` to the [Sanity HTTP mutation API](https://www.sanity.io/docs/http-mutations) via `SanityEncoder.encodeAll(mutations)`. If you also need to keep a local view in sync, hand the mutations to the [optimistic store](./optimistic-store) instead of submitting them yourself.
@@ -59,13 +59,9 @@ When the local result doesn't need to coordinate with the Content Lake — a one
 import {at, patch, set} from '@sanity/mutate'
 import {applyInCollection} from '@sanity/mutate/_unstable_apply'
 
-const initial = [
-  {_id: 'author-1', _type: 'author', name: 'Jane'},
-]
+const initial = [{_id: 'author-1', _type: 'author', name: 'Jane'}]
 
-const mutations = [
-  patch('author-1', [at(['name'], set('Jane Doe'))]),
-]
+const mutations = [patch('author-1', [at(['name'], set('Jane Doe'))])]
 
 const next = applyInCollection(initial, mutations)
 ```
