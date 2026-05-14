@@ -68,6 +68,7 @@ const initial = [
 const updated = applyInCollection(initial, [
   patch('someDoc', [at('otherNested.message', set('hello'))]),
 ])
+if (updated instanceof Error) throw updated
 
 console.log(initial[0]?.nested === updated[0]?.nested)
 // => true (nested was not touched)

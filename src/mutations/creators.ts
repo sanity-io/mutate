@@ -1,4 +1,5 @@
 import {parse, type Path, type PathParseError, type SafePath} from '../path'
+import {type ParseError, type StringToPath} from '../path/parser/types'
 import {arrify} from '../utils/arrify'
 import {
   type NormalizeReadOnlyArray,
@@ -45,7 +46,9 @@ export function at<const P extends Path, O extends Operation>(
 export function at<const P extends string, O extends Operation>(
   path: P,
   operation: O,
-): NodePatch<SafePath<P>, O> | PathParseError
+): StringToPath<P> extends ParseError<string>
+  ? PathParseError
+  : NodePatch<SafePath<P>, O>
 
 export function at<O extends Operation>(
   path: Path | string,

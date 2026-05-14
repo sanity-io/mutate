@@ -81,5 +81,6 @@ const formPatches: FormCompatEncoder.FormPatchLike[] = [
 ]
 
 const nodePatches = FormCompatEncoder.encodePatches(formPatches)
+if (nodePatches instanceof Error) throw nodePatches
 const mutation = patch('author-1', nodePatches)
 ```
