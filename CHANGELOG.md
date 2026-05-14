@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.1](https://github.com/sanity-io/mutate/compare/mutate-v0.17.0...mutate-v0.17.1) (2026-05-14)
+
+
+### Continuous Integration
+
+* fix npm provenance on release workflow ([#116](https://github.com/sanity-io/mutate/issues/116)) ([57714e3](https://github.com/sanity-io/mutate/commit/57714e349c54c40716c259547d73ab3384d88851))
+
 ## [0.17.0](https://github.com/sanity-io/mutate/compare/mutate-v0.16.1...mutate-v0.17.0) (2026-05-13)
 
 
