@@ -12,7 +12,7 @@ test('rebase() a simple case', () => {
   const staged = [
     {
       transaction: false,
-      mutations: [patch('test', [at(['foo'], set('bar\nbat'))])],
+      mutations: [patch('test', [at('foo', set('bar\nbat'))])],
     },
   ]
 
@@ -24,7 +24,7 @@ test('rebase() a simple case', () => {
   expect(nextPendingChanges).toEqual([
     {
       transaction: false,
-      mutations: [patch('test', [at(['foo'], set('car\nbat'))])],
+      mutations: [patch('test', [at('foo', set('car\nbat'))])],
     },
   ])
 })

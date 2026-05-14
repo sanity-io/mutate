@@ -12,7 +12,7 @@ import {inc, insert, set, setIfMissing, unset} from '../operations/creators'
 import {type Mutation} from '../types'
 
 test('single patch mutation', () => {
-  expect(patch('cat', at(['title'], set('hello world')))).toStrictEqual({
+  expect(patch('cat', at('title', set('hello world')))).toStrictEqual({
     id: 'cat',
     type: 'patch',
     patches: [
@@ -34,8 +34,8 @@ test('single create mutation', () => {
 test('two patch mutations', () => {
   expect(
     patch('cat', [
-      at(['title'], set('hello world')),
-      at(['subtitle'], set('nice to see you')),
+      at('title', set('hello world')),
+      at('subtitle', set('nice to see you')),
     ]),
   ).toStrictEqual({
     type: 'patch',
@@ -61,7 +61,7 @@ test('two patch mutations', () => {
 
 test('single patch with revision', () => {
   expect(
-    patch('cat', at(['title'], set('hello world')), {ifRevision: 'rev0'}),
+    patch('cat', at('title', set('hello world')), {ifRevision: 'rev0'}),
   ).toStrictEqual({
     type: 'patch',
     id: 'cat',
@@ -81,7 +81,7 @@ test('single patch with revision', () => {
 test('multiple mutations', () => {
   expect([
     createOrReplace({_id: 'foo', _type: 'lol', count: 1}),
-    patch('foo', [at(['title'], set('hello')), at(['count'], inc(2))], {
+    patch('foo', [at('title', set('hello')), at('count', inc(2))], {
       ifRevision: 'someRev',
     }),
   ]).toEqual([
@@ -116,7 +116,7 @@ test('multiple mutations', () => {
 test('multiple ops in a single patch mutation', () => {
   expect([
     createIfNotExists({_id: 'foo', _type: 'lol', count: 1}),
-    patch('foo', [at(['title'], set('hello')), at(['count'], inc(2))], {
+    patch('foo', [at('title', set('hello')), at('count', inc(2))], {
       ifRevision: 'someRev',
     }),
   ]).toEqual([
@@ -160,20 +160,20 @@ test('all permutations', () => {
     patch(
       'qux',
       [
-        at(['title'], set('hello')),
-        at(['items'], setIfMissing([])),
-        at(['items'], insert([1, 2, 3], 'after', 1)),
-        at(['title'], unset()),
-        at(['count'], inc(2)),
+        at('title', set('hello')),
+        at('items', setIfMissing([])),
+        at('items', insert([1, 2, 3], 'after', 1)),
+        at('title', unset()),
+        at('count', inc(2)),
       ],
       {ifRevision: 'someRev'},
     ),
     patch('quux', [
-      at(['title'], set('hello')),
-      at(['items'], setIfMissing([])),
-      at(['items'], insert([1, 2, 3], 'after', 0)),
-      at(['title'], unset()),
-      at(['count'], inc(2)),
+      at('title', set('hello')),
+      at('items', setIfMissing([])),
+      at('items', insert([1, 2, 3], 'after', 0)),
+      at('title', unset()),
+      at('count', inc(2)),
     ]),
     del('quuz'),
     del('corge'),

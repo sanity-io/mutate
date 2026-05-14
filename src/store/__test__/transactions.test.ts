@@ -41,7 +41,7 @@ describe('transaction()', () => {
 
     store.transaction({
       id: 'my-tx-id',
-      mutations: [patch('doc1', at(['title'], set('hi')))],
+      mutations: [patch('doc1', at('title', set('hi')))],
     })
     store.submit()
     await sleep(20)
@@ -65,8 +65,8 @@ describe('transaction()', () => {
     await sleep(10)
 
     store.transaction([
-      patch('doc1', at(['a'], set(1))),
-      patch('doc1', at(['b'], set(2))),
+      patch('doc1', at('a', set(1))),
+      patch('doc1', at('b', set(2))),
     ])
     store.submit()
     await sleep(20)
@@ -97,12 +97,12 @@ describe('transaction()', () => {
     const listener = collectNotifications(store.listen('doc1'))
     await sleep(10)
 
-    store.mutate([patch('doc1', at(['a'], set('mutate-1')))])
+    store.mutate([patch('doc1', at('a', set('mutate-1')))])
     store.transaction({
       id: 'tx-mid',
-      mutations: [patch('doc1', at(['b'], set('tx-2')))],
+      mutations: [patch('doc1', at('b', set('tx-2')))],
     })
-    store.mutate([patch('doc1', at(['c'], set('mutate-3')))])
+    store.mutate([patch('doc1', at('c', set('mutate-3')))])
     store.submit()
     await sleep(20)
 
@@ -127,9 +127,9 @@ describe('transaction()', () => {
     const listener = collectNotifications(store.listen('doc1'))
     await sleep(10)
 
-    store.mutate([patch('doc1', at(['a'], set(1)))])
-    store.mutate([patch('doc1', at(['b'], set(2)))])
-    store.mutate([patch('doc1', at(['c'], set(3)))])
+    store.mutate([patch('doc1', at('a', set(1)))])
+    store.mutate([patch('doc1', at('b', set(2)))])
+    store.mutate([patch('doc1', at('c', set(3)))])
     store.submit()
     await sleep(20)
 
@@ -198,7 +198,7 @@ describe('inflight ordering', () => {
     const listener = collectNotifications(store.listen('doc1'))
     await sleep(10)
 
-    store.mutate([patch('doc1', at(['title'], set('staged')))])
+    store.mutate([patch('doc1', at('title', set('staged')))])
     // Before submit, the local should reflect "staged"
     const beforeSubmit = listener.notifications.at(-1)
     expect(beforeSubmit).toMatchObject({

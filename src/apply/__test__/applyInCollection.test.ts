@@ -52,7 +52,7 @@ test('patch set', () => {
     {_id: 'another', _type: 'foobar'},
     {_id: 'foo', _type: 'test', hello: 'hi'},
   ]
-  const mutations = [patch('foo', [at(['hello'], set('hi!'))])]
+  const mutations = [patch('foo', [at('hello', set('hi!'))])]
   expect(applyInCollection(collection, mutations)).toEqual([
     {_id: 'another', _type: 'foobar'},
     {
@@ -65,7 +65,7 @@ test('patch set', () => {
 
 test('patch unset', () => {
   const current = [{_id: 'foo', _type: 'test', hello: 'hi'}]
-  const mutations = [patch('foo', at(['hello'], unset()))]
+  const mutations = [patch('foo', at('hello', unset()))]
   expect(applyInCollection(current, mutations)).toEqual([
     {
       _id: 'foo',

@@ -13,9 +13,9 @@ const mutations = [
   createIfNotExists({_id: 'document-1', _type: 'someType'}),
   createIfNotExists({_id: 'other-document', _type: 'author'}),
   patch('other-document', [
-    at(['published'], set(true)),
+    at('published', set(true)),
     at([], setIfMissing({address: {_type: 'address'}})),
-    at(['address', 'city'], set('Oslo')),
+    at('address.city', set('Oslo')),
   ]),
 ]
 

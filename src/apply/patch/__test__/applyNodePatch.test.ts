@@ -6,7 +6,7 @@ import {applyNodePatch} from '../applyNodePatch'
 
 describe('set', () => {
   test('simple set', () => {
-    const nodePatch = at(['foo'], set('bar' as const))
+    const nodePatch = at('foo', set('bar' as const))
 
     const doc = {_id: 'lol', foo: 'foo', _rev: 'ok'} as const
 
@@ -24,7 +24,7 @@ describe('set', () => {
       ],
     }
 
-    const patch = at(['objects', {_key: 'second'}, 'title'], set('Updated'))
+    const patch = at('objects[_key=="second"].title', set('Updated'))
 
     const result = applyNodePatch(patch, document)
     if (result instanceof Error) throw result
@@ -41,7 +41,7 @@ describe('set', () => {
       ],
     }
 
-    const patch = at(['objects', {_key: 'second'}], unset())
+    const patch = at('objects[_key=="second"]', unset())
 
     const result = applyNodePatch(patch, document)
     if (result instanceof Error) throw result
@@ -63,7 +63,7 @@ describe('set', () => {
       baz: 'baz',
     } as const
 
-    const patch = at(['bar'], unset())
+    const patch = at('bar', unset())
 
     const result = applyNodePatch(patch, document)
     if (result instanceof Error) throw result
@@ -87,7 +87,7 @@ describe('set', () => {
       ],
     }
 
-    const patch = at(['objects', {_key: 'first'}, 'title'], set('first'))
+    const patch = at('objects[_key=="first"].title', set('first'))
 
     const result = applyNodePatch(patch, document)
     if (result instanceof Error) throw result
@@ -104,7 +104,7 @@ describe('set', () => {
 describe('setIfMissing', () => {
   test('setIfMissing at root', () => {
     const doc = {}
-    expect(applyNodePatch(at(['foo'], setIfMissing('bar')), doc)).toEqual({
+    expect(applyNodePatch(at('foo', setIfMissing('bar')), doc)).toEqual({
       foo: 'bar',
     })
   })
@@ -112,7 +112,7 @@ describe('setIfMissing', () => {
   test('setIfMissing at deeper path', () => {
     const doc = {some: {}}
     expect(
-      applyNodePatch(at(['some', 'nested'], setIfMissing({foo: 'bar'})), doc),
+      applyNodePatch(at('some.nested', setIfMissing({foo: 'bar'})), doc),
     ).toEqual({
       some: {nested: {foo: 'bar'}},
     })
@@ -120,10 +120,9 @@ describe('setIfMissing', () => {
 
   test('setIfMissing at nonexistent path', () => {
     expect(
-      applyNodePatch(
-        at(['this', 'path', 'doesnt', 'exist'], setIfMissing({foo: 'bar'})),
-        {hello: 'hi!'},
-      ),
+      applyNodePatch(at('this.path.doesnt.exist', setIfMissing({foo: 'bar'})), {
+        hello: 'hi!',
+      }),
     ).toEqual({hello: 'hi!'})
   })
 })

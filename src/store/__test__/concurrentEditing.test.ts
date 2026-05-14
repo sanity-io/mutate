@@ -57,8 +57,8 @@ describe('concurrent edits on disjoint fields', () => {
     const bObs = subscribe(b, id)
     await sleep(SETTLE_MS)
 
-    a.mutate([patch(id, at(['title'], set('from-a')))])
-    b.mutate([patch(id, at(['subtitle'], set('from-b')))])
+    a.mutate([patch(id, at('title', set('from-a')))])
+    b.mutate([patch(id, at('subtitle', set('from-b')))])
 
     a.submit()
     b.submit()
@@ -93,9 +93,9 @@ describe('concurrent edits on disjoint fields', () => {
     const cObs = subscribe(c, id)
     await sleep(SETTLE_MS)
 
-    a.mutate([patch(id, at(['a'], set('A')))])
-    b.mutate([patch(id, at(['b'], set('B')))])
-    c.mutate([patch(id, at(['c'], set('C')))])
+    a.mutate([patch(id, at('a', set('A')))])
+    b.mutate([patch(id, at('b', set('B')))])
+    c.mutate([patch(id, at('c', set('C')))])
 
     // submit in arbitrary, partially-overlapping order
     b.submit()
@@ -128,7 +128,7 @@ describe('concurrent edits on the same field', () => {
     await sleep(SETTLE_MS)
 
     // A submits first
-    a.mutate([patch(id, at(['title'], set('A wins')))])
+    a.mutate([patch(id, at('title', set('A wins')))])
     a.submit()
 
     await sleep(SETTLE_MS)
@@ -137,7 +137,7 @@ describe('concurrent edits on the same field', () => {
     expect(lastValue(bObs.notifications)).toMatchObject({title: 'A wins'})
 
     // B mutates after seeing A's value — setting the same field overwrites
-    b.mutate([patch(id, at(['title'], set('B then')))])
+    b.mutate([patch(id, at('title', set('B then')))])
     b.submit()
 
     await sleep(SETTLE_MS)
@@ -166,8 +166,8 @@ describe('concurrent edits on the same field', () => {
     const bObs = subscribe(b, id)
     await sleep(SETTLE_MS)
 
-    a.mutate([patch(id, at(['text'], set('A: hello world')))])
-    b.mutate([patch(id, at(['text'], set('hello world!')))])
+    a.mutate([patch(id, at('text', set('A: hello world')))])
+    b.mutate([patch(id, at('text', set('hello world!')))])
 
     a.submit()
     b.submit()
@@ -204,14 +204,14 @@ describe('concurrent array operations', () => {
 
     a.mutate([
       patch(id, [
-        at(['items'], setIfMissing([])),
-        at(['items'], insert([{_key: 'ka', value: 'from-a'}], 'after', -1)),
+        at('items', setIfMissing([])),
+        at('items', insert([{_key: 'ka', value: 'from-a'}], 'after', -1)),
       ]),
     ])
     b.mutate([
       patch(id, [
-        at(['items'], setIfMissing([])),
-        at(['items'], insert([{_key: 'kb', value: 'from-b'}], 'after', -1)),
+        at('items', setIfMissing([])),
+        at('items', insert([{_key: 'kb', value: 'from-b'}], 'after', -1)),
       ]),
     ])
 
@@ -286,7 +286,7 @@ describe('multi-document submits', () => {
     const bObs = subscribe(store, 'iso-b')
     await sleep(SETTLE_MS)
 
-    store.mutate([patch('iso-a', at(['val'], set('a2')))])
+    store.mutate([patch('iso-a', at('val', set('a2')))])
     store.submit()
 
     await sleep(SETTLE_MS)
@@ -318,11 +318,11 @@ describe('pending mutations rebased while inflight', () => {
     await sleep(SETTLE_MS)
 
     // A has an unsubmitted edit
-    a.mutate([patch(id, at(['title'], set('A-title')))])
+    a.mutate([patch(id, at('title', set('A-title')))])
 
     // B submits a concurrent edit on a different field — A's pending mutation
     // should get rebased on top of B's new remote
-    b.mutate([patch(id, at(['counter'], set(42)))])
+    b.mutate([patch(id, at('counter', set(42)))])
     b.submit()
 
     await sleep(SETTLE_MS)
@@ -363,10 +363,10 @@ describe('pending mutations rebased while inflight', () => {
     await sleep(SETTLE_MS)
 
     for (let i = 0; i < 5; i++) {
-      a.mutate([patch(id, at([`a${i}`], set(i)))])
+      a.mutate([patch(id, at(`a${i}`, set(i)))])
       a.submit()
       await sleep(10)
-      b.mutate([patch(id, at([`b${i}`], set(i)))])
+      b.mutate([patch(id, at(`b${i}`, set(i)))])
       b.submit()
       await sleep(10)
     }

@@ -13,12 +13,12 @@ const {insert, append, insertAfter, insertBefore, prepend} = autoKeys(
 const mutations = [
   createIfNotExists({_id: 'some-doc', _type: 'testing'}),
   patch('some-doc', [
-    at(['array'], setIfMissing([])),
-    at(['array'], insert('after', 0, [{order: 'second'}])),
-    at(['array'], append([{_key: 'third', order: 'third'}])),
-    at(['array'], insertBefore({_key: 'third'}, [{order: 'after-second'}])),
-    at(['array'], prepend([{_key: 'first', order: 'first'}])),
-    at(['array'], insertAfter({_key: 'first'}, [{order: 'after-first'}])),
+    at('array', setIfMissing([])),
+    at('array', insert('after', 0, [{order: 'second'}])),
+    at('array', append([{_key: 'third', order: 'third'}])),
+    at('array', insertBefore({_key: 'third'}, [{order: 'after-second'}])),
+    at('array', prepend([{_key: 'first', order: 'first'}])),
+    at('array', insertAfter({_key: 'first'}, [{order: 'after-first'}])),
   ]),
 ]
 
