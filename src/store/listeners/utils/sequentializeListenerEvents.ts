@@ -1,10 +1,14 @@
 import {partition as lodashPartition} from 'lodash'
-import {concat, type Observable, of, switchMap, throwError, timer} from 'rxjs'
+import {concat, type Observable, of, switchMap, takeWhile, timer} from 'rxjs'
 import {mergeMap, scan} from 'rxjs/operators'
 
 import {type SanityDocumentBase} from '../../../mutations/types'
 import {type ListenerEvent, type ListenerMutationEvent} from '../../types'
-import {DeadlineExceededError, MaxBufferExceededError} from '../errors'
+import {
+  DeadlineExceededError,
+  MaxBufferExceededError,
+  type OutOfSyncError,
+} from '../errors'
 import {discardChainTo, toOrderedChains} from './eventChainUtils'
 
 /**
@@ -31,7 +35,7 @@ export interface ListenerSequenceState {
   /**
    * Array of events to pass on to the stream, e.g. when mutation applies to current head revision, or a chain is complete
    */
-  emitEvents: ListenerEvent[]
+  emitEvents: (ListenerEvent | OutOfSyncError | Error)[]
   /**
    * Buffer to keep track of events that doesn't line up in a [previousRev, resultRev] -- [previousRev, resultRev] sequence
    * This can happen if events arrive out of order, or if an event in the middle for some reason gets lost
@@ -56,8 +60,9 @@ export interface SequentializeListenerEventsOptions {
  * If we receive mutation events that doesn't line up in [previousRev, resultRev] pairs we'll put them in a buffer and
  * check if we have an unbroken chain every time we receive a new event
  *
- * If the buffer grows beyond `maxBufferSize`, or if `resolveChainDeadline` milliseconds passes before the chain resolves
- * an OutOfSyncError will be thrown on the stream
+ * If the buffer grows beyond `maxBufferSize`, or if `resolveChainDeadline` milliseconds passes before the chain resolves,
+ * a `MaxBufferExceededError` or `DeadlineExceededError` (subtypes of `OutOfSyncError`) is emitted as a value on the
+ * stream, per the @sanity/mutate RxJS convention that operational failures flow on `next`.
  *
  * @internal
  */
@@ -71,14 +76,23 @@ export function sequentializeListenerEvents<Doc extends SanityDocumentBase>(
     onBrokenChain,
   } = options || {}
 
-  return (input$: Observable<ListenerEvent>): Observable<ListenerEvent> => {
+  return (
+    input$: Observable<ListenerEvent | Error>,
+  ): Observable<ListenerEvent | OutOfSyncError | Error> => {
     return input$.pipe(
       scan(
         (
           state: ListenerSequenceState,
-          event: ListenerEvent,
+          event: ListenerEvent | Error,
         ): ListenerSequenceState => {
+          // Upstream error values pass through verbatim (see the @sanity/mutate
+          // RxJS convention in CLAUDE.md).
+          if (event instanceof Error) {
+            return {...state, emitEvents: [event]}
+          }
           if (event.type === 'mutation' && !state.base) {
+            // Invariant: a mutation cannot arrive before the initial sync.
+            // This is a panic — programmer error, not an operational failure.
             throw new Error(
               'Invalid state. Cannot create a sequence without a base',
             )
@@ -94,6 +108,7 @@ export function sequentializeListenerEvents<Doc extends SanityDocumentBase>(
 
           if (event.type === 'mutation') {
             if (!event.resultRev && !event.previousRev) {
+              // Invariant: mutation events must have at least one revision marker. Panic.
               throw new Error(
                 'Invalid mutation event: Events must have either resultRev or previousRev',
               )
@@ -127,6 +142,7 @@ export function sequentializeListenerEvents<Doc extends SanityDocumentBase>(
 
             const nextBuffer = _nextBuffer.flat()
             if (applicableChains.length > 1) {
+              // Invariant: orderedChains construction guarantees at most one applicable chain. Panic.
               throw new Error('Expected at most one applicable chain')
             }
             if (
@@ -150,10 +166,16 @@ export function sequentializeListenerEvents<Doc extends SanityDocumentBase>(
             }
 
             if (nextBuffer.length >= maxBufferSize) {
-              throw new MaxBufferExceededError(
-                `Too many unchainable mutation events: ${state.buffer.length}`,
-                state,
-              )
+              return {
+                ...state,
+                buffer: nextBuffer,
+                emitEvents: [
+                  new MaxBufferExceededError({
+                    bufferLength: state.buffer.length,
+                    state,
+                  }),
+                ],
+              }
             }
             return {
               ...state,
@@ -177,11 +199,14 @@ export function sequentializeListenerEvents<Doc extends SanityDocumentBase>(
             of(state),
             timer(resolveChainDeadline).pipe(
               mergeMap(() =>
-                throwError(() => {
-                  return new DeadlineExceededError(
-                    `Did not resolve chain within a deadline of ${resolveChainDeadline}ms`,
-                    state,
-                  )
+                of({
+                  ...state,
+                  emitEvents: [
+                    new DeadlineExceededError({
+                      deadlineMs: resolveChainDeadline,
+                      state,
+                    }),
+                  ],
                 }),
               ),
             ),
@@ -194,6 +219,16 @@ export function sequentializeListenerEvents<Doc extends SanityDocumentBase>(
         // if the flushEvents array is empty, nothing will be emitted
         return state.emitEvents
       }),
+      // Emit error events but terminate the stream after — matches the old behavior
+      // where throwing into the error channel ended the observable.
+      takeWhile(
+        (event: ListenerEvent | OutOfSyncError | Error, index): boolean =>
+          // `index === 0` is irrelevant; we always include the current event when
+          // it's not an error, and we still emit the error one last time before
+          // completing.
+          !(event instanceof Error),
+        /* inclusive */ true,
+      ),
     )
   }
 }

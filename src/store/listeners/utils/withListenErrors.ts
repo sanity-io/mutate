@@ -5,8 +5,13 @@ import {
   type ListenerMutationEvent,
 } from '../../types'
 import {ChannelError, DisconnectError} from '../errors'
+
 /**
- * Takes a stream of /listen events and turn them into errors in case of disconnect or channelError
+ * Takes a stream of /listen events and surfaces `disconnect`/`channelError`
+ * notifications as tagged-error values emitted on `next`.
+ *
+ * Per the @sanity/mutate RxJS convention the error channel is reserved for
+ * panics; operational failures flow as values.
  */
 export function withListenErrors() {
   return (input$: Observable<ListenerEndpointEvent>) =>
@@ -16,10 +21,10 @@ export function withListenErrors() {
           return event as ListenerMutationEvent
         }
         if (event.type === 'disconnect') {
-          throw new DisconnectError(`DisconnectError: ${event.reason}`)
+          return new DisconnectError({reason: event.reason})
         }
         if (event.type === 'channelError') {
-          throw new ChannelError(`ChannelError: ${event.message}`)
+          return new ChannelError({reason: event.message})
         }
         // pass on welcome and reconnect events
         // note: reconnect is special and should not be subject to error path + retry because that will reinstantiate the eventsource instance

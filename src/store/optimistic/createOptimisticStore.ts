@@ -51,10 +51,13 @@ export interface OptimisticStoreBackend {
   /**
    * Sets up a subscription to a document
    * The first event should either be a sync event or an error event.
-   * After that, it should emit mutation events, error events or sync events
+   * After that, it should emit mutation events, error events or sync events.
+   * Per the @sanity/mutate RxJS convention, operational errors are emitted as
+   * tagged-error values on `next`; the Observable's `error` channel is reserved
+   * for panics.
    * @param id
    */
-  listen: (id: string) => Observable<ListenerEvent>
+  listen: (id: string) => Observable<ListenerEvent | Error>
   submit: (mutationGroups: Transaction) => Observable<SubmitResult>
 }
 
@@ -179,6 +182,11 @@ export function createOptimisticStore(
           next: action => {
             if (action.source === 'remote') {
               const event = action.event
+              // TODO Phase 4c: surface listener errors as values on next
+              if (event instanceof Error) {
+                subscriber.error(event)
+                return
+              }
               if (event.type === 'sync') {
                 const newRemote = event.document
                 // TODO Phase 4c: surface rebase/applyAll errors as values on next
@@ -358,7 +366,7 @@ type OptimisticStoreInternalConfig = {
    * A function that when called with an id must return a stream of listener events
    * @param id
    */
-  listen: (id: string) => Observable<ListenerEvent>
+  listen: (id: string) => Observable<ListenerEvent | Error>
 
   /**
    * A function that, when called, must submit the given mutation groups to the backend
@@ -385,6 +393,11 @@ export function createOptimisticStoreInternal(
     documentId: string,
   ) {
     return listen(documentId).pipe(
+      // TODO Phase 4c: surface listener errors as value events on this stream
+      mergeMap(event => {
+        if (event instanceof Error) throw event
+        return of(event)
+      }),
       scan(
         (
           prev: DocumentUpdate<Doc> | undefined,
@@ -414,7 +427,7 @@ export function createOptimisticStoreInternal(
               }
             }
             if (hasProperty(event, 'mutations')) {
-              // TODO Phase 4: surface PathParseError as a value event
+              // TODO Phase 4c: surface PathParseError as a value event on the document-update stream
               const decoded = decodeAll(event.mutations)
               if (decoded instanceof Error) throw decoded
               return {

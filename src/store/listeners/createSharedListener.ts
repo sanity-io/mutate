@@ -7,6 +7,7 @@ import {
   type ListenerMutationEvent,
   type QueryParams,
 } from '../types'
+import {type ChannelError, type DisconnectError} from './errors'
 import {shareReplayLatest} from './utils/shareReplayLatest'
 import {withListenErrors} from './utils/withListenErrors'
 
@@ -62,7 +63,13 @@ export interface RequestOptions {
 export function createSharedListenerFromClient(
   client: SanityClientLike,
   options?: ListenerOptions,
-): Observable<WelcomeEvent | ListenerMutationEvent | ReconnectEvent> {
+): Observable<
+  | WelcomeEvent
+  | ListenerMutationEvent
+  | ReconnectEvent
+  | ChannelError
+  | DisconnectError
+> {
   const listener = (
     query: string,
     queryParams: QueryParams,
@@ -85,7 +92,13 @@ export function createSharedListenerFromClient(
 export function createSharedListener(
   listen: SharedListenerListenFn,
   options: ListenerOptions = {},
-): Observable<WelcomeEvent | ListenerMutationEvent | ReconnectEvent> {
+): Observable<
+  | WelcomeEvent
+  | ListenerMutationEvent
+  | ReconnectEvent
+  | ChannelError
+  | DisconnectError
+> {
   const {filter, tag, shutdownDelay, includeSystemDocuments, includeMutations} =
     options
 

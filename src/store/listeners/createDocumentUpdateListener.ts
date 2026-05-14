@@ -1,4 +1,4 @@
-import {filter, type Observable} from 'rxjs'
+import {filter, mergeMap, type Observable, of} from 'rxjs'
 import {scan} from 'rxjs/operators'
 
 import {decodeAll} from '../../encoders/sanity/decode'
@@ -45,12 +45,19 @@ export type DocumentUpdateListener<Doc extends SanityDocumentBase> = (
  * @param options
  */
 export function createDocumentUpdateListener(options: {
-  listenDocumentEvents: (documentId: string) => Observable<ListenerEvent>
+  listenDocumentEvents: (
+    documentId: string,
+  ) => Observable<ListenerEvent | Error>
 }) {
   const {listenDocumentEvents} = options
 
   return function listen<Doc extends SanityDocumentBase>(documentId: string) {
     return listenDocumentEvents(documentId).pipe(
+      // TODO Phase 4c: surface listener errors as value events on this stream
+      mergeMap(event => {
+        if (event instanceof Error) throw event
+        return of(event)
+      }),
       scan(
         (
           prev: DocumentUpdate<Doc> | undefined,
@@ -80,7 +87,7 @@ export function createDocumentUpdateListener(options: {
               }
             }
             if (hasProperty(event, 'mutations')) {
-              // TODO Phase 4: surface PathParseError as a value event
+              // TODO Phase 4c: surface PathParseError as a value event on the document-update stream
               const decoded = decodeAll(event.mutations)
               if (decoded instanceof Error) throw decoded
               return {

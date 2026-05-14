@@ -48,6 +48,10 @@ store.listenDocuments(['foo', 'bar']).subscribe(([fooUpdate, barUpdate]) => {
 
 // We can also use the document loader and the listeners created above independently if we want to:
 listenDocumentEvents('foo').subscribe(event => {
+  if (event instanceof Error) {
+    console.error(event.message)
+    return
+  }
   console.log(event.type) // logs 'reconnect', 'sync' or 'mutation'
 })
 
@@ -55,6 +59,10 @@ listenDocumentEvents('foo').subscribe(event => {
 // this will establish an SSE connection upon first publish, share the underlying event stream between all subscribers
 // and disconnect the SSE connection when the last subscriber unsubscribes
 sharedListenerEvents.subscribe(event => {
+  if (event instanceof Error) {
+    console.error(event.message)
+    return
+  }
   console.log(event.type) // logs 'reconnect', 'welcome' or 'mutation'
 })
 

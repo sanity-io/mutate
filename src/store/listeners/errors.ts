@@ -1,69 +1,73 @@
 import {ClientError as SanityClientError} from '@sanity/client'
+import * as errore from 'errore'
 
 import {type ListenerSequenceState} from './utils/sequentializeListenerEvents'
 
-/*
- * This file should include all errors that can be thrown by the document listener
- */
-
 export const ClientError = SanityClientError
 
-export class FetchError extends Error {
-  cause?: Error
-  constructor(message: string, extra?: {cause?: Error}) {
-    super(message)
-    this.cause = extra?.cause
-    this.name = 'FetchError'
+export class FetchError extends errore.createTaggedError({
+  name: 'FetchError',
+  message: 'An unexpected error occurred while fetching document: $reason',
+}) {}
+
+export class PermissionDeniedError extends errore.createTaggedError({
+  name: 'PermissionDeniedError',
+  message:
+    'Permission denied. Make sure the current user (or token) has permission to read the document with ID="$documentId".',
+}) {}
+
+export class ChannelError extends errore.createTaggedError({
+  name: 'ChannelError',
+  message: 'ChannelError: $reason',
+}) {}
+
+export class DisconnectError extends errore.createTaggedError({
+  name: 'DisconnectError',
+  message: 'DisconnectError: $reason',
+}) {}
+
+export class DeadlineExceededError extends errore.createTaggedError({
+  name: 'DeadlineExceededError',
+  message: 'Did not resolve chain within a deadline of $deadlineMs ms',
+}) {
+  readonly state: ListenerSequenceState
+  constructor(args: {
+    deadlineMs: number
+    state: ListenerSequenceState
+    cause?: unknown
+  }) {
+    super({deadlineMs: args.deadlineMs, cause: args.cause})
+    this.state = args.state
   }
 }
 
-export class PermissionDeniedError extends Error {
-  cause?: Error
-  constructor(message: string, extra?: {cause?: Error}) {
-    super(message)
-    this.cause = extra?.cause
-    this.name = 'PermissionDeniedError'
+export class MaxBufferExceededError extends errore.createTaggedError({
+  name: 'MaxBufferExceededError',
+  message: 'Too many unchainable mutation events: $bufferLength',
+}) {
+  readonly state: ListenerSequenceState
+  constructor(args: {
+    bufferLength: number
+    state: ListenerSequenceState
+    cause?: unknown
+  }) {
+    super({bufferLength: args.bufferLength, cause: args.cause})
+    this.state = args.state
   }
 }
 
-export class ChannelError extends Error {
-  constructor(message: string) {
-    super(message)
-    this.name = 'ChannelError'
-  }
-}
+/**
+ * Union of all out-of-sync conditions emitted by the sequencer.
+ * Discriminated by `_tag`.
+ */
+export type OutOfSyncError = DeadlineExceededError | MaxBufferExceededError
 
-export class DisconnectError extends Error {
-  constructor(message: string) {
-    super(message)
-    this.name = 'DisconnectError'
-  }
-}
-
-export class OutOfSyncError extends Error {
-  /**
-   * Attach state to the error for debugging/reporting
-   */
-  state: ListenerSequenceState
-  constructor(message: string, state: ListenerSequenceState) {
-    super(message)
-    this.name = 'OutOfSyncError'
-    this.state = state
-  }
-}
-
-export class DeadlineExceededError extends OutOfSyncError {
-  constructor(message: string, state: ListenerSequenceState) {
-    super(message, state)
-    this.name = 'DeadlineExceededError'
-  }
-}
-export class MaxBufferExceededError extends OutOfSyncError {
-  constructor(message: string, state: ListenerSequenceState) {
-    super(message, state)
-    this.name = 'MaxBufferExceededError'
-  }
-}
+export type ListenerError =
+  | FetchError
+  | PermissionDeniedError
+  | ChannelError
+  | DisconnectError
+  | OutOfSyncError
 
 export function isClientError(e: unknown): e is SanityClientError {
   if (typeof e !== 'object') return false

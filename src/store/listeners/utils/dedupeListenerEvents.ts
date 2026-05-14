@@ -7,7 +7,12 @@ import {type ListenerEvent} from '../../types'
 const DEFAULT_TTL = 120_000
 const DEFAULT_MAX_ENTRIES = 1000
 
-export function dedupeListenerEvents<T extends ListenerEvent>({
+/**
+ * Dedupes `mutation` events by `transactionId#documentId`. Non-mutation events
+ * (including tagged-error values per the @sanity/mutate RxJS convention) pass
+ * through untouched.
+ */
+export function dedupeListenerEvents<T extends ListenerEvent | Error>({
   ttl = DEFAULT_TTL,
   max = DEFAULT_MAX_ENTRIES,
 }: {
@@ -18,7 +23,7 @@ export function dedupeListenerEvents<T extends ListenerEvent>({
     input$.pipe(
       scan(
         ({seen}: {emit: T[]; seen: TTLCache<string, null>}, event: T) => {
-          if (event.type !== 'mutation') {
+          if (event instanceof Error || event.type !== 'mutation') {
             return {emit: [event], seen}
           }
           const key = `${event.transactionId}#${event.documentId}`

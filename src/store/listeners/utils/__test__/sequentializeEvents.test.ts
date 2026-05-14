@@ -77,6 +77,7 @@ test("it accumulates events that doesn't apply in a chain starting at the curren
     (
       await lastValueFrom(events.pipe(sequentializeListenerEvents(), toArray()))
     ).map(event => {
+      if (event instanceof Error) return ['error', event.message]
       return [
         event.type,
         event.type === 'mutation'
@@ -132,6 +133,7 @@ test('it ignores events already applied to the current head revision', async () 
     (
       await lastValueFrom(events.pipe(sequentializeListenerEvents(), toArray()))
     ).map(event => {
+      if (event instanceof Error) return event.message
       return event?.type === 'mutation' ? event.mutations : event?.type
     }),
   ).toEqual(['sync', [{patch: {id: 'test', set: {name: 'SHOULD BE APPLIED'}}}]])
@@ -182,11 +184,10 @@ test('it throws an MaxBufferExceededError if the buffer exceeds `maxBuffer`', as
     }),
   ] satisfies ListenerEvent<TestDoc>[])
 
-  await expect(
-    lastValueFrom(
-      events.pipe(sequentializeListenerEvents({maxBufferSize: 3}), toArray()),
-    ),
-  ).rejects.toThrowError(MaxBufferExceededError)
+  const emitted = await lastValueFrom(
+    events.pipe(sequentializeListenerEvents({maxBufferSize: 3}), toArray()),
+  )
+  expect(emitted.at(-1)).toBeInstanceOf(MaxBufferExceededError)
 })
 
 test('it throws an OutOfSyncError if the buffer exceeds `maxBuffer`', async () => {
@@ -234,12 +235,11 @@ test('it throws an OutOfSyncError if the buffer exceeds `maxBuffer`', async () =
     }),
   ] satisfies ListenerEvent<TestDoc>[])
 
-  await expect(
-    lastValueFrom(
-      events.pipe(
-        sequentializeListenerEvents({resolveChainDeadline: 100}),
-        toArray(),
-      ),
+  const emitted = await lastValueFrom(
+    events.pipe(
+      sequentializeListenerEvents({resolveChainDeadline: 100}),
+      toArray(),
     ),
-  ).rejects.toThrowError(DeadlineExceededError)
+  )
+  expect(emitted.at(-1)).toBeInstanceOf(DeadlineExceededError)
 })
