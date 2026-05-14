@@ -13,7 +13,7 @@ The apply engine exports pure functions for applying mutations to in-memory docu
 import {createIfNotExists, del} from '@sanity/mutate'
 import {applyInCollection} from '@sanity/mutate/_unstable_apply'
 
-const initial = [{_id: 'deleteme', _type: 'foo'}]
+const initial = [{_id: 'deleteme', _type: 'foo'}] as const
 
 const mutations = [
   createIfNotExists({_id: 'mydocument', _type: 'foo'}),
@@ -38,7 +38,7 @@ const initial = [
     value: 'ok',
     nested: {value: 'something'},
   },
-]
+] as const
 
 const updated = applyInCollection(initial, [
   createIfNotExists({_id: 'someDoc', _type: 'foo'}),
@@ -63,7 +63,7 @@ const initial = [
     nested: {value: 'something'},
     otherNested: {message: 'something else'},
   },
-]
+] as const
 
 const updated = applyInCollection(initial, [
   patch('someDoc', [at('otherNested.message', set('hello'))]),
