@@ -38,11 +38,16 @@ import {
   createOptimisticStoreClientBackend,
 } from '@sanity/mutate/_unstable_store'
 
-const client = createClient({projectId: 'x', dataset: 'y', apiVersion: '2026-05-12', useCdn: false})
+const client = createClient({
+  projectId: 'x',
+  dataset: 'y',
+  apiVersion: '2026-05-12',
+  useCdn: false,
+})
 const backend = createOptimisticStoreClientBackend(client)
 const store = createOptimisticStore(backend)
 // ---cut---
-const subscription = store.listen('author-1').subscribe((doc) => {
+const subscription = store.listen('author-1').subscribe(doc => {
   console.log('snapshot', doc)
 })
 ```
@@ -61,7 +66,12 @@ import {
 } from '@sanity/mutate/_unstable_store'
 import {at, patch, set} from '@sanity/mutate'
 
-const client = createClient({projectId: 'x', dataset: 'y', apiVersion: '2026-05-12', useCdn: false})
+const client = createClient({
+  projectId: 'x',
+  dataset: 'y',
+  apiVersion: '2026-05-12',
+  useCdn: false,
+})
 const backend = createOptimisticStoreClientBackend(client)
 const store = createOptimisticStore(backend)
 const subscription = store.listen('author-1').subscribe(() => {})
@@ -79,7 +89,12 @@ import {
 } from '@sanity/mutate/_unstable_store'
 import {at, patch, set} from '@sanity/mutate'
 
-const client = createClient({projectId: 'x', dataset: 'y', apiVersion: '2026-05-12', useCdn: false})
+const client = createClient({
+  projectId: 'x',
+  dataset: 'y',
+  apiVersion: '2026-05-12',
+  useCdn: false,
+})
 const backend = createOptimisticStoreClientBackend(client)
 const store = createOptimisticStore(backend)
 const subscription = store.listen('author-1').subscribe(() => {})
@@ -102,7 +117,12 @@ import {
 } from '@sanity/mutate/_unstable_store'
 import {at, patch, set} from '@sanity/mutate'
 
-const client = createClient({projectId: 'x', dataset: 'y', apiVersion: '2026-05-12', useCdn: false})
+const client = createClient({
+  projectId: 'x',
+  dataset: 'y',
+  apiVersion: '2026-05-12',
+  useCdn: false,
+})
 const backend = createOptimisticStoreClientBackend(client)
 const store = createOptimisticStore(backend)
 const subscription = store.listen('author-1').subscribe(() => {})
@@ -124,7 +144,12 @@ import {
   createOptimisticStoreClientBackend,
 } from '@sanity/mutate/_unstable_store'
 
-const client = createClient({projectId: 'x', dataset: 'y', apiVersion: '2026-05-12', useCdn: false})
+const client = createClient({
+  projectId: 'x',
+  dataset: 'y',
+  apiVersion: '2026-05-12',
+  useCdn: false,
+})
 const backend = createOptimisticStoreClientBackend(client)
 const store = createOptimisticStore(backend)
 const subscription = store.listen('author-1').subscribe(() => {})
@@ -145,12 +170,17 @@ import {
   createOptimisticStoreClientBackend,
 } from '@sanity/mutate/_unstable_store'
 
-const client = createClient({projectId: 'x', dataset: 'y', apiVersion: '2026-05-12', useCdn: false})
+const client = createClient({
+  projectId: 'x',
+  dataset: 'y',
+  apiVersion: '2026-05-12',
+  useCdn: false,
+})
 const backend = createOptimisticStoreClientBackend(client)
 const store = createOptimisticStore(backend)
 // ---cut---
 store.listen('author-1').subscribe(() => {})
-store.listenEvents('author-1').subscribe((event) => {
+store.listenEvents('author-1').subscribe(event => {
   console.log(event.type, event)
 })
 ```
