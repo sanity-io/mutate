@@ -1,0 +1,41 @@
+pre-commit:
+  parallel: true
+  commands:
+    # Human: fast staged-file checks
+    lint:
+      skip:
+        - run: node scripts/is-agent.js
+      glob: "*.{js,ts,tsx,cjs,mjs}"
+      run: pnpm eslint --fix {staged_files}
+      stage_fixed: true
+    fmt:
+      skip:
+        - run: node scripts/is-agent.js
+      run: pnpm prettier --write --ignore-unknown {staged_files}
+      stage_fixed: true
+
+    # Agent: full project checks (mirrors `pnpm check`)
+    lint-all:
+      only:
+        - run: node scripts/is-agent.js
+      run: pnpm lint
+    fmt-all:
+      only:
+        - run: node scripts/is-agent.js
+      run: pnpm prettier --check --ignore-unknown .
+    typecheck:
+      only:
+        - run: node scripts/is-agent.js
+      run: pnpm typecheck
+    typecheck-examples:
+      only:
+        - run: node scripts/is-agent.js
+      run: pnpm typecheck:examples
+    build:
+      only:
+        - run: node scripts/is-agent.js
+      run: pnpm pkg:build
+    test:
+      only:
+        - run: node scripts/is-agent.js
+      run: pnpm test
