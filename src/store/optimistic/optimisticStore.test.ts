@@ -304,8 +304,10 @@ describe('local mutations', () => {
         },
       },
       {
-        kind: 'ERROR',
-        error: {
+        // Phase 4c: errors are emitted as tagged-error values on `next`, not
+        // on the Observable error channel. listenEvents stays open afterwards.
+        kind: 'NEXT',
+        value: {
           _tag: 'ApplyMutationFailedError',
           reason: 'Document already exist',
         },
@@ -438,7 +440,11 @@ describe('listenEvents() rebase semantics', () => {
     await sleep(10)
 
     const syncEvents = notifications.flatMap(n =>
-      n.kind === 'NEXT' && n.value.type === 'sync' ? [n.value] : [],
+      n.kind === 'NEXT' &&
+      !(n.value instanceof Error) &&
+      n.value.type === 'sync'
+        ? [n.value]
+        : [],
     )
     const lastSync = syncEvents.at(-1)
 
@@ -486,7 +492,11 @@ describe('listenEvents() rebase semantics', () => {
     // stagedChanges (current implementation does not filter by id), but the
     // local snapshot must remain the foo document unaffected.
     const optimistic = notifications.flatMap(n =>
-      n.kind === 'NEXT' && n.value.type === 'optimistic' ? [n.value] : [],
+      n.kind === 'NEXT' &&
+      !(n.value instanceof Error) &&
+      n.value.type === 'optimistic'
+        ? [n.value]
+        : [],
     )[0]
 
     if (optimistic) {

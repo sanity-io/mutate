@@ -181,6 +181,10 @@ const store = createOptimisticStore(backend)
 // ---cut---
 store.listen('author-1').subscribe(() => {})
 store.listenEvents('author-1').subscribe(event => {
+  if (event instanceof Error) {
+    console.error(event.message)
+    return
+  }
   console.log(event.type, event)
 })
 ```

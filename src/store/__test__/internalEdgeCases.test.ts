@@ -156,7 +156,11 @@ describe('rebase: staged mutations targeting another document id', () => {
       0,
     )
     const syncEvents = listener.notifications.flatMap(n =>
-      n.kind === 'NEXT' && n.value.type === 'sync' ? [n.value] : [],
+      n.kind === 'NEXT' &&
+      !(n.value instanceof Error) &&
+      n.value.type === 'sync'
+        ? [n.value]
+        : [],
     )
     const last = syncEvents.at(-1)
     expect(last?.after.remote).toMatchObject({_id: 'foo', n: 2})

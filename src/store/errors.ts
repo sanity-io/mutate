@@ -1,5 +1,10 @@
 import * as errore from 'errore'
 
+import {type ApplyPatchError} from '../apply'
+import {type SanityDecodeError} from '../encoders/sanity/decode'
+import {type SanityEncodeError} from '../encoders/sanity/encode'
+import {type ListenerError} from './listeners/errors'
+
 export class ApplyMutationFailedError extends errore.createTaggedError({
   name: 'ApplyMutationFailedError',
   message: 'Failed to apply mutation: $reason',
@@ -33,3 +38,23 @@ export class RebaseDmpApplyError extends errore.createTaggedError({
   name: 'RebaseDmpApplyError',
   message: 'Failed to apply patch for document "$documentId": $reason',
 }) {}
+
+/**
+ * Catch-all union of error values that may be emitted on the OptimisticStore's
+ * public observable streams. `listenEvents(id)` and `listen(id)` widen to
+ * `Event | StoreError`; consumers narrow with `instanceof Error`.
+ *
+ * Per the @sanity/mutate RxJS convention the Observable error channel is
+ * reserved for panics.
+ */
+export type StoreError =
+  | ListenerError
+  | SanityDecodeError
+  | SanityEncodeError
+  | ApplyPatchError
+  | ApplyMutationFailedError
+  | UnknownMutationTypeError
+  | MendozaRevisionMismatchError
+  | MendozaMissingEffectsError
+  | DocumentIdMissingFromMutationError
+  | RebaseDmpApplyError

@@ -2,6 +2,7 @@ import {type RawPatch} from 'mendoza'
 import {type Observable} from 'rxjs'
 
 import {type Mutation, type SanityDocumentBase} from '../mutations/types'
+import {type StoreError} from './errors'
 import {type SanityMutation} from './sanityMutationTypes'
 
 export interface ListenerSyncEvent<
@@ -159,7 +160,7 @@ export interface OptimisticStore {
    */
   listenEvents: (
     id: string,
-  ) => Observable<RemoteDocumentEvent | OptimisticDocumentEvent>
+  ) => Observable<RemoteDocumentEvent | OptimisticDocumentEvent | StoreError>
 
   /**
    * Stages mutations to be applied optimistically and later submitted to the
@@ -190,7 +191,7 @@ export interface OptimisticStore {
    * keeps the store's rebase pipeline alive for `id`; unsubscribing releases
    * it.
    */
-  listen(id: string): Observable<SanityDocumentBase | undefined>
+  listen(id: string): Observable<SanityDocumentBase | undefined | StoreError>
 
   /**
    * Submit pending mutations to the backend.

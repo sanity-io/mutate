@@ -5,6 +5,7 @@ import {encodeAll} from '../../encoders/sanity'
 import {type Transaction} from '../../mutations/types'
 import {applyMutations} from '../documentMap/applyMutations'
 import {createDocumentMap} from '../documentMap/createDocumentMap'
+import {type StoreError} from '../errors'
 import {type DocEndpointResponse} from '../listeners/createDocumentLoader'
 import {
   type ListenerEndpointEvent,
@@ -38,18 +39,22 @@ export function createInMemoryBackend() {
         omitted: omitted.map(entry => ({id: entry.id, reason: 'existence'})),
       } satisfies DocEndpointResponse)
     },
-    submit: (transaction: Transaction) => {
+    submit: (
+      transaction: Transaction,
+    ): Observable<SubmitResult | StoreError> => {
       const result = applyMutations(
         transaction.mutations,
         store,
         transaction.id as never,
       )
-      // TODO Phase 4c: surface applyMutations error as a value
-      if (result instanceof Error) throw result
-      result.forEach(res => {
-        // TODO Phase 4: surface encoder errors as values
+      if (result instanceof Error) {
+        return of(result as StoreError)
+      }
+      for (const res of result) {
         const encodedMutations = encodeAll(res.mutations)
-        if (encodedMutations instanceof Error) throw encodedMutations
+        if (encodedMutations instanceof Error) {
+          return of(encodedMutations as StoreError)
+        }
         listenerEvents.next({
           type: 'mutation',
           documentId: res.id,
@@ -64,7 +69,7 @@ export function createInMemoryBackend() {
                 ? 'appear'
                 : 'update',
         })
-      })
+      }
       return of({} satisfies SubmitResult)
     },
   }

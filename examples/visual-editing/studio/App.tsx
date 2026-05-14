@@ -274,6 +274,11 @@ function App(props: {inspect: InspectType}) {
       .listenEvents(documentId)
       .pipe(
         tap(event => {
+          if (event instanceof Error) {
+            // eslint-disable-next-line no-console
+            console.error('listenEvents error', event)
+            return
+          }
           setDocumentState(current => {
             return (
               event.type === 'optimistic'

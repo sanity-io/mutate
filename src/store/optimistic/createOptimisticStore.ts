@@ -14,6 +14,7 @@ import {
   share,
   startWith,
   Subject,
+  takeWhile,
   withLatestFrom,
 } from 'rxjs'
 import {scan} from 'rxjs/operators'
@@ -27,6 +28,7 @@ import {
 import {applyAll} from '../documentMap/applyDocumentMutation'
 import {applyMutationEventEffects} from '../documentMap/applyMendoza'
 import {createDocumentMap} from '../documentMap/createDocumentMap'
+import {MendozaMissingEffectsError, type StoreError} from '../errors'
 import {
   type DocumentMutationUpdate,
   type DocumentUpdate,
@@ -58,7 +60,7 @@ export interface OptimisticStoreBackend {
    * @param id
    */
   listen: (id: string) => Observable<ListenerEvent | Error>
-  submit: (mutationGroups: Transaction) => Observable<SubmitResult>
+  submit: (mutationGroups: Transaction) => Observable<SubmitResult | StoreError>
 }
 
 /**
@@ -69,6 +71,12 @@ export type LocalState = {
   readonly base: SanityDocumentBase | undefined
   readonly inflight: readonly Transaction[]
   readonly local: readonly MutationGroup[]
+  /**
+   * When set, the stream is terminating with this error value. The scan
+   * reducer no longer mutates other fields; the downstream map surfaces the
+   * error and takeWhile completes the observable.
+   */
+  readonly terminalError?: StoreError
 }
 
 /**
@@ -109,8 +117,10 @@ export function createOptimisticStore(
   return {
     listenEvents(
       id: string,
-    ): Observable<RemoteDocumentEvent | OptimisticDocumentEvent> {
-      return new Observable(subscriber => {
+    ): Observable<RemoteDocumentEvent | OptimisticDocumentEvent | StoreError> {
+      return new Observable<
+        RemoteDocumentEvent | OptimisticDocumentEvent | StoreError
+      >(subscriber => {
         // State that tracks both remote and local document versions
         type ListenEventsState = {
           remote: SanityDocumentBase | undefined
@@ -182,15 +192,16 @@ export function createOptimisticStore(
           next: action => {
             if (action.source === 'remote') {
               const event = action.event
-              // TODO Phase 4c: surface listener errors as values on next
+              // Listener errors flow as values; listenEvents stays open so the
+              // caller can continue observing local mutations or future reconnects.
               if (event instanceof Error) {
-                subscriber.error(event)
+                subscriber.next(event as StoreError)
                 return
               }
               if (event.type === 'sync') {
                 const newRemote = event.document
-                // TODO Phase 4c: surface rebase/applyAll errors as values on next
-                // When we get a sync, rebase local mutations on top of new remote state
+                // When we get a sync, rebase local mutations on top of new remote state.
+                // Rebase / apply failures are surfaced as value emissions.
                 const rebased = rebase(
                   id,
                   state.remote,
@@ -198,9 +209,7 @@ export function createOptimisticStore(
                   state.stagedChanges,
                 )
                 if (rebased instanceof Error) {
-                  // Emit error on the observable when rebase fails
-                  // This can happen e.g. when trying to create a document that already exists
-                  subscriber.error(rebased)
+                  subscriber.next(rebased)
                   return
                 }
                 const [rebasedMutations] = rebased
@@ -210,7 +219,7 @@ export function createOptimisticStore(
                   filterDocumentTransactions(rebasedMutations, id),
                 )
                 if (newLocal instanceof Error) {
-                  subscriber.error(newLocal)
+                  subscriber.next(newLocal as StoreError)
                   return
                 }
                 state = {
@@ -238,6 +247,10 @@ export function createOptimisticStore(
                 state.remote,
                 filterDocumentTransactions(newStagedChanges, id),
               )
+              if (newLocal instanceof Error) {
+                subscriber.next(newLocal as StoreError)
+                return
+              }
 
               // Capture beforeLocal BEFORE we potentially emit sync event
               // If there's a pending sync, before should be the remote state (base state before any mutations)
@@ -393,16 +406,15 @@ export function createOptimisticStoreInternal(
     documentId: string,
   ) {
     return listen(documentId).pipe(
-      // TODO Phase 4c: surface listener errors as value events on this stream
-      mergeMap(event => {
-        if (event instanceof Error) throw event
-        return of(event)
-      }),
       scan(
         (
-          prev: DocumentUpdate<Doc> | undefined,
-          event: ListenerEvent,
-        ): DocumentUpdate<Doc> => {
+          prev: DocumentUpdate<Doc> | StoreError | undefined,
+          event: ListenerEvent | Error,
+        ): DocumentUpdate<Doc> | StoreError => {
+          // Pass listener-layer errors through as value emissions.
+          if (event instanceof Error) {
+            return event as StoreError
+          }
           if (event.type === 'sync') {
             return {
               event,
@@ -411,41 +423,58 @@ export function createOptimisticStoreInternal(
             } as DocumentUpdate<Doc>
           }
           if (event.type === 'mutation') {
-            if (prev?.event === undefined) {
+            // prev should be a non-error DocumentUpdate by the time a mutation
+            // arrives (sync comes first). An error in prev means the stream
+            // would already have terminated via the takeWhile below, but guard
+            // defensively against the seed (undefined) and against any error
+            // value that snuck through.
+            if (prev === undefined || prev instanceof Error) {
+              // Invariant: a mutation cannot arrive before sync. Panic.
               throw new Error(
                 'Received a mutation event before sync event. Something is wrong',
               )
             }
             if (hasProperty(event, 'effects')) {
+              const applied = applyMutationEventEffects(prev.snapshot, event)
+              if (applied instanceof Error) return applied
               return {
                 event,
                 documentId,
-                snapshot: applyMutationEventEffects(
-                  prev.snapshot,
-                  event,
-                ) as Doc,
+                snapshot: applied as Doc,
               }
             }
             if (hasProperty(event, 'mutations')) {
-              // TODO Phase 4c: surface PathParseError as a value event on the document-update stream
               const decoded = decodeAll(event.mutations)
-              if (decoded instanceof Error) throw decoded
+              if (decoded instanceof Error) return decoded
+              const applied = applyAll(prev.snapshot, decoded)
+              if (applied instanceof Error) return applied as StoreError
               return {
                 event,
                 documentId,
-                snapshot: applyAll(prev.snapshot, decoded) as Doc,
+                snapshot: applied as Doc,
               }
             }
-            throw new Error(
-              'No effects or mutations found on listener event. The listener must be set up to either use effectFormat=mendoza (recommended) or includeMutations=true.',
-            )
+            return new MendozaMissingEffectsError()
           }
-          return {documentId, snapshot: prev?.snapshot, event}
+          return {
+            documentId,
+            snapshot: (prev as DocumentUpdate<Doc> | undefined)?.snapshot,
+            event,
+          }
         },
         undefined,
       ),
       // ignore seed value
-      filter(update => update !== undefined),
+      filter(
+        (update): update is DocumentUpdate<Doc> | StoreError =>
+          update !== undefined,
+      ),
+      // Terminate the stream after the first error emission; consumers receive
+      // the error as a value and should resubscribe if they want to recover.
+      takeWhile(
+        (update): boolean => !(update instanceof Error),
+        /* inclusive */ true,
+      ),
     )
   }
 
@@ -483,12 +512,13 @@ export function createOptimisticStoreInternal(
       // Clear pending mutations now that we've captured them for this submit
       clearPendingMutations.next()
 
-      // TODO Phase 4c: surface squashDMPStrings error as a value event
       const squashed = squashDMPStrings(
         edge,
         squashMutationGroups(mutationGroups),
       )
-      if (squashed instanceof Error) throw squashed
+      if (squashed instanceof Error) {
+        return of({type: 'error' as const, error: squashed as StoreError})
+      }
       const transactions = toTransactions(squashed)
       return concat(
         of({
@@ -497,26 +527,41 @@ export function createOptimisticStoreInternal(
         }),
       )
     }),
-    concatMap(submitRequest =>
-      merge(
+    concatMap(submitRequest => {
+      if (submitRequest.type === 'error') {
+        // The squashDMPStrings step produced an error during submit-prep.
+        // Forward the request through scan (which sets terminalError) so the
+        // listen() output emits it and completes.
+        return of(submitRequest)
+      }
+      return merge(
         of(submitRequest),
         from(submitRequest.transaction).pipe(
           concatMap(transaction => submitTransactions(transaction)),
           mergeMap(() => EMPTY),
         ),
-      ),
-    ),
+      )
+    }),
     share(),
   )
 
   return {
-    listen(id: string): Observable<SanityDocumentBase | undefined> {
+    listen(
+      id: string,
+    ): Observable<SanityDocumentBase | undefined | StoreError> {
       const remoteUpdates = listenDocumentUpdates(id).pipe(share())
+
+      // Route any error values from listenDocumentUpdates onto a dedicated
+      // stream that will be merged in at the end and terminate the output.
+      const remoteErrors = remoteUpdates.pipe(
+        filter((update): update is StoreError => update instanceof Error),
+        map(error => ({type: 'error' as const, error})),
+      )
 
       const remoteMutations = remoteUpdates.pipe(
         filter(
           (update): update is DocumentMutationUpdate<SanityDocumentBase> =>
-            update.event.type === 'mutation',
+            !(update instanceof Error) && update.event.type === 'mutation',
         ),
         map(update => ({
           base: update.snapshot,
@@ -526,12 +571,16 @@ export function createOptimisticStoreInternal(
       )
 
       const remoteSync = remoteUpdates.pipe(
-        filter(update => update.event.type === 'sync'),
+        filter(
+          (update): update is DocumentUpdate<SanityDocumentBase> =>
+            !(update instanceof Error) && update.event.type === 'sync',
+        ),
         map(update => ({type: 'sync' as const, snapshot: update.snapshot})),
       )
 
       return merge(
         remoteSync,
+        remoteErrors,
         submitRequests,
         localMutations.pipe(
           map(m => ({type: 'localMutation' as const, mutations: m})),
@@ -540,6 +589,11 @@ export function createOptimisticStoreInternal(
       ).pipe(
         scan((state: LocalState, ev) => {
           const {base, inflight, local} = state
+          if (ev.type === 'error') {
+            // Carry the error through scan unchanged; it will be surfaced as a
+            // value emission and terminate the stream via takeWhile below.
+            return {...state, terminalError: ev.error}
+          }
           if (ev.type === 'sync') {
             // When a sync event arrives, the document might already include effects of
             // inflight transactions (if they were applied before the sync event was received).
@@ -574,13 +628,15 @@ export function createOptimisticStoreInternal(
               ev.base,
               filterDocumentTransactions(inflight, id),
             )
-            // TODO Phase 4c: surface applyAll error as a value
-            if (newEdge instanceof Error) throw newEdge
+            if (newEdge instanceof Error) {
+              return {...state, terminalError: newEdge as StoreError}
+            }
 
             const oldEdge = edge.get(id)
-            // TODO Phase 4c: surface rebase error as a value
             const rebased = rebase(id, oldEdge, newEdge, local)
-            if (rebased instanceof Error) throw rebased
+            if (rebased instanceof Error) {
+              return {...state, terminalError: rebased as StoreError}
+            }
             const [newLocalMutations] = rebased
 
             // todo – is there a cleaner way to do this?
@@ -613,12 +669,14 @@ export function createOptimisticStoreInternal(
           console.warn('Unhandled "%s" event', ev.type)
           return state
         }, SEED_STATE),
-        startWith({inflight: [], local: [], base: undefined}),
-        map(state => {
+        startWith({inflight: [], local: [], base: undefined} as LocalState),
+        map((state): SanityDocumentBase | undefined | StoreError => {
+          if (state.terminalError) return state.terminalError
           const nextEdge = applyAll(
             state.base,
             filterDocumentTransactions(state.inflight, id),
           )
+          if (nextEdge instanceof Error) return nextEdge as StoreError
           edge.set(id, nextEdge)
           // whenever state changes
           // apply inflight + local on base
@@ -626,8 +684,15 @@ export function createOptimisticStoreInternal(
             nextEdge,
             filterDocumentTransactions(state.local, id),
           )
+          if (nextLocalDocument instanceof Error) {
+            return nextLocalDocument as StoreError
+          }
           return nextLocalDocument
         }),
+        takeWhile(
+          (value): boolean => !(value instanceof Error),
+          /* inclusive */ true,
+        ),
       )
     },
   }

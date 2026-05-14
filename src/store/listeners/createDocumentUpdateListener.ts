@@ -1,10 +1,11 @@
-import {filter, mergeMap, type Observable, of} from 'rxjs'
+import {filter, type Observable, takeWhile} from 'rxjs'
 import {scan} from 'rxjs/operators'
 
 import {decodeAll} from '../../encoders/sanity/decode'
 import {type SanityDocumentBase} from '../../mutations/types'
 import {applyAll} from '../documentMap/applyDocumentMutation'
 import {applyMutationEventEffects} from '../documentMap/applyMendoza'
+import {MendozaMissingEffectsError, type StoreError} from '../errors'
 import {
   type ListenerEvent,
   type ListenerMutationEvent,
@@ -37,11 +38,17 @@ export type DocumentUpdate<Doc extends SanityDocumentBase> =
 
 export type DocumentUpdateListener<Doc extends SanityDocumentBase> = (
   id: string,
-) => Observable<DocumentUpdate<Doc>>
+) => Observable<DocumentUpdate<Doc> | StoreError>
 
 /**
- * Creates a function that can be used to listen for document updates
- * Emits the latest snapshot of the document along with the latest event
+ * Creates a function that can be used to listen for document updates.
+ * Emits the latest snapshot of the document along with the latest event.
+ *
+ * Per the @sanity/mutate RxJS convention the output Observable surfaces
+ * operational failures as tagged-error values on `next`, and completes after
+ * the first error emission (via `takeWhile`). Callers narrow with
+ * `instanceof Error` and may resubscribe to recover.
+ *
  * @param options
  */
 export function createDocumentUpdateListener(options: {
@@ -51,18 +58,18 @@ export function createDocumentUpdateListener(options: {
 }) {
   const {listenDocumentEvents} = options
 
-  return function listen<Doc extends SanityDocumentBase>(documentId: string) {
+  return function listen<Doc extends SanityDocumentBase>(
+    documentId: string,
+  ): Observable<DocumentUpdate<Doc> | StoreError> {
     return listenDocumentEvents(documentId).pipe(
-      // TODO Phase 4c: surface listener errors as value events on this stream
-      mergeMap(event => {
-        if (event instanceof Error) throw event
-        return of(event)
-      }),
       scan(
         (
-          prev: DocumentUpdate<Doc> | undefined,
-          event: ListenerEvent,
-        ): DocumentUpdate<Doc> => {
+          prev: DocumentUpdate<Doc> | StoreError | undefined,
+          event: ListenerEvent | Error,
+        ): DocumentUpdate<Doc> | StoreError => {
+          if (event instanceof Error) {
+            return event as StoreError
+          }
           if (event.type === 'sync') {
             return {
               event,
@@ -71,41 +78,53 @@ export function createDocumentUpdateListener(options: {
             } as DocumentUpdate<Doc>
           }
           if (event.type === 'mutation') {
-            if (prev?.event === undefined) {
+            if (prev === undefined || prev instanceof Error) {
+              // Invariant: mutation cannot arrive before sync. Panic.
               throw new Error(
                 'Received a mutation event before sync event. Something is wrong',
               )
             }
             if (hasProperty(event, 'effects')) {
+              const applied = applyMutationEventEffects(prev.snapshot, event)
+              if (applied instanceof Error) return applied
               return {
                 event,
                 documentId,
-                snapshot: applyMutationEventEffects(
-                  prev.snapshot,
-                  event,
-                ) as Doc,
+                snapshot: applied as Doc,
               }
             }
             if (hasProperty(event, 'mutations')) {
-              // TODO Phase 4c: surface PathParseError as a value event on the document-update stream
               const decoded = decodeAll(event.mutations)
-              if (decoded instanceof Error) throw decoded
+              if (decoded instanceof Error) return decoded
+              const applied = applyAll(prev.snapshot, decoded)
+              if (applied instanceof Error) return applied as StoreError
               return {
                 event,
                 documentId,
-                snapshot: applyAll(prev.snapshot, decoded) as Doc,
+                snapshot: applied as Doc,
               }
             }
-            throw new Error(
-              'No effects found on listener event. The listener must be set up to use effectFormat=mendoza.',
-            )
+            return new MendozaMissingEffectsError()
           }
-          return {documentId, snapshot: prev?.snapshot, event}
+          return {
+            documentId,
+            snapshot: (prev as DocumentUpdate<Doc> | undefined)?.snapshot,
+            event,
+          }
         },
         undefined,
       ),
       // ignore seed value
-      filter(update => update !== undefined),
+      filter(
+        (update): update is DocumentUpdate<Doc> | StoreError =>
+          update !== undefined,
+      ),
+      // Terminate the stream after the first error emission; consumers receive
+      // the error as a value and should resubscribe if they want to recover.
+      takeWhile(
+        (update): boolean => !(update instanceof Error),
+        /* inclusive */ true,
+      ),
     )
   }
 }

@@ -8,6 +8,7 @@ import {
 } from 'rxjs'
 
 import {type SanityDocumentBase} from '../mutations/types'
+import {type StoreError} from './errors'
 import {
   type DocumentUpdate,
   type DocumentUpdateListener,
@@ -18,13 +19,13 @@ export type MapTuple<T, U> = {[K in keyof T]: U}
 export interface ReadOnlyDocumentStore {
   listenDocument: <Doc extends SanityDocumentBase>(
     id: string,
-  ) => Observable<DocumentUpdate<Doc>>
+  ) => Observable<DocumentUpdate<Doc> | StoreError>
   listenDocuments: <
     Doc extends SanityDocumentBase,
     const IdTuple extends string[],
   >(
     id: IdTuple,
-  ) => Observable<MapTuple<IdTuple, DocumentUpdate<Doc>>>
+  ) => Observable<MapTuple<IdTuple, DocumentUpdate<Doc> | StoreError>>
 }
 
 /**
@@ -37,14 +38,14 @@ export function createReadOnlyStore(
 ): ReadOnlyDocumentStore {
   const cache = new Map<
     string,
-    Observable<DocumentUpdate<SanityDocumentBase>>
+    Observable<DocumentUpdate<SanityDocumentBase> | StoreError>
   >()
 
   const {shutdownDelay} = options
 
   function listenDocument<Doc extends SanityDocumentBase>(id: string) {
     if (cache.has(id)) {
-      return cache.get(id)! as Observable<DocumentUpdate<Doc>>
+      return cache.get(id)! as Observable<DocumentUpdate<Doc> | StoreError>
     }
     const cached = listenDocumentUpdates(id).pipe(
       finalize(() => cache.delete(id)),
@@ -55,7 +56,7 @@ export function createReadOnlyStore(
       }),
     )
     cache.set(id, cached)
-    return cached as Observable<DocumentUpdate<Doc>>
+    return cached as Observable<DocumentUpdate<Doc> | StoreError>
   }
   return {
     listenDocument,
@@ -64,7 +65,7 @@ export function createReadOnlyStore(
     ) {
       return combineLatest(
         ids.map(id => listenDocument<Doc>(id)),
-      ) as Observable<MapTuple<IdTuple, DocumentUpdate<Doc>>>
+      ) as Observable<MapTuple<IdTuple, DocumentUpdate<Doc> | StoreError>>
     },
   }
 }

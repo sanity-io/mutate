@@ -37,11 +37,19 @@ const store = createReadOnlyStore(listenDocumentUpdates)
 
 // we can now subscribe to documents
 store.listenDocument('foo').subscribe(update => {
+  if (update instanceof Error) {
+    console.error(update.message)
+    return
+  }
   console.log(update.event, update.snapshot)
 })
 
 // we can now subscribe to documents
 store.listenDocuments(['foo', 'bar']).subscribe(([fooUpdate, barUpdate]) => {
+  if (fooUpdate instanceof Error || barUpdate instanceof Error) {
+    console.error('listenDocuments error', {fooUpdate, barUpdate})
+    return
+  }
   // this will be called with latest foo and bar when either change
   console.log(fooUpdate.snapshot, barUpdate.snapshot)
 })
