@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.0](https://github.com/sanity-io/mutate/compare/mutate-v0.17.1...mutate-v0.18.0) (2026-05-14)
+
+
+### Features
+
+* add lefthook for git hooks automation ([#119](https://github.com/sanity-io/mutate/issues/119)) ([2dbc7a2](https://github.com/sanity-io/mutate/commit/2dbc7a240b69703b81b378796195c342910bb64f))
+
 ## [0.17.1](https://github.com/sanity-io/mutate/compare/mutate-v0.17.0...mutate-v0.17.1) (2026-05-14)
 
 
