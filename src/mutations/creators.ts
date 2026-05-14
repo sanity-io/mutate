@@ -18,7 +18,7 @@ import {
   type SanityDocumentBase,
 } from './types'
 
-export function create<Doc extends Optional<SanityDocumentBase, '_id'>>(
+export function create<const Doc extends Optional<SanityDocumentBase, '_id'>>(
   document: Doc,
 ): CreateMutation<Doc> {
   return {type: 'create', document}
@@ -57,19 +57,19 @@ export function at<O extends Operation>(
   }
 }
 
-export function createIfNotExists<Doc extends SanityDocumentBase>(
+export function createIfNotExists<const Doc extends SanityDocumentBase>(
   document: Doc,
 ): CreateIfNotExistsMutation<Doc> {
   return {type: 'createIfNotExists', document}
 }
 
-export function createOrReplace<Doc extends SanityDocumentBase>(
+export function createOrReplace<const Doc extends SanityDocumentBase>(
   document: Doc,
 ): CreateOrReplaceMutation<Doc> {
   return {type: 'createOrReplace', document}
 }
 
-export function delete_(id: string): DeleteMutation {
+export function delete_<const Id extends string>(id: Id): DeleteMutation<Id> {
   return {type: 'delete', id}
 }
 

@@ -35,9 +35,9 @@ export type CreateOrReplaceMutation<Doc extends SanityDocumentBase> = {
   document: Doc
 }
 
-export type DeleteMutation = {
+export type DeleteMutation<Id extends string = string> = {
   type: 'delete'
-  id: string
+  id: Id
 }
 
 export type PatchMutation<Patches extends NodePatchList = NodePatchList> = {
