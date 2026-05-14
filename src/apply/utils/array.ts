@@ -31,18 +31,22 @@ export function normalizeIndex(length: number, index: number) {
 }
 
 // non-mutating splice
-export function splice<T>(arr: T[], start: number, deleteCount: number): T[]
 export function splice<T>(
-  arr: T[],
+  arr: readonly T[],
   start: number,
   deleteCount: number,
-  items: T[],
 ): T[]
 export function splice<T>(
-  arr: T[],
+  arr: readonly T[],
   start: number,
   deleteCount: number,
-  items?: T[],
+  items: readonly T[],
+): T[]
+export function splice<T>(
+  arr: readonly T[],
+  start: number,
+  deleteCount: number,
+  items?: readonly T[],
 ): T[] {
   const copy = arr.slice()
   copy.splice(start, deleteCount, ...(items || []))
