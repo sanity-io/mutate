@@ -42,7 +42,7 @@ If you need to update many array items, build one patch per item:
 import {at, patch, set} from '@sanity/mutate'
 
 const keys = ['xyz', 'abc', 'def']
-const patches = keys.map((key) =>
+const patches = keys.map(key =>
   at(['people', {_key: key}, 'verified'], set(true)),
 )
 const mutation = patch('roster-1', patches)

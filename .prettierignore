@@ -2,3 +2,5 @@
 CHANGELOG.md
 pnpm-lock.yaml
 pnpm-workspace.yaml
+.release-please-manifest.json
+release-please-config.json

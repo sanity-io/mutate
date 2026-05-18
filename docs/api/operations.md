@@ -109,11 +109,9 @@ import {at, upsert} from '@sanity/mutate'
 
 at(
   'people',
-  upsert(
-    [{_key: 'jane', _type: 'person', name: 'Jane'}],
-    'after',
-    {_key: 'john'},
-  ),
+  upsert([{_key: 'jane', _type: 'person', name: 'Jane'}], 'after', {
+    _key: 'john',
+  }),
 )
 ```
 
@@ -132,11 +130,9 @@ import {at, insertIfMissing} from '@sanity/mutate'
 
 at(
   'people',
-  insertIfMissing(
-    [{_key: 'jane', _type: 'person', name: 'Jane'}],
-    'after',
-    {_key: 'john'},
-  ),
+  insertIfMissing([{_key: 'jane', _type: 'person', name: 'Jane'}], 'after', {
+    _key: 'john',
+  }),
 )
 ```
 
