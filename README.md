@@ -62,14 +62,14 @@ await fetch(
 
 ## Documentation
 
-Full reference and guides at **<https://sanity-io.github.io/mutate>** (sources in [`docs/`](./docs); run the site locally with `pnpm docs:dev`):
+Full reference and guides at **<https://mutate.sanity.dev>** (sources in [`docs/`](./docs); run the site locally with `pnpm docs:dev`):
 
-- [Getting Started](https://sanity-io.github.io/mutate/guide/getting-started)
-- [Applying Mutations](https://sanity-io.github.io/mutate/guide/applying-mutations) — in-memory apply
-- [Optimistic Store](https://sanity-io.github.io/mutate/guide/optimistic-store) — local replica with rebase
-- [Recipes](https://sanity-io.github.io/mutate/guide/recipes)
-- [Differences from the Sanity API](https://sanity-io.github.io/mutate/guide/differences-from-sanity-api)
-- API reference: [mutations](https://sanity-io.github.io/mutate/api/mutations), [patches](https://sanity-io.github.io/mutate/api/patches), [operations](https://sanity-io.github.io/mutate/api/operations), [encoders](https://sanity-io.github.io/mutate/api/encoders)
+- [Getting Started](https://mutate.sanity.dev/guide/getting-started)
+- [Applying Mutations](https://mutate.sanity.dev/guide/applying-mutations) — in-memory apply
+- [Optimistic Store](https://mutate.sanity.dev/guide/optimistic-store) — local replica with rebase
+- [Recipes](https://mutate.sanity.dev/guide/recipes)
+- [Differences from the Sanity API](https://mutate.sanity.dev/guide/differences-from-sanity-api)
+- API reference: [mutations](https://mutate.sanity.dev/api/mutations), [patches](https://mutate.sanity.dev/api/patches), [operations](https://mutate.sanity.dev/api/operations), [encoders](https://mutate.sanity.dev/api/encoders)
 
 ## License
 
