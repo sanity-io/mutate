@@ -1,11 +1,17 @@
 import {type Index, type KeyedPathElement} from '../path'
+import {type Arrify} from '../utils/arrify'
 import {isObject} from '../utils/isObject'
 import {
   insert as _insert,
   replace as _replace,
   upsert as _upsert,
 } from './operations/creators'
-import {type RelativePosition} from './operations/types'
+import {
+  type InsertOp,
+  type RelativePosition,
+  type ReplaceOp,
+  type UpsertOp,
+} from './operations/types'
 
 export function autoKeys<Item>(generateKey: (item: Item) => string) {
   const ensureKeys = createEnsureKeys(generateKey)
@@ -17,7 +23,8 @@ export function autoKeys<Item>(generateKey: (item: Item) => string) {
     position: Pos,
     referenceItem: Ref,
     items: Item[],
-  ) => _insert(ensureKeys(items), position, referenceItem)
+  ): InsertOp<(Item & {_key: string})[], Pos, Ref> =>
+    _insert(ensureKeys(items), position, referenceItem)
 
   const upsert = <
     Pos extends RelativePosition,
@@ -26,7 +33,8 @@ export function autoKeys<Item>(generateKey: (item: Item) => string) {
     items: Item[],
     position: Pos,
     referenceItem: ReferenceItem,
-  ) => _upsert(ensureKeys(items), position, referenceItem)
+  ): UpsertOp<Arrify<Item & {_key: string}>, Pos, ReferenceItem> =>
+    _upsert(ensureKeys(items), position, referenceItem)
 
   const replace = <
     Pos extends RelativePosition,
@@ -35,21 +43,29 @@ export function autoKeys<Item>(generateKey: (item: Item) => string) {
     items: Item[],
     position: Pos,
     referenceItem: ReferenceItem,
-  ) => _replace(ensureKeys(items), referenceItem)
+  ): ReplaceOp<(Item & {_key: string})[], ReferenceItem> =>
+    _replace(ensureKeys(items), referenceItem)
 
   const insertBefore = <Ref extends Index | KeyedPathElement>(
     ref: Ref,
     items: Item[],
-  ) => insert('before', ref, items)
+  ): InsertOp<(Item & {_key: string})[], 'before', Ref> =>
+    insert('before', ref, items)
 
-  const prepend = (items: Item[]) => insertBefore(0, items)
+  const prepend = (
+    items: Item[],
+  ): InsertOp<(Item & {_key: string})[], 'before', 0> => insertBefore(0, items)
 
   const insertAfter = <Ref extends Index | KeyedPathElement>(
     ref: Ref,
     items: Item[],
-  ) => insert('after', ref, items)
+  ): InsertOp<(Item & {_key: string})[], 'after', Ref> =>
+    insert('after', ref, items)
 
-  const append = (items: Item[]) => insert('after', -1, items)
+  const append = (
+    items: Item[],
+  ): InsertOp<(Item & {_key: string})[], 'after', -1> =>
+    insert('after', -1, items)
 
   return {insert, upsert, replace, insertBefore, prepend, insertAfter, append}
 }
