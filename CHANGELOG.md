@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.18.0](https://github.com/sanity-io/mutate/compare/mutate-v0.17.1...mutate-v0.18.0) (2026-05-21)
+
+
+### Features
+
+* add lefthook for git hooks automation ([#119](https://github.com/sanity-io/mutate/issues/119)) ([2dbc7a2](https://github.com/sanity-io/mutate/commit/2dbc7a240b69703b81b378796195c342910bb64f))
+
+
+### Bug Fixes
+
+* add explicit return types to autoKeys to fix broken .d.ts output ([#126](https://github.com/sanity-io/mutate/issues/126)) ([3a7f019](https://github.com/sanity-io/mutate/commit/3a7f0191dc65b38cb71827a4cfe4b7eb359f7e2d))
+
 ## [0.17.1](https://github.com/sanity-io/mutate/compare/mutate-v0.17.0...mutate-v0.17.1) (2026-05-14)
 
 
