@@ -1,7 +1,7 @@
 import {partition} from 'lodash'
 import {concat, filter, type Observable, of, Subject} from 'rxjs'
 
-import {encodeAll} from '../../encoders/sanity'
+import {encodeAll} from '../../encoders/sanity/encode'
 import {type Transaction} from '../../mutations/types'
 import {applyMutations} from '../documentMap/applyMutations'
 import {createDocumentMap} from '../documentMap/createDocumentMap'

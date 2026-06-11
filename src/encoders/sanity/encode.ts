@@ -1,4 +1,4 @@
-import {type PatchMutationOperation} from '@sanity/client'
+import {type PatchMutationOperation, type PatchOperations} from '@sanity/client'
 
 import {
   type Mutation,
@@ -6,7 +6,7 @@ import {
   type Transaction,
 } from '../../mutations/types'
 import {stringify as stringifyPath} from '../../path/parser/stringify'
-import {type SanityMutation} from './types'
+import {type Insert, type SanityMutation} from './types'
 
 export function encode(mutation: Mutation): SanityMutation[] | SanityMutation {
   return encodeMutation(mutation)
@@ -52,7 +52,7 @@ export function encodeMutation(
   }
 }
 
-export function encodePatch(patch: NodePatch) {
+export function encodePatch(patch: NodePatch): PatchOperations {
   const {path, op} = patch
   if (op.type === 'unset') {
     return {unset: [stringifyPath(path)]}
@@ -62,7 +62,7 @@ export function encodePatch(patch: NodePatch) {
       insert: {
         [op.position]: stringifyPath([...path, op.referenceItem]),
         items: op.items,
-      },
+      } as Insert,
     }
   }
   if (op.type === 'diffMatchPatch') {
@@ -75,7 +75,10 @@ export function encodePatch(patch: NodePatch) {
     return {dec: {[stringifyPath(path)]: op.amount}}
   }
   if (op.type === 'set' || op.type === 'setIfMissing') {
-    return {[op.type]: {[stringifyPath(path)]: op.value}}
+    return {[op.type]: {[stringifyPath(path)]: op.value}} as Pick<
+      PatchOperations,
+      'set' | 'setIfMissing'
+    >
   }
   if (op.type === 'truncate') {
     const range = [
@@ -94,7 +97,7 @@ export function encodePatch(patch: NodePatch) {
       insert: {
         [op.position]: stringifyPath([...path, op.referenceItem]),
         items: op.items,
-      },
+      } as Insert,
     }
   }
   if (op.type === 'assign') {
@@ -117,7 +120,7 @@ export function encodePatch(patch: NodePatch) {
       insert: {
         replace: stringifyPath(path.concat(op.referenceItem)),
         items: op.items,
-      },
+      } as Insert,
     }
   }
   if (op.type === 'remove') {
