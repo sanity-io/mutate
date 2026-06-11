@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.19.0](https://github.com/sanity-io/mutate/compare/mutate-v0.18.0...mutate-v0.19.0) (2026-06-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* consumers using @sanity/mutate/_unstable_store or _unstable_machine must now declare mendoza as a dependency themselves (it is required at runtime to apply listener mutation event effects).
+
+### Bug Fixes
+
+* repair .d.ts output failing downstream skipLibCheck:false typechecks ([#127](https://github.com/sanity-io/mutate/issues/127)) ([cd501d5](https://github.com/sanity-io/mutate/commit/cd501d59b28e704c56e154eaf4a8073dba94f97e))
+
 ## [0.18.0](https://github.com/sanity-io/mutate/compare/mutate-v0.17.1...mutate-v0.18.0) (2026-05-21)
 
 
