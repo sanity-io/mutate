@@ -5,7 +5,7 @@ import {
 } from '@sanity/client'
 import {from, type Observable} from 'rxjs'
 
-import {encodeTransaction} from '../../../encoders/sanity'
+import {encodeTransaction} from '../../../encoders/sanity/encode'
 import {type Transaction} from '../../../mutations/types'
 import {createDocumentEventListener} from '../../listeners/createDocumentEventListener'
 import {createDocumentLoaderFromClient} from '../../listeners/createDocumentLoader'

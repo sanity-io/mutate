@@ -12,4 +12,4 @@ export type {
   SanitySetIfMissingPatch,
   SanitySetPatch,
   SanityUnsetPatch,
-} from '../encoders/sanity'
+} from '../encoders/sanity/types'
