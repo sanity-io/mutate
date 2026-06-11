@@ -12,6 +12,10 @@ export type * from './types'
 export {toTransactions} from './utils/toTransactions'
 
 /** Required support types */
+// Re-exported so downstream declaration emit can reference the mendoza patch
+// format via `@sanity/mutate/_unstable_store` instead of the (for consumers
+// possibly unresolvable) transitive `mendoza` dependency (avoids TS2742)
+export type {RawPatch} from 'mendoza'
 // eslint-disable-next-line import/export
 export type * from '../mutations/operations/types' // todo: fix duplicate exports
 export type {NodePatch, PatchOptions} from '../mutations/types'
