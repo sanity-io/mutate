@@ -6,7 +6,7 @@ import {
   type Transaction,
 } from '../../mutations/types'
 import {stringify as stringifyPath} from '../../path/parser/stringify'
-import {type SanityMutation} from './types'
+import {type Insert, type SanityMutation} from './types'
 
 export function encode(mutation: Mutation): SanityMutation[] | SanityMutation {
   return encodeMutation(mutation)
@@ -58,12 +58,11 @@ export function encodePatch(patch: NodePatch): PatchOperations {
     return {unset: [stringifyPath(path)]}
   }
   if (op.type === 'insert') {
-    const referencePath = stringifyPath([...path, op.referenceItem])
     return {
-      insert:
-        op.position === 'before'
-          ? {before: referencePath, items: op.items as unknown[]}
-          : {after: referencePath, items: op.items as unknown[]},
+      insert: {
+        [op.position]: stringifyPath([...path, op.referenceItem]),
+        items: op.items,
+      } as Insert,
     }
   }
   if (op.type === 'diffMatchPatch') {
@@ -75,11 +74,11 @@ export function encodePatch(patch: NodePatch): PatchOperations {
   if (op.type === 'dec') {
     return {dec: {[stringifyPath(path)]: op.amount}}
   }
-  if (op.type === 'set') {
-    return {set: {[stringifyPath(path)]: op.value}}
-  }
-  if (op.type === 'setIfMissing') {
-    return {setIfMissing: {[stringifyPath(path)]: op.value}}
+  if (op.type === 'set' || op.type === 'setIfMissing') {
+    return {[op.type]: {[stringifyPath(path)]: op.value}} as Pick<
+      PatchOperations,
+      'set' | 'setIfMissing'
+    >
   }
   if (op.type === 'truncate') {
     const range = [
@@ -91,15 +90,14 @@ export function encodePatch(patch: NodePatch): PatchOperations {
   }
   if (op.type === 'upsert') {
     // note: upsert currently not supported by sanity, so will always insert at reference position
-    const referencePath = stringifyPath([...path, op.referenceItem])
     return {
       unset: op.items.map(item =>
         stringifyPath([...path, {_key: (item as any)._key}]),
       ),
-      insert:
-        op.position === 'before'
-          ? {before: referencePath, items: op.items as unknown[]}
-          : {after: referencePath, items: op.items as unknown[]},
+      insert: {
+        [op.position]: stringifyPath([...path, op.referenceItem]),
+        items: op.items,
+      } as Insert,
     }
   }
   if (op.type === 'assign') {
@@ -121,8 +119,8 @@ export function encodePatch(patch: NodePatch): PatchOperations {
     return {
       insert: {
         replace: stringifyPath(path.concat(op.referenceItem)),
-        items: op.items as unknown[],
-      },
+        items: op.items,
+      } as Insert,
     }
   }
   if (op.type === 'remove') {
