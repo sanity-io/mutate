@@ -1,7 +1,10 @@
 import {defineConfig} from '@sanity/pkg-utils'
 
 export default defineConfig({
-  dts: 'rolldown',
+  // `dts: 'rolldown'` emits broken declarations for this package: a phantom
+  // `__exportAll` helper (TS2304) leaks into the chunked output when consumers
+  // typecheck with `skipLibCheck: false` (rolldown-plugin-dts@0.25.2)
+  dts: 'api-extractor',
   extract: {
     rules: {
       'ae-missing-release-tag': 'off',
