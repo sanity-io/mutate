@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.1](https://github.com/sanity-io/mutate/compare/mutate-v0.18.0...mutate-v0.18.1) (2026-06-11)
+
+
+### Bug Fixes
+
+* repair .d.ts output failing downstream skipLibCheck:false typechecks ([#127](https://github.com/sanity-io/mutate/issues/127)) ([91f727d](https://github.com/sanity-io/mutate/commit/91f727da7d6d565899e1b50a6324378c9b5e535e))
+
 ## [0.18.0](https://github.com/sanity-io/mutate/compare/mutate-v0.17.1...mutate-v0.18.0) (2026-05-21)
 
 
