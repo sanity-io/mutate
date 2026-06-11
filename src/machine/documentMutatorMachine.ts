@@ -18,7 +18,8 @@ import {
   stopChild,
 } from 'xstate'
 
-import {encodeTransaction, type Mutation} from '../encoders/sanity'
+import {encodeTransaction} from '../encoders/sanity/encode'
+import {type Mutation} from '../mutations/types'
 import {
   type MutationGroup,
   type SanityDocumentBase,
