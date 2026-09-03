@@ -1,8 +1,6 @@
-import {groupBy} from 'lodash'
-
 import {type Mutation, type NodePatch} from '../../../mutations/types'
 import {type MutationGroup} from '../../types'
-import {takeUntilRight} from '../../utils/arrayUtils'
+import {groupBy, takeUntilRight} from '../../utils/arrayUtils'
 import {getMutationDocumentId} from '../../utils/getMutationDocumentId'
 import {mergeMutationGroups} from '../../utils/mergeMutationGroups'
 import {squashNodePatches} from './squashNodePatches'

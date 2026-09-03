@@ -1,24 +1,12 @@
-import {partition as lodashPartition} from 'lodash'
 import {concat, type Observable, of, switchMap, throwError, timer} from 'rxjs'
 import {mergeMap, scan} from 'rxjs/operators'
 
 import {type SanityDocumentBase} from '../../../mutations/types'
 import {type ListenerEvent, type ListenerMutationEvent} from '../../types'
+import {partition} from '../../utils/arrayUtils'
 import {DeadlineExceededError, MaxBufferExceededError} from '../errors'
 import {discardChainTo, toOrderedChains} from './eventChainUtils'
 
-/**
- * lodash types are not great
- * todo: replace with es-toolkit
- * @param array
- * @param predicate
- */
-function partition<T>(
-  array: T[],
-  predicate: (element: T) => boolean,
-): [trueValues: T[], falseValues: T[]] {
-  return lodashPartition(array, predicate)
-}
 export interface ListenerSequenceState {
   /**
    * Tracks the latest revision from the server that can be applied locally
