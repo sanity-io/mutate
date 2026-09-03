@@ -14,3 +14,5 @@ minimumReleaseAgeExclude:
   - '@sanity/*'
   - 'groq-js'
   - 'react-multiplayer-input'
+  # Renovate security update: nanoid@5.1.16
+  - nanoid@5.1.16
