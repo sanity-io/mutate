@@ -1,8 +1,8 @@
-import {keyBy} from 'lodash'
 import {map, type Observable} from 'rxjs'
 
 import {type SanityDocumentBase} from '../../mutations/types'
 import {type SanityClientLike} from '../optimistic/backend/createOptimisticStoreClientBackend'
+import {keyBy} from '../utils/arrayUtils'
 import {createDataLoader} from '../utils/createDataLoader'
 import {type DocumentResult} from './types'
 

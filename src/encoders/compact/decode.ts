@@ -1,5 +1,3 @@
-import {isObject} from 'lodash'
-
 import {type UpsertOp} from '../../mutations/operations/types'
 import {
   type Mutation,
@@ -8,6 +6,7 @@ import {
 } from '../../mutations/types'
 import {type Index, type KeyedPathElement} from '../../path'
 import {parse as parsePath} from '../../path/parser/parse'
+import {isObject} from '../../utils/isObject'
 import {
   type CompactMutation,
   type CompactPatchMutation,
