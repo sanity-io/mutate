@@ -1,4 +1,3 @@
-import {partition} from 'lodash'
 import {concat, filter, type Observable, of, Subject} from 'rxjs'
 
 import {encodeAll} from '../../encoders/sanity/encode'
@@ -11,6 +10,7 @@ import {
   type ListenerWelcomeEvent,
   type SubmitResult,
 } from '../types'
+import {partition} from '../utils/arrayUtils'
 import {createTransactionId} from '../utils/createTransactionId'
 
 function createWelcomeEvent(): ListenerWelcomeEvent {

@@ -20,7 +20,7 @@ export function isEqual(path: Path, otherPath: Path): boolean {
   return (
     path.length === otherPath.length &&
     path.every((segment, i) =>
-      isElementEqual(segment, safeGetElementAt(path, i)),
+      isElementEqual(segment, safeGetElementAt(otherPath, i)),
     )
   )
 }

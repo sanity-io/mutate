@@ -23,9 +23,6 @@ importers:
       hotscript:
         specifier: ^1.0.13
         version: 1.0.13
-      lodash:
-        specifier: ^4.18.1
-        version: 4.18.1
       mendoza:
         specifier: ^3.0.8
         version: 3.0.8
@@ -51,9 +48,6 @@ importers:
       '@types/diff-match-patch':
         specifier: ^1.0.36
         version: 1.0.36
-      '@types/lodash':
-        specifier: ^4.17.24
-        version: 4.17.24
       '@typescript-eslint/parser':
         specifier: ^8.59.2
         version: 8.59.2(eslint@10.3.0)(typescript@6.0.3)
@@ -183,6 +177,9 @@ importers:
       groq-js:
         specifier: ^1.30.1
         version: 1.30.1
+      lodash:
+        specifier: ^4.18.1
+        version: 4.18.1
       mendoza:
         specifier: ^3.0.8
         version: 3.0.8
@@ -223,6 +220,9 @@ importers:
       '@rolldown/plugin-babel':
         specifier: ^0.2.3
         version: 0.2.3(@babel/core@7.29.7)(@babel/runtime@7.29.7)(rolldown@1.1.0)(vite@8.0.11(@types/node@25.6.2)(esbuild@0.28.0)(terser@5.48.0)(tsx@4.22.4))
+      '@types/lodash':
+        specifier: ^4.17.24
+        version: 4.17.24
       '@types/node':
         specifier: ^25.6.2
         version: 25.6.2
@@ -304,6 +304,9 @@ importers:
       groq-js:
         specifier: ^1.30.1
         version: 1.30.1
+      lodash:
+        specifier: ^4.18.1
+        version: 4.18.1
       react:
         specifier: ^19.2.6
         version: 19.2.6
@@ -326,6 +329,9 @@ importers:
         specifier: ^10.1.1
         version: 10.1.1(react@19.2.6)
     devDependencies:
+      '@types/lodash':
+        specifier: ^4.17.24
+        version: 4.17.24
       '@types/node':
         specifier: ^25.6.2
         version: 25.6.2
