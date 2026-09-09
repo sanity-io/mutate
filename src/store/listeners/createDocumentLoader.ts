@@ -38,8 +38,7 @@ export function createDocumentLoaderFromClient(
 ) {
   const fetchDocument = (ids: string[]) => {
     const requestOptions = {
-      uri: client.getDataUrl('doc', ids.join(',')),
-      json: true,
+      url: client.getDataUrl('doc', ids.join(',')),
       tag: options?.tag,
     }
 
