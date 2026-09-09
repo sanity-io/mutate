@@ -35,8 +35,7 @@ export function shareReplayLatest<T>(
  */
 export function shareReplayLatest<T>(
   configOrPredicate:
-    | ShareReplayLatestConfig<T>
-    | ShareReplayLatestConfig<T>['predicate'],
+    ShareReplayLatestConfig<T> | ShareReplayLatestConfig<T>['predicate'],
   config?: ShareConfig<T>,
 ) {
   return _shareReplayLatest(

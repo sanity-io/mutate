@@ -48,9 +48,7 @@ export type ListenerEndpointEvent =
   | ListenerDisconnectEvent
 
 export type ListenerEvent<Doc extends SanityDocumentBase = SanityDocumentBase> =
-  | ListenerSyncEvent<Doc>
-  | ListenerMutationEvent
-  | ListenerReconnectEvent
+  ListenerSyncEvent<Doc> | ListenerMutationEvent | ListenerReconnectEvent
 
 export interface OptimisticDocumentEvent {
   type: 'optimistic'
@@ -127,8 +125,7 @@ export interface TransactionalMutationGroup {
  * – Non-transactional means that they can be combined with other mutations
  */
 export type MutationGroup =
-  | NonTransactionalMutationGroup
-  | TransactionalMutationGroup
+  NonTransactionalMutationGroup | TransactionalMutationGroup
 
 /**
  * # Subscription requirement

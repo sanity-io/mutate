@@ -16,10 +16,7 @@ export type FormPatchPathIndexTuple = [number | '', number | '']
  * @deprecated
  */
 export type FormPatchPathSegment =
-  | string
-  | number
-  | FormPatchPathKeyedSegment
-  | FormPatchPathIndexTuple
+  string | number | FormPatchPathKeyedSegment | FormPatchPathIndexTuple
 
 /**
  * @deprecated

@@ -73,8 +73,7 @@ test('typings', () => {
   // Ok, since the array is declared as (number|string)[]
   expectTypeOf<(number | string)[]>(
     applyOp(insert([1, 2, 3], 'after', 0), ['Not a number'] as (
-      | number
-      | string
+      number | string
     )[]),
   )
 
