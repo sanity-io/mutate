@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.2](https://github.com/sanity-io/mutate/compare/mutate-v0.18.1...mutate-v0.18.2) (2026-09-09)
+
+
+### Bug Fixes
+
+* **deps:** upgrade Sanity client to v8 ([#136](https://github.com/sanity-io/mutate/issues/136)) ([e9be25b](https://github.com/sanity-io/mutate/commit/e9be25b6d87b58c84f961891d39914bd30f4deb6))
+
 ## [0.18.1](https://github.com/sanity-io/mutate/compare/mutate-v0.18.0...mutate-v0.18.1) (2026-06-11)
 
 
