@@ -9,7 +9,7 @@
     "start": "vite dev"
   },
   "dependencies": {
-    "@sanity/client": "^7.22.0",
+    "@sanity/client": "^8.6.1",
     "@sanity/icons": "^3.7.4",
     "@sanity/mutate": "workspace:^",
     "@sanity/sanitype": "^0.6.2",
