@@ -17,7 +17,6 @@ export interface InaccessibleDocumentResult {
 }
 
 export type DocumentResult =
-  | AccessibleDocumentResult
-  | InaccessibleDocumentResult
+  AccessibleDocumentResult | InaccessibleDocumentResult
 
 export type DocumentLoader = (documentIds: string) => Observable<DocumentResult>

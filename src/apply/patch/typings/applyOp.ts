@@ -189,10 +189,9 @@ export type ApplyOp<O extends Operation, Current> = Current extends never
                     : Current
                   : O extends UnassignOp<infer U>
                     ? {
-                        [K in keyof Current as Exclude<
-                          K,
-                          ArrayElement<U>
-                        >]: Current[K]
+                        [
+                          K in keyof Current as Exclude<K, ArrayElement<U>>
+                        ]: Current[K]
                       }
                     : O extends DiffMatchPatchOp
                       ? string

@@ -7,9 +7,7 @@ import {
   createSharedListenerFromClient,
 } from '@sanity/mutate/_unstable_store'
 
-const client = createClient({
-  /* client config */
-})
+const client = createClient({/* client config */})
 
 // Create a document loader (data loader that will batch requests for individual documents)
 const loadDocument = createDocumentLoaderFromClient(client)

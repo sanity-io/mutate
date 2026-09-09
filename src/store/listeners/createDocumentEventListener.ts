@@ -69,12 +69,10 @@ export function createDocumentEventListener(options: {
               }
               return undefined
             }),
-            map(
-              (doc: undefined | Doc): ListenerSyncEvent<Doc> => ({
-                type: 'sync',
-                document: doc,
-              }),
-            ),
+            map((doc: undefined | Doc): ListenerSyncEvent<Doc> => ({
+              type: 'sync',
+              document: doc,
+            })),
           )
         }
         // ignore unknown events

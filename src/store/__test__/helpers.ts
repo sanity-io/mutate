@@ -11,9 +11,7 @@ export type NextNotification<T> = {kind: 'NEXT'; value: T}
 export type ErrorNotification = {kind: 'ERROR'; error: unknown}
 export type CompleteNotification = {kind: 'COMPLETE'}
 export type Notification<T> =
-  | NextNotification<T>
-  | ErrorNotification
-  | CompleteNotification
+  NextNotification<T> | ErrorNotification | CompleteNotification
 
 export function collectNotifications<T>(observable: Observable<T>) {
   const notifications: Notification<T>[] = []

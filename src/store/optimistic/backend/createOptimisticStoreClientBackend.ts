@@ -1,7 +1,8 @@
 import {
   type BaseMutationOptions,
+  type ListenOptions,
   type QueryParams,
-  type RequestOptions,
+  type RawRequestOptions,
 } from '@sanity/client'
 import {from, type Observable} from 'rxjs'
 
@@ -20,11 +21,11 @@ export interface SanityClientLike {
     options?: BaseMutationOptions,
   ): Promise<SubmitResult>
   getDataUrl(doc: string, s: string): string
-  observable: {request<T>(options: RequestOptions): Observable<T>}
+  observable: {request<T>(options: RawRequestOptions): Observable<T>}
   listen(
     query: string,
     queryParams: QueryParams,
-    request: RequestOptions,
+    request: ListenOptions,
   ): Observable<ListenerEndpointEvent>
 }
 

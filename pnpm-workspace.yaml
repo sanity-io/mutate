@@ -12,5 +12,6 @@ allowBuilds:
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@sanity/*'
+  - 'get-it'
   - 'groq-js'
   - 'react-multiplayer-input'
