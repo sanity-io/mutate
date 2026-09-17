@@ -1,9 +1,9 @@
 import {type SanityClient} from '@sanity/client'
-import {sortedIndex} from 'lodash'
 import {type Observable, of} from 'rxjs'
 import {filter, map, mergeMap, scan} from 'rxjs/operators'
 
 import {type ListenerEndpointEvent, type QueryParams} from '../types'
+import {sortedIndex} from '../utils/arrayUtils'
 
 export type DocumentIdSetState = {
   status: 'connecting' | 'reconnecting' | 'connected'
@@ -165,14 +165,18 @@ export function toState(options: {insert?: InsertMethod} = {}) {
     )
 }
 
-function insert<T>(array: T[], element: T, strategy: InsertMethod): T[] {
+function insert(
+  array: string[],
+  element: string,
+  strategy: InsertMethod,
+): string[] {
   let index: number
   if (strategy === 'prepend') {
     index = 0
   } else if (strategy === 'append') {
     index = array.length
   } else {
-    index = sortedIndex(array, element) as number
+    index = sortedIndex(array, element)
   }
 
   return array.toSpliced(index, 0, element)
