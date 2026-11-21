@@ -15,3 +15,5 @@ minimumReleaseAgeExclude:
   - 'get-it'
   - 'groq-js'
   - 'react-multiplayer-input'
+  # Renovate security update: vitest@4.1.11
+  - vitest@4.1.11
