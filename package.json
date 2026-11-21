@@ -88,7 +88,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@sanity/pkg-utils": "^10.5.4",
+    "@sanity/pkg-utils": "^11.0.17",
     "@sanity/prettier-config": "^3.0.0",
     "@types/diff-match-patch": "^1.0.36",
     "@typescript-eslint/parser": "^8.59.2",
