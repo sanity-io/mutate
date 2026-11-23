@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.18.3](https://github.com/sanity-io/mutate/compare/mutate-v0.18.2...mutate-v0.18.3) (2026-11-23)
+
+
+### Bug Fixes
+
+* **deps:** update @sanity/client, nanoid and other runtime dependencies ([#144](https://github.com/sanity-io/mutate/issues/144)) ([8b9a234](https://github.com/sanity-io/mutate/commit/8b9a23403ad45e046f9ecda7691b0904ddb4066f))
+* **deps:** update mendoza to v4 ([#142](https://github.com/sanity-io/mutate/issues/142)) ([2fce883](https://github.com/sanity-io/mutate/commit/2fce883361fd401ecbbc6df62be2456d681eb2ad))
+* **deps:** update non-major ([#151](https://github.com/sanity-io/mutate/issues/151)) ([794d76c](https://github.com/sanity-io/mutate/commit/794d76c980537cb95842a1c33e82051a1261349c))
+
+
+### Performance Improvements
+
+* drop lodash and fix the path isEqual comparator ([#135](https://github.com/sanity-io/mutate/issues/135)) ([03f3368](https://github.com/sanity-io/mutate/commit/03f33686131e8170dd36d1f157dd95d352a90354))
+
 ## [0.18.2](https://github.com/sanity-io/mutate/compare/mutate-v0.18.1...mutate-v0.18.2) (2026-09-09)
 
 
