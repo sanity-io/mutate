@@ -22,7 +22,7 @@ export type FieldProps<Schema extends SanityAny> = {
   renderInput: <T extends InputProps<SanityAny>>(props: T) => ReactNode
 }
 
-export const Field = memo(function Field<Schema extends SanityType>(
+export const Field = memo(function FieldComponent<Schema extends SanityType>(
   props: FieldProps<Schema>,
 ) {
   const {schema, name, value, renderInput, onPatch, path, options} = props
