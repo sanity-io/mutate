@@ -25,7 +25,7 @@ export function ObjectInput<T extends SanityObject>(props: InputProps<T>) {
   )
   return (
     <Card paddingLeft={3} borderLeft>
-      <Stack space={4}>
+      <Stack gap={4}>
         {Object.entries(props.form.fields).map(([fieldName, fieldOptions]) => {
           return (
             <Field

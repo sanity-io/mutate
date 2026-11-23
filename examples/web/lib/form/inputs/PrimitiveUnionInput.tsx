@@ -19,11 +19,11 @@ export function PrimitiveUnionInput(props: InputProps<SanityPrimitiveUnion>) {
   const literalTypes = schema.union.filter(isLiteralSchema)
   // todo: support non-literal primitives
   return (
-    <Stack space={3}>
+    <Stack gap={3}>
       <Flex align="center" gap={2}>
         <Select
           value={String(value) || ''}
-          space={[3, 3, 4]}
+          gap={[3, 3, 4]}
           onChange={e => handleReplaceType(e.currentTarget.value)}
         >
           <option value="">{value ? '' : 'Select…'}</option>

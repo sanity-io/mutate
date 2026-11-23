@@ -1,3 +1,5 @@
+import '@sanity/ui/styles.css'
+
 import {studioTheme, ThemeProvider} from '@sanity/ui'
 import {lazy, Suspense, useState, useSyncExternalStore} from 'react'
 import {createRoot} from 'react-dom/client'

@@ -141,7 +141,7 @@ function FormNodeComponent<Schema extends SanityDocument>(
   })
 
   return (
-    <Stack space={3}>
+    <Stack gap={3}>
       <label>
         <Text size={1} weight="semibold">
           {last?.form?.title}

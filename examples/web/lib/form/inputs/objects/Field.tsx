@@ -44,7 +44,7 @@ export const Field = memo(function FieldComponent<Schema extends SanityType>(
     [handlePatch, name, options, path, renderInput, schema, value],
   )
   return (
-    <Stack space={3}>
+    <Stack gap={3}>
       <label>
         <Text size={1} weight="semibold">
           {options.title}

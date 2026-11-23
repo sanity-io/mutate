@@ -299,7 +299,6 @@ function App(props: {inspect: InspectType}) {
     <>
       <Card
         flex={2}
-        width={3}
         padding={3}
         border
         radius={4}
@@ -307,8 +306,8 @@ function App(props: {inspect: InspectType}) {
         tone="transparent"
         style={{gridArea: 'editor'}}
       >
-        <Stack space={3}>
-          <TabList space={2}>
+        <Stack gap={3}>
+          <TabList gap={2}>
             {DOCUMENT_IDS.map(id => (
               <Tab
                 key={id}
@@ -409,9 +408,9 @@ function DocumentTabPanelContent(props: {
   }
 
   return (
-    <Stack space={3}>
+    <Stack gap={3}>
       <Card padding={3} shadow={1} radius={3}>
-        <Stack flex={1} space={3}>
+        <Stack flex={1} gap={3}>
           <FormNode
             path={[]}
             // @ts-expect-error figure out the typings issue later
@@ -458,7 +457,7 @@ function DocumentTabJsonView(props: {
   const deferredLocal = useDeferredValue(local)
 
   return (
-    <Flex size={2} gap={2}>
+    <Flex gap={2}>
       <Box flex={2}>
         <DocumentView
           // @ts-expect-error figure out the typings issue later
@@ -484,18 +483,18 @@ function StagedMutations(props: {
       radius={4}
       style={{gridArea: 'staged', position: 'relative'}}
     >
-      <Stack space={4} paddingX={4} paddingTop={4} height="fill">
+      <Stack gap={4} paddingX={4} paddingTop={4} height="fill">
         <Heading size={1} textOverflow="ellipsis">
           Staged mutations
         </Heading>
         <ScrollBack
-          space={5}
+          gap={5}
           height="fill"
           overflow="auto"
           style={{maxHeight: '20vh'}}
         >
           {staged.map((e, i) => (
-            <Stack key={i} space={4}>
+            <Stack key={i} gap={4}>
               {e.mutations.map((m, mi) => (
                 <Flex key={mi} gap={3} align="center">
                   <FormatMutation mutation={m} />
@@ -543,10 +542,10 @@ function RemoteLogEntries(props: {
   const {remoteLogEntries} = props
   return (
     <Card flex={1} border radius={4} style={{gridArea: 'remote'}}>
-      <Stack space={4} paddingX={4} paddingTop={4} height="fill">
+      <Stack gap={4} paddingX={4} paddingTop={4} height="fill">
         <Heading size={1}>Remote patches</Heading>
         <ScrollBack
-          space={4}
+          gap={4}
           height="fill"
           overflow="auto"
           style={{maxHeight: '20vh'}}
@@ -554,7 +553,7 @@ function RemoteLogEntries(props: {
           {remoteLogEntries.length > 0 && (
             <Grid
               gap={3}
-              columns={3}
+              gridTemplateColumns={3}
               style={{gridTemplateColumns: 'min-content max-content 1fr'}}
             >
               {remoteLogEntries.map((e, i) => (

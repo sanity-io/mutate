@@ -30,7 +30,7 @@ export function DocumentView<Doc extends SanityDocumentBase>(
       <Flex gap={2}>
         {local && (
           <Card flex={1} padding={4} shadow={2} radius={2} overflow="auto">
-            <Stack space={4}>
+            <Stack gap={4}>
               <Heading size={1}>Local</Heading>
               <Text size={1}>
                 <JsonView value={local} />
@@ -40,7 +40,7 @@ export function DocumentView<Doc extends SanityDocumentBase>(
         )}
         {remote && (
           <Card flex={1} padding={4} shadow={2} radius={2} overflow="auto">
-            <Stack space={4}>
+            <Stack gap={4}>
               <Heading size={1}>Remote</Heading>
               <Text size={1}>
                 <JsonView value={remote} />
@@ -53,7 +53,7 @@ export function DocumentView<Doc extends SanityDocumentBase>(
   }
   return (
     <Stack padding={2} margin={2}>
-      <TabList space={2} margin={2} padding={2}>
+      <TabList gap={2} margin={2} padding={2}>
         {TABS.map(tab => (
           <Tab
             key={tab.id}
@@ -74,7 +74,7 @@ export function DocumentView<Doc extends SanityDocumentBase>(
           hidden={tab.id !== tabId}
           id={`tab-${tab.id}-panel`}
         >
-          <Stack flex={1} space={3}>
+          <Stack flex={1} gap={3}>
             {tabs[tab.id]()}
           </Stack>
         </TabPanel>

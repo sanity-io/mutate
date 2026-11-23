@@ -1,5 +1,6 @@
 import {createClient} from '@sanity/client'
-import {PauseIcon, PlayIcon} from '@sanity/icons'
+import {PauseIcon} from '@sanity/icons/Pause'
+import {PlayIcon} from '@sanity/icons/Play'
 import {createIfNotExists, del, type Mutation, type Path} from '@sanity/mutate'
 import {
   createOptimisticStore,
@@ -252,13 +253,13 @@ function App() {
     handleMutate([del(documentId)])
   }, [handleMutate, documentId])
   return (
-    <Card width="fill" height="fill" padding={2}>
-      <Stack space={3}>
-        <Stack space={3}>
-          <Flex size={2} gap={2}>
-            <Card flex={2} width={3} padding={3} shadow={2} radius={2}>
-              <Stack space={3}>
-                <TabList space={2}>
+    <Card height="fill" padding={2}>
+      <Stack gap={3}>
+        <Stack gap={3}>
+          <Flex gap={2}>
+            <Card flex={2} padding={3} shadow={2} radius={2}>
+              <Stack gap={3}>
+                <TabList gap={2}>
                   {DOCUMENT_IDS.map(id => (
                     <Tab
                       key={id}
@@ -308,7 +309,7 @@ function App() {
                     id={`tab-${id}-panel`}
                   >
                     <Card padding={3} shadow={1} radius={2}>
-                      <Stack flex={1} space={3}>
+                      <Stack flex={1} gap={3}>
                         <FormNode
                           path={
                             attention.id === documentId ? attention.path : []
@@ -328,7 +329,7 @@ function App() {
                               isEqual(typing?.path, inputProps.path)
 
                             return (
-                              <Stack space={1}>
+                              <Stack gap={1}>
                                 <Flex>
                                   <Box flex={1}>
                                     {renderInput(
@@ -380,9 +381,9 @@ function App() {
               </Stack>
             </Card>
           </Flex>
-          <Flex size={2} gap={2}>
+          <Flex gap={2}>
             <Card flex={1} shadow={2} radius={2} height="fill" overflow="auto">
-              <Stack space={4} height="fill">
+              <Stack gap={4} height="fill">
                 <Flex align="center" justify="center">
                   <Box flex={1}>
                     <Heading size={1} textOverflow="ellipsis">
@@ -430,13 +431,13 @@ function App() {
                   </Flex>
                 </Flex>
                 <ScrollBack
-                  space={5}
+                  gap={5}
                   height="fill"
                   overflow="auto"
                   style={{height: 200}}
                 >
                   {staged.map((e, i) => (
-                    <Stack key={i} space={4}>
+                    <Stack key={i} gap={4}>
                       {e.mutations.map((m, mi) => (
                         <Flex key={mi} gap={3} align="center">
                           <FormatMutation mutation={m} />
@@ -449,12 +450,12 @@ function App() {
               </Stack>
             </Card>
             <Card flex={1} shadow={2} radius={2} height="fill">
-              <Stack space={4} padding={4} height="fill">
+              <Stack gap={4} padding={4} height="fill">
                 <Heading size={1}>Remote patches</Heading>
-                <ScrollBack space={4} style={{height: 200}}>
+                <ScrollBack gap={4} style={{height: 200}}>
                   <Grid
                     gap={3}
-                    columns={3}
+                    gridTemplateColumns={3}
                     style={{gridTemplateColumns: '1fr 2fr 5fr'}}
                   >
                     {remoteLogEntries.map((e, i) => (

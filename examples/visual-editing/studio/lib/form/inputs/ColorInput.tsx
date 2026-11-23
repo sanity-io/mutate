@@ -36,7 +36,7 @@ export function ColorInput(props: InputProps<SanityString>) {
   const presetId = useId()
 
   return (
-    <Inline space={2}>
+    <Inline gap={2}>
       <StyledColorInput
         id={inputId}
         value={value || ''}

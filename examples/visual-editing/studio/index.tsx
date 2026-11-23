@@ -72,7 +72,12 @@ export default function Studio(props: {debug: boolean}) {
           </Card>
           {(createdInspector || !debug) && <App inspect={inspect} />}
           {debug && (
-            <Grid cols={1} rows={2} gap={2} style={{gridArea: 'inspect'}}>
+            <Grid
+              gridTemplateColumns={1}
+              gridTemplateRows={2}
+              gap={2}
+              style={{gridArea: 'inspect'}}
+            >
               <Card radius={4} border>
                 <Iframe ref={parentInspectorIframeRef} />
               </Card>
