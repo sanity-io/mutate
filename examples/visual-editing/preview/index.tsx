@@ -66,7 +66,6 @@ export default function Preview(props: {debug: boolean}) {
         )}
         <StyledCanvas
           shadows
-          // @ts-expect-error this is fine
           eventSource={eventSourceRef}
           camera={{position: [0, 0, 4], fov: 45}}
         >
