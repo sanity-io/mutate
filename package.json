@@ -1,6 +1,6 @@
 {
   "name": "@sanity/mutate",
-  "version": "0.18.2",
+  "version": "0.18.3",
   "description": "Experimental toolkit for working with Sanity mutations in JavaScript & TypeScript",
   "keywords": [
     "sanity",
@@ -101,7 +101,7 @@
     "eslint-plugin-simple-import-sort": "^14.0.0",
     "eslint-plugin-unused-imports": "^4.4.1",
     "lefthook": "^2.2.2",
-    "npm-run-all2": "^9.0.4",
+    "npm-run-all2": "^9.1.0",
     "prettier": "^3.10.1",
     "prettier-plugin-packagejson": "^3.1.0",
     "rimraf": "^6.1.4",
@@ -113,7 +113,7 @@
     "xstate": "^5.33.4"
   },
   "peerDependencies": {
-    "xstate": "^5.19.0"
+    "xstate": "^5.33.4"
   },
   "peerDependenciesMeta": {
     "xstate": {
