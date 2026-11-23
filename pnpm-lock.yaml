@@ -24,8 +24,8 @@ importers:
         specifier: ^1.0.13
         version: 1.0.13
       mendoza:
-        specifier: ^3.0.8
-        version: 3.0.8
+        specifier: ^4.0.0
+        version: 4.0.0
       nanoid:
         specifier: ^5.1.11
         version: 5.1.11
@@ -181,8 +181,8 @@ importers:
         specifier: ^4.18.1
         version: 4.18.1
       mendoza:
-        specifier: ^3.0.8
-        version: 3.0.8
+        specifier: ^4.0.0
+        version: 4.0.0
       nice-color-palettes:
         specifier: ^4.0.0
         version: 4.0.0
@@ -3330,9 +3330,9 @@ packages:
     resolution: {integrity: sha512-S3UwM3yj5mtUSEfP41UZmt/0SCoVYUcU1rkXv+BQ5Ig8ndL4sPoJNBUJERafdPb5jjHJGuMgytgKvKIf58XNBw==}
     engines: {node: '>= 0.10.0'}
 
-  mendoza@3.0.8:
-    resolution: {integrity: sha512-iwxgEpSOx9BDLJMD0JAzNicqo9xdrvzt6w/aVwBKMndlA6z/DH41+o60H2uHB0vCR1Xr37UOgu9xFWJHvYsuKw==}
-    engines: {node: '>=14.18'}
+  mendoza@4.0.0:
+    resolution: {integrity: sha512-VwauCbKKTKnKDNe3qXe5PPFQ1derZrYAWatFz2HnzHBeaArfnPOZ2q6M16I7UWIIF3/BeT1MbKNeFDTU3TyseA==}
+    engines: {node: '>=22.12.0'}
 
   merge2@1.4.1:
     resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
@@ -7731,7 +7731,7 @@ snapshots:
 
   memorystream@0.3.1: {}
 
-  mendoza@3.0.8: {}
+  mendoza@4.0.0: {}
 
   merge2@1.4.1: {}
 
