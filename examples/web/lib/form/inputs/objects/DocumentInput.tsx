@@ -21,7 +21,7 @@ export function DocumentInput<T extends SanityDocument>(
     [onMutation, value._id],
   )
   return (
-    <Stack space={4}>
+    <Stack gap={4}>
       {Object.entries(props.form.fields).map(([fieldName, fieldOptions]) => {
         return (
           <Field

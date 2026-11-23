@@ -1,3 +1,5 @@
+import '@sanity/ui/styles.css'
+
 import {studioTheme, ThemeProvider} from '@sanity/ui'
 import {type ReactNode} from 'react'
 

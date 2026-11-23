@@ -1,4 +1,6 @@
-import {EllipsisVerticalIcon, TransferIcon, TrashIcon} from '@sanity/icons'
+import {EllipsisVerticalIcon} from '@sanity/icons/EllipsisVertical'
+import {TransferIcon} from '@sanity/icons/Transfer'
+import {TrashIcon} from '@sanity/icons/Trash'
 import {assign, at, set, unset} from '@sanity/mutate'
 import {
   getInstanceName,
@@ -7,21 +9,15 @@ import {
   pickDeep,
   type SanityObjectUnion,
 } from '@sanity/sanitype'
+import {Box, Button, Card, Flex, Select, Stack, Text} from '@sanity/ui'
 import {
-  Box,
-  Button,
-  Card,
-  Flex,
   Menu,
   MenuButton,
   type MenuButtonProps,
   MenuDivider,
   MenuGroup,
   MenuItem,
-  Select,
-  Stack,
-  Text,
-} from '@sanity/ui'
+} from '@sanity/ui/menu'
 import {startCase} from 'lodash'
 import {useCallback} from 'react'
 
@@ -121,7 +117,7 @@ export function UnionInput(props: InputProps<SanityObjectUnion>) {
   const unionTypes = schema.union
   const otherTypes = unionTypes.filter(u => u !== currentSchema)
   return (
-    <Stack space={3} marginLeft={2}>
+    <Stack gap={3} marginLeft={2}>
       <Flex>
         <Card padding={1} shadow={1} radius={2}>
           <Flex align="center" gap={2}>

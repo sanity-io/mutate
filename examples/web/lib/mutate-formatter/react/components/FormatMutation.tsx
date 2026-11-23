@@ -38,7 +38,7 @@ export function FormatMutation(props: FormatMutationProps) {
     const ifRevision = mutation.options?.ifRevision
     return (
       <>
-        <Stack space={3}>
+        <Stack gap={3}>
           <Flex gap={2} align="center">
             <Inline>
               <Text size={1} weight="semibold">

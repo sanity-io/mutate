@@ -215,7 +215,7 @@ function Picker({
       }}
       paddingX={3}
       paddingTop={2}
-      space={4}
+      gap={4}
     >
       <HexColorPicker
         className="picker"
