@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.4](https://github.com/sanity-io/mutate/compare/mutate-v0.18.3...mutate-v0.18.4) (2026-11-23)
+
+
+### Bug Fixes
+
+* **deps:** update dependency mendoza to v6 ([#153](https://github.com/sanity-io/mutate/issues/153)) ([f28d0fa](https://github.com/sanity-io/mutate/commit/f28d0fac25a3eb060c178be432d6ead42b86cac9))
+
 ## [0.18.3](https://github.com/sanity-io/mutate/compare/mutate-v0.18.2...mutate-v0.18.3) (2026-11-23)
 
 
