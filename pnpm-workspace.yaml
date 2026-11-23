@@ -14,5 +14,6 @@ minimumReleaseAgeExclude:
   - '@sanity/*'
   - 'get-it'
   - 'groq-js'
+  - 'mendoza'
   - 'npm-run-all2'
   - 'react-multiplayer-input'

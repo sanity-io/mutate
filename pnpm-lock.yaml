@@ -24,8 +24,8 @@ importers:
         specifier: ^1.0.13
         version: 1.0.13
       mendoza:
-        specifier: ^4.0.0
-        version: 4.0.0
+        specifier: ^6.0.0
+        version: 6.0.0
       nanoid:
         specifier: ^6.0.2
         version: 6.0.2
@@ -178,8 +178,8 @@ importers:
         specifier: ^4.18.1
         version: 4.18.1
       mendoza:
-        specifier: ^4.0.0
-        version: 4.0.0
+        specifier: ^6.0.0
+        version: 6.0.0
       nice-color-palettes:
         specifier: ^4.0.0
         version: 4.0.0
@@ -3015,8 +3015,8 @@ packages:
   mdurl@2.1.0:
     resolution: {integrity: sha512-1+HBaOx0zi/dQWht8rNv9MYf9qqpqL/kxI0hXImU6Y547zM6Sni8BQibt7ifgMcYtQg41ao3Ivd6cnSM86inpg==}
 
-  mendoza@4.0.0:
-    resolution: {integrity: sha512-VwauCbKKTKnKDNe3qXe5PPFQ1derZrYAWatFz2HnzHBeaArfnPOZ2q6M16I7UWIIF3/BeT1MbKNeFDTU3TyseA==}
+  mendoza@6.0.0:
+    resolution: {integrity: sha512-hgHqpcF6iAB7M49nCrfmWZJMYssEXBgXTgIB9VIp3UxE9HCnAjziu3fHhQesaqvgzOwpddeNMqat/JzNiZjJPQ==}
     engines: {node: '>=22.12.0'}
 
   meow@13.2.0:
@@ -7070,7 +7070,7 @@ snapshots:
 
   mdurl@2.1.0: {}
 
-  mendoza@4.0.0: {}
+  mendoza@6.0.0: {}
 
   meow@13.2.0: {}
 
