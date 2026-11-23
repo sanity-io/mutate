@@ -14,7 +14,7 @@ import {type InputProps} from '../types'
 const MultiplayerTextInput = createMultiplayerInput(TextInput)
 const MultiplayerTextArea = createMultiplayerInput(TextArea)
 
-export const StringInput = forwardRef(function StringInput(
+export const StringInput = forwardRef(function StringInputRender(
   props: InputProps<SanityString>,
   forwardedRef: ForwardedRef<HTMLInputElement | HTMLTextAreaElement>,
 ) {

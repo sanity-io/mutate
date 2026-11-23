@@ -11,7 +11,7 @@ const asMesh = (node: unknown) => node as Mesh
 export const AirmaxModel = forwardRef<
   Group<Object3DEventMap>,
   {model: Infer<typeof airmax>}
->(function AirmaxModel(props, forwardedRef) {
+>(function AirmaxModelRender(props, forwardedRef) {
   const {model} = props
   const {nodes, materials} = useGLTF('/shoe-airmax.glb')
 
@@ -43,7 +43,7 @@ export const AirmaxModel = forwardRef<
 export const DunklowModel = forwardRef<
   Group<Object3DEventMap>,
   {model: Infer<typeof dunklow>}
->(function DunklowModel(props, forwardedRef) {
+>(function DunklowModelRender(props, forwardedRef) {
   const {model} = props
   const {nodes, materials} = useGLTF('/shoe-dunklow.glb')
 
@@ -210,7 +210,7 @@ export const DunklowModel = forwardRef<
 export const UltraboostModel = forwardRef<
   Group<Object3DEventMap>,
   {model: Infer<typeof ultraboost>}
->(function UltraboostModel(props, forwardedRef) {
+>(function UltraboostModelRender(props, forwardedRef) {
   const {model} = props
   const {nodes, materials} = useGLTF('/shoe-ultraboost.glb')
 
